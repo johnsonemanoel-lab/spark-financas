@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Spark Finanças</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #f8fafc; }
+    .glass { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .pulse-mic { animation: pulseRed 1.4s infinite; }
+    @keyframes pulseRed {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-wallet text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg leading-tight">Spark Finanças</h1>
+            <span id="sheet-link-badge" class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              ● Cloud Ativo
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Controle de Caixa & Provisões Out/26–Jan/27</p>
+        </div>
+      </div>
+
+      <!-- Seletor de Mês -->
+      <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
+        <button type="button" onclick="changeMonth('2026-10')" id="tab-2026-10" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white">Out/26</button>
+        <button type="button" onclick="changeMonth('2026-11')" id="tab-2026-11" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400">Nov/26</button>
+        <button type="button" onclick="changeMonth('2026-12')" id="tab-2026-12" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400">Dez/26</button>
+        <button type="button" onclick="changeMonth('2027-01')" id="tab-2027-01" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400">Jan/27</button>
+      </div>
+
+      <!-- Botões de Sincronização Segura -->
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="syncFromCloud(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3.5 py-2 rounded-lg border border-slate-700 transition">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Sincronizar
+        </button>
+        <button type="button" onclick="pushStateToCloud(true)" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3.5 py-2 rounded-lg border border-emerald-700 transition">
+          <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Salvar na Planilha
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- 1. Barra de Lançamento Rápido por Voz / IA -->
+    <section class="glass rounded-2xl p-5 shadow-xl border-l-4 border-l-emerald-500">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-microphone-lines"></i> Registro Inteligente por Voz ou Texto (IA)
+        </label>
+        <span id="last-sync-text" class="text-[11px] text-emerald-400">Conectando à Planilha...</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2.5">
+        <div class="relative flex-1">
+          <input
+            id="ai-input"
+            type="text"
+            placeholder='Toque no microfone 🎙️ e fale: "Comprei 50 de mercantil no cartão VR"'
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            onkeydown="if(event.key === 'Enter') processAIInput()"
+          />
+          <button
+            type="button"
+            id="mic-btn"
+            onclick="toggleSpeechRecognition()"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow"
+            title="Clique e fale o lançamento"
+          >
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+        </div>
+        <button
+          type="button"
+          onclick="processAIInput()"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition"
+        >
+          <i class="fa-solid fa-bolt"></i> Lançar e Salvar no BD
+        </button>
+      </div>
+
+      <div id="ai-feedback" class="hidden mt-3 p-3 rounded-xl text-xs border"></div>
+    </section>
+
+    <!-- 2. Cards de Resumo Consolidado -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass rounded-2xl p-4">
+        <div class="text-slate-400 text-xs mb-1">Saldo Próprio (Contas + Reservas)</div>
+        <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 56,31</div>
+        <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 56,31 | Reservas: R$ 0,00</div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="text-slate-400 text-xs mb-1">Entradas Pendentes (<span class="current-month-label">Outubro/2026</span>)</div>
+        <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 200,00</div>
+        <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Leandra: R$ 0,00 | VR: R$ 0,00 | Flash: R$ 0,00</div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Outubro/2026</span>)</div>
+        <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 30,00</div>
+        <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
+      </div>
+
+      <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
+        <div class="text-emerald-300 text-xs mb-1">Fechamento Livre Projetado</div>
+        <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 226,31</div>
+        <div id="kpi-projected-patrimony" class="text-[11px] text-emerald-300/80 mt-1">VR + Flash projetado: R$ 246,67</div>
+      </div>
+    </section>
+
+    <!-- 3. Saldos por Conta Bancária / Carteira -->
+    <section class="glass rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">
+          💳 Posição Atual das Contas, Reservas & Benefícios (VR / Flash)
+        </h2>
+        <span class="text-xs text-slate-400">Clique em qualquer card para ajustar o saldo manualmente</span>
+      </div>
+      <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
+    </section>
+
+    <!-- 4. SELETOR DE VISÃO: SAÍDAS | ENTRADAS | REGISTROS GERAIS -->
+    <section class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 p-2 rounded-2xl border border-slate-800">
+      <div class="grid grid-cols-3 gap-2 w-full">
+        <button
+          type="button"
+          id="view-btn-saidas"
+          onclick="changeView('saidas')"
+          class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg"
+        >
+          <i class="fa-solid fa-arrow-trend-down"></i> Saídas
+        </button>
+        <button
+          type="button"
+          id="view-btn-entradas"
+          onclick="changeView('entradas')"
+          class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60"
+        >
+          <i class="fa-solid fa-arrow-trend-up"></i> Entradas
+        </button>
+        <button
+          type="button"
+          id="view-btn-registros"
+          onclick="changeView('registros')"
+          class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60"
+        >
+          <i class="fa-solid fa-clock-rotate-left"></i> Registros Gerais
+        </button>
+      </div>
+    </section>
+
+    <!-- PAINEL 1: VISÃO DE SAÍDAS -->
+    <div id="panel-saidas" class="space-y-6">
+      <section class="glass rounded-2xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+              <i class="fa-solid fa-list-check"></i> Provisões de Saídas — <span class="current-month-label">Outubro/2026</span>
+            </h2>
+            <p class="text-xs text-slate-400">Clique em qualquer provisão para editar Orçado/Pendente ou crie uma nova.</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700">
+              + Nova Provisão
+            </button>
+            <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
+              + Lançar Saída Manual
+            </button>
+          </div>
+        </div>
+        <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <section class="glass rounded-2xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+              <i class="fa-solid fa-receipt"></i> Saídas Já Registradas em <span class="current-month-label">Outubro/2026</span>
+            </h2>
+            <p class="text-xs text-slate-400">Histórico exclusivo de pagamentos e despesas deste mês</p>
+          </div>
+          <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
+            Total: R$ 0,00
+          </span>
+        </div>
+        <div id="saidas-transactions-list" class="space-y-2.5"></div>
+      </section>
+    </div>
+
+    <!-- PAINEL 2: VISÃO DE ENTRADAS -->
+    <div id="panel-entradas" class="hidden space-y-6">
+      <section class="glass rounded-2xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
+              <i class="fa-solid fa-calendar-check"></i> Previsões de Entradas — <span class="current-month-label">Outubro/2026</span>
+            </h2>
+            <p class="text-xs text-slate-400">Clique em qualquer previsão de entrada para editar valores ou adicione uma nova.</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" onclick="openPlanItemModal('income', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3 py-1.5 rounded-lg border border-slate-700">
+              + Nova Previsão
+            </button>
+            <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
+              + Lançar Entrada Manual
+            </button>
+          </div>
+        </div>
+        <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <section class="glass rounded-2xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+              <i class="fa-solid fa-sack-dollar"></i> Entradas Já Registradas em <span class="current-month-label">Outubro/2026</span>
+            </h2>
+            <p class="text-xs text-slate-400">Histórico exclusivo de recebimentos e créditos deste mês</p>
+          </div>
+          <span id="entradas-month-total" class="text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-3 py-1 rounded-lg">
+            Total: R$ 0,00
+          </span>
+        </div>
+        <div id="entradas-transactions-list" class="space-y-2.5"></div>
+      </section>
+    </div>
+
+    <!-- PAINEL 3: VISÃO DE REGISTROS GERAIS -->
+    <div id="panel-registros" class="hidden space-y-6">
+      <section class="glass rounded-2xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left"></i> Histórico Geral de Registros — <span class="current-month-label">Outubro/2026</span>
+            </h2>
+            <p class="text-xs text-slate-400">Todos os lançamentos de entradas e saídas. Clique em ✏️ para editar ou 🗑️ para excluir e estornar.</p>
+          </div>
+          <span id="tx-count" class="text-xs bg-slate-800 px-3 py-1 rounded-lg text-slate-300 border border-slate-700">0 registros</span>
+        </div>
+        <div id="transactions-list" class="space-y-2.5"></div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Modal Lançamento Manual / Edição de Transação -->
+  <div id="manual-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
+    <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="manual-modal-title" class="font-bold text-base">Novo Lançamento</h3>
+        <button type="button" onclick="closeManualModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <input type="hidden" id="edit-tx-id" value="" />
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Tipo de Operação</label>
+          <select id="manual-type" onchange="populateCategorySelect()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            <option value="saida">Saída / Pagamento (-)</option>
+            <option value="entrada">Entrada / Recebimento (+)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Descrição</label>
+          <input id="manual-desc" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Ex: Compra de Mercantil" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Valor (R$)</label>
+            <input id="manual-amount" type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="0.00" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Conta Movimentada</label>
+            <select id="manual-account" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              <option value="mp_livre">Mercado Pago (Livre)</option>
+              <option value="itau">Itaú</option>
+              <option value="especie">Dinheiro Físico</option>
+              <option value="vr">Cartão VR (VA)</option>
+              <option value="flash">Cartão Flash (VT)</option>
+              <option value="leandra">Saldo c/ Leandra</option>
+              <option value="res_oferta">Reserva Oferta MP</option>
+              <option value="res_lifegroup">Reserva Life Group MP</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Vincular à Provisão / Previsão do Mês</label>
+          <select id="manual-category" onchange="autoSelectReserveAccount()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></select>
+        </div>
+        <button type="button" id="btn-save-modal" onclick="submitManualTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl mt-2">
+          Confirmar e Gravar no BD
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Editar ou Criar Previsão de Entrada / Provisão de Saída -->
+  <div id="plan-item-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
+    <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="plan-modal-title" class="font-bold text-base">Editar Previsão</h3>
+        <button type="button" onclick="closePlanItemModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <input type="hidden" id="plan-item-kind" value="income" />
+        <input type="hidden" id="plan-item-id" value="" />
+
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Nome / Descrição</label>
+          <input id="plan-item-name" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Ex: Reembolso Óculos Pai" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label id="lbl-plan-budgeted" class="block text-xs text-slate-400 mb-1">Valor Previsto/Orçado (R$)</label>
+            <input id="plan-item-budgeted" type="number" step="0.01" oninput="updatePlanExecutedPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="0.00" />
+          </div>
+          <div>
+            <label id="lbl-plan-remaining" class="block text-xs text-slate-400 mb-1">Valor Pendente/Restante (R$)</label>
+            <input id="plan-item-remaining" type="number" step="0.01" oninput="updatePlanExecutedPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div id="plan-executed-preview" class="text-xs bg-slate-900/80 border border-slate-800 rounded-lg p-2.5 text-slate-300">
+          Concluído/Recebido: R$ 0,00
+        </div>
+
+        <div id="plan-target-wrapper">
+          <label class="block text-xs text-slate-400 mb-1">Conta de Destino Padrão</label>
+          <select id="plan-item-target" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            <option value="mp_livre">Mercado Pago (Livre)</option>
+            <option value="itau">Itaú (Conta Corrente)</option>
+            <option value="especie">Dinheiro em Espécie</option>
+            <option value="vr">Cartão VR (VA)</option>
+            <option value="flash">Cartão Flash (VT)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Palavras-chave p/ Voz e IA (separadas por vírgula)</label>
+          <input id="plan-item-keywords" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300" placeholder="Ex: aluguel, inquilino" />
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btn-delete-plan-item" onclick="deletePlanItem()" class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 font-semibold px-4 py-2.5 rounded-xl text-xs">
+            🗑️ Excluir
+          </button>
+          <button type="button" onclick="savePlanItem()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl">
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // URL DA SUA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT (BANCO DE DADOS NA PLANILHA)
+    const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyQo-EhNJBaqyf-Zn9qS4JrE9WZJ5N7EhRXCOJZE7vqmzwJKb59CqX4hwO4GtxLO7wV/exec";
+
+    const INITIAL_STATE = {
+      currentMonth: '2026-10',
+      accounts: {
+        especie: { name: 'Dinheiro em Espécie', balance: 0.00, type: 'free' },
+        res_oferta: { name: 'Reserva MP (Oferta)', balance: 0.00, type: 'reserve' },
+        res_lifegroup: { name: 'Reserva MP (Life Group)', balance: 0.00, type: 'reserve' },
+        mp_livre: { name: 'Mercado Pago (Livre)', balance: 56.31, type: 'free' },
+        leandra: { name: 'A Repassar (Leandra)', balance: 0.00, type: 'receivable' },
+        vr: { name: 'Cartão VR (VA)', balance: 20.09, type: 'benefit' },
+        itau: { name: 'Itaú (Conta Corrente)', balance: 0.00, type: 'free' },
+        flash: { name: 'Cartão Flash (VT)', balance: 0.27, type: 'benefit' }
+      },
+      months: {
+        '2026-10': { label: 'Outubro/2026', incomes: [], provisions: [] },
+        '2026-11': { label: 'Novembro/2026', incomes: [], provisions: [] },
+        '2026-12': { label: 'Dezembro/2026', incomes: [], provisions: [] },
+        '2027-01': { label: 'Janeiro/2027', incomes: [], provisions: [] }
+      },
+      transactions: []
+    };
+
+    let state = JSON.parse(localStorage.getItem('spark_github_cache_v1')) || JSON.parse(JSON.stringify(INITIAL_STATE));
+    let currentView = 'saidas';
+    let isCloudLoaded = !!localStorage.getItem('spark_github_cache_v1');
+
+    function formatBRL(val) {
+      return 'R$ ' + Number(val || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function changeView(viewName) {
+      currentView = viewName;
+      ['saidas', 'entradas', 'registros'].forEach(v => {
+        const panel = document.getElementById('panel-' + v);
+        const btn = document.getElementById('view-btn-' + v);
+        if (v === viewName) {
+          panel.classList.remove('hidden');
+          if (v === 'saidas') btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg';
+          if (v === 'entradas') btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-sky-600 text-white shadow-lg';
+          if (v === 'registros') btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-purple-600 text-white shadow-lg';
+        } else {
+          panel.classList.add('hidden');
+          btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60';
+        }
+      });
+      renderAll();
+    }
+
+    function upgradeStateSchema() {
+      if (!state.accounts) return;
+      if (!state.accounts.vr) {
+        state.accounts.vr = { name: 'Cartão VR (VA)', balance: 0.00, type: 'benefit' };
+      }
+      if (state.accounts.flash) {
+        state.accounts.flash.name = 'Cartão Flash (VT)';
+      }
+      if (!state.transactions) state.transactions = [];
+      state.transactions.forEach((tx, idx) => {
+        if (!tx.id) tx.id = 'tx_' + Date.now() + '_' + idx;
+        if (!tx.month) tx.month = '2026-10';
+      });
+    }
+
+    // GRAVAÇÃO NA PLANILHA (COMPATÍVEL COM GITHUB PAGES E APPS SCRIPT)
+    async function pushStateToCloud(showMsg) {
+      if (!isCloudLoaded) {
+        showFeedback('⏳ Sincronizando seus dados atuais da planilha antes de salvar...', 'error');
+        await syncFromCloud(false);
+        return;
+      }
+      upgradeStateSchema();
+      localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
+      renderAll();
+
+      const syncLabel = document.getElementById('last-sync-text');
+      syncLabel.textContent = 'Gravando na planilha...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(() => {
+            const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            syncLabel.textContent = 'Salvo na Planilha às ' + now;
+            if (showMsg) showFeedback('✅ Dados gravados com sucesso na sua Planilha Google!', 'success');
+          })
+          .saveFullState(state);
+        return;
+      }
+
+      try {
+        await fetch(SHEETS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'sync_state', state: state })
+        });
+        const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        syncLabel.textContent = 'Salvo na Planilha às ' + now;
+        if (showMsg) showFeedback('✅ Dados gravados com sucesso na sua Planilha Google!', 'success');
+      } catch (e) {
+        syncLabel.textContent = 'Salvo no aparelho (sem rede)';
+      }
+    }
+
+    // LEITURA DA PLANILHA (COMPATÍVEL COM GITHUB PAGES E APPS SCRIPT)
+    async function syncFromCloud(manual) {
+      const syncLabel = document.getElementById('last-sync-text');
+      syncLabel.textContent = 'Sincronizando com a Planilha...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler((remoteState) => {
+            isCloudLoaded = true;
+            if (remoteState && remoteState.accounts && remoteState.months) {
+              state = remoteState;
+              upgradeStateSchema();
+              localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
+              renderAll();
+              const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+              syncLabel.textContent = 'Sincronizado às ' + now;
+              if (manual) showFeedback('✅ Dados atualizados da Planilha!', 'success');
+            }
+          })
+          .getInitialStateFromSheet();
+        return;
+      }
+
+      try {
+        const res = await fetch(SHEETS_API_URL + '?mode=api&t=' + Date.now());
+        const data = await res.json();
+        isCloudLoaded = true;
+        if (data && data.status === 'ok' && data.state && data.state.accounts) {
+          state = data.state;
+          upgradeStateSchema();
+          localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
+          renderAll();
+          const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          syncLabel.textContent = 'Sincronizado às ' + now;
+          if (manual) showFeedback('✅ Dados carregados da sua Planilha Google!', 'success');
+        }
+      } catch (err) {
+        isCloudLoaded = true;
+        syncLabel.textContent = 'Pronto (Cache Local Ativo)';
+        if (manual) showFeedback('⚠️ Verifique se no Código.gs a função doGet retorna JSON e foi implantada como "Qualquer pessoa".', 'error');
+      }
+    }
+
+    function changeMonth(m) {
+      state.currentMonth = m;
+      renderAll();
+    }
+
+    function editAccountBalance(accKey) {
+      const acc = state.accounts[accKey];
+      const novo = prompt('Ajustar saldo atual de ' + acc.name + ' (R$):', acc.balance.toFixed(2).replace('.', ','));
+      if (novo !== null) {
+        const parsed = parseFloat(novo.replace(',', '.'));
+        if (!isNaN(parsed)) {
+          acc.balance = +parsed.toFixed(2);
+          if (accKey === 'res_lifegroup' && state.months['2026-10']) {
+            const p = state.months['2026-10'].provisions.find(x => x.id === 'lifegroup');
+            if (p) p.remaining = acc.balance;
+          } else if (accKey === 'res_oferta' && state.months['2026-10']) {
+            const p = state.months['2026-10'].provisions.find(x => x.id === 'oferta');
+            if (p) p.remaining = acc.balance;
+          } else if (accKey === 'leandra' && state.months['2026-10']) {
+            const incL = state.months['2026-10'].incomes.find(x => x.id === 'inc_leandra');
+            if (incL) incL.remaining = acc.balance;
+          }
+          pushStateToCloud(true);
+        }
+      }
+    }
+
+    function openPlanItemModal(kind, itemId) {
+      const monthData = state.months[state.currentMonth];
+      document.getElementById('plan-item-kind').value = kind;
+      document.getElementById('plan-item-id').value = itemId || '';
+
+      const targetWrapper = document.getElementById('plan-target-wrapper');
+      const deleteBtn = document.getElementById('btn-delete-plan-item');
+
+      if (kind === 'income') {
+        targetWrapper.classList.remove('hidden');
+        document.getElementById('lbl-plan-budgeted').textContent = 'Valor Previsto no Mês (R$)';
+        document.getElementById('lbl-plan-remaining').textContent = 'Pendente a Receber (R$)';
+      } else {
+        targetWrapper.classList.add('hidden');
+        document.getElementById('lbl-plan-budgeted').textContent = 'Orçamento Total (R$)';
+        document.getElementById('lbl-plan-remaining').textContent = 'Pendente a Pagar (R$)';
+      }
+
+      if (itemId) {
+        deleteBtn.classList.remove('hidden');
+        const list = kind === 'income' ? monthData.incomes : monthData.provisions;
+        const item = list.find(x => x.id === itemId);
+        if (!item) return;
+
+        document.getElementById('plan-modal-title').textContent = kind === 'income'
+          ? 'Editar Previsão de Entrada'
+          : 'Editar Provisão de Saída';
+        document.getElementById('plan-item-name').value = item.name;
+        document.getElementById('plan-item-budgeted').value = item.budgeted;
+        document.getElementById('plan-item-remaining').value = item.remaining;
+        document.getElementById('plan-item-keywords').value = (item.keywords || []).join(', ');
+        if (kind === 'income') {
+          document.getElementById('plan-item-target').value = item.target || 'mp_livre';
+        }
+      } else {
+        deleteBtn.classList.add('hidden');
+        document.getElementById('plan-modal-title').textContent = kind === 'income'
+          ? 'Nova Previsão de Entrada (' + monthData.label + ')'
+          : 'Nova Provisão de Saída (' + monthData.label + ')';
+        document.getElementById('plan-item-name').value = '';
+        document.getElementById('plan-item-budgeted').value = '';
+        document.getElementById('plan-item-remaining').value = '';
+        document.getElementById('plan-item-keywords').value = '';
+        document.getElementById('plan-item-target').value = 'mp_livre';
+      }
+
+      updatePlanExecutedPreview();
+      document.getElementById('plan-item-modal').classList.remove('hidden');
+      document.getElementById('plan-item-modal').classList.add('flex');
+    }
+
+    function updatePlanExecutedPreview() {
+      const kind = document.getElementById('plan-item-kind').value;
+      const budgeted = parseFloat(document.getElementById('plan-item-budgeted').value) || 0;
+      const remaining = parseFloat(document.getElementById('plan-item-remaining').value) || 0;
+      const executed = +(budgeted - remaining).toFixed(2);
+      const previewEl = document.getElementById('plan-executed-preview');
+
+      if (kind === 'income') {
+        previewEl.innerHTML = `Já Recebido no mês: <strong class="text-emerald-400">${formatBRL(Math.max(0, executed))}</strong> | Falta Entrar: <strong class="text-sky-400">${formatBRL(Math.max(0, remaining))}</strong>`;
+      } else {
+        if (remaining < 0) {
+          previewEl.innerHTML = `Total Gasto: <strong class="text-rose-400">${formatBRL(budgeted + Math.abs(remaining))}</strong> (<span class="text-rose-400">Excedido em +${formatBRL(Math.abs(remaining))}</span>)`;
+        } else {
+          previewEl.innerHTML = `Já Concluído/Pago: <strong class="text-emerald-400">${formatBRL(Math.max(0, executed))}</strong> | Pendente: <strong class="text-amber-400">${formatBRL(remaining)}</strong>`;
+        }
+      }
+    }
+
+    function closePlanItemModal() {
+      document.getElementById('plan-item-modal').classList.add('hidden');
+      document.getElementById('plan-item-modal').classList.remove('flex');
+    }
+
+    function savePlanItem() {
+      const kind = document.getElementById('plan-item-kind').value;
+      const itemId = document.getElementById('plan-item-id').value;
+      const name = document.getElementById('plan-item-name').value.trim();
+      const budgeted = parseFloat(document.getElementById('plan-item-budgeted').value);
+      const remaining = parseFloat(document.getElementById('plan-item-remaining').value);
+      const target = document.getElementById('plan-item-target').value;
+      const kwRaw = document.getElementById('plan-item-keywords').value;
+
+      if (!name || isNaN(budgeted) || isNaN(remaining)) {
+        alert('Preencha o nome, o valor previsto/orçado e o valor pendente.');
+        return;
+      }
+
+      const keywords = kwRaw
+        ? kwRaw.split(',').map(k => k.trim().toLowerCase()).filter(Boolean)
+        : [name.toLowerCase()];
+
+      const monthData = state.months[state.currentMonth];
+      const list = kind === 'income' ? monthData.incomes : monthData.provisions;
+
+      if (itemId) {
+        const item = list.find(x => x.id === itemId);
+        if (item) {
+          item.name = name;
+          item.budgeted = +budgeted.toFixed(2);
+          item.remaining = +remaining.toFixed(2);
+          item.keywords = keywords;
+          if (kind === 'income') {
+            item.target = target;
+            if (item.id === 'inc_leandra' && state.currentMonth === '2026-10') {
+              state.accounts.leandra.balance = Math.max(0, item.remaining);
+            }
+          } else {
+            if (item.coveredByReserve && item.reserveAccount && state.accounts[item.reserveAccount]) {
+              state.accounts[item.reserveAccount].balance = Math.max(0, item.remaining);
+            }
+          }
+        }
+      } else {
+        const newId = (kind === 'income' ? 'inc_' : 'prov_') + Date.now();
+        if (kind === 'income') {
+          monthData.incomes.push({
+            id: newId,
+            name,
+            budgeted: +budgeted.toFixed(2),
+            remaining: +remaining.toFixed(2),
+            target,
+            keywords
+          });
+        } else {
+          monthData.provisions.push({
+            id: newId,
+            name,
+            budgeted: +budgeted.toFixed(2),
+            remaining: +remaining.toFixed(2),
+            keywords
+          });
+        }
+      }
+
+      closePlanItemModal();
+      pushStateToCloud(true);
+      showFeedback(`✏️ ${kind === 'income' ? 'Previsão de Entrada' : 'Provisão de Saída'} "${name}" salva com sucesso!`, 'success');
+    }
+
+    function deletePlanItem() {
+      const kind = document.getElementById('plan-item-kind').value;
+      const itemId = document.getElementById('plan-item-id').value;
+      if (!itemId) return;
+
+      const monthData = state.months[state.currentMonth];
+      const list = kind === 'income' ? monthData.incomes : monthData.provisions;
+      const idx = list.findIndex(x => x.id === itemId);
+      if (idx === -1) return;
+
+      if (!confirm(`Deseja excluir "${list[idx].name}" deste mês?`)) return;
+
+      const removedName = list[idx].name;
+      list.splice(idx, 1);
+      closePlanItemModal();
+      pushStateToCloud(true);
+      showFeedback(`🗑️ Item "${removedName}" removido do planejamento do mês.`, 'success');
+    }
+
+    function revertTransactionEffects(tx) {
+      const txMonth = state.months[tx.month] || state.months[state.currentMonth];
+      const accKey = tx.accountKey || 'mp_livre';
+
+      if (tx.type === 'saida') {
+        if (state.accounts[accKey]) state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+        if (accKey === 'leandra' && txMonth) {
+          const incL = txMonth.incomes.find(i => i.id === 'inc_leandra');
+          if (incL) incL.remaining = +(incL.remaining + tx.amount).toFixed(2);
+        }
+        if (tx.targetId && txMonth) {
+          const prov = txMonth.provisions.find(p => p.id === tx.targetId);
+          if (prov) {
+            const restoreVal = tx.provisionDelta !== undefined ? tx.provisionDelta : tx.amount;
+            prov.remaining = +(prov.remaining + restoreVal).toFixed(2);
+          }
+        }
+      } else if (tx.type === 'entrada') {
+        if (state.accounts[accKey]) state.accounts[accKey].balance = +(state.accounts[accKey].balance - tx.amount).toFixed(2);
+        if (tx.leandraDelta) state.accounts.leandra.balance = +(state.accounts.leandra.balance - tx.leandraDelta).toFixed(2);
+        if (tx.targetId && txMonth) {
+          const inc = txMonth.incomes.find(i => i.id === tx.targetId);
+          if (inc) {
+            const restoreVal = tx.incomeDelta !== undefined ? tx.incomeDelta : tx.amount;
+            inc.remaining = +(inc.remaining + restoreVal).toFixed(2);
+          }
+        }
+      }
+    }
+
+    function deleteTransaction(txId) {
+      const idx = state.transactions.findIndex(t => t.id === txId);
+      if (idx === -1) return;
+      const tx = state.transactions[idx];
+      if (!confirm('Excluir "' + tx.desc + '" (' + formatBRL(tx.amount) + ')? O saldo e a provisão serão restaurados.')) return;
+      revertTransactionEffects(tx);
+      state.transactions.splice(idx, 1);
+      pushStateToCloud(false);
+      showFeedback('🗑️ Lançamento excluído e saldos recalculados!', 'success');
+    }
+
+    function openEditTransactionModal(txId) {
+      const tx = state.transactions.find(t => t.id === txId);
+      if (!tx) return;
+      document.getElementById('edit-tx-id').value = tx.id;
+      document.getElementById('manual-modal-title').textContent = 'Editar Lançamento';
+      document.getElementById('manual-type').value = tx.type === 'entrada' ? 'entrada' : 'saida';
+      document.getElementById('manual-desc').value = tx.desc;
+      document.getElementById('manual-amount').value = tx.amount;
+      document.getElementById('manual-account').value = tx.accountKey || 'mp_livre';
+      populateCategorySelect(tx.targetId || '');
+      document.getElementById('manual-modal').classList.remove('hidden');
+      document.getElementById('manual-modal').classList.add('flex');
+    }
+
+    function buildTransactionCardHTML(tx) {
+      const sign = tx.type === 'entrada' ? '+' : '-';
+      const color = tx.type === 'entrada' ? 'text-emerald-400' : 'text-rose-400';
+      const badgeBg = tx.type === 'entrada' ? 'bg-emerald-950/60 border-emerald-800/50 text-emerald-300' : 'bg-rose-950/60 border-rose-800/50 text-rose-300';
+      return `
+        <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeBg}">${tx.type === 'entrada' ? 'Entrada' : 'Saída'}</span>
+              <span class="font-semibold text-slate-100 truncate">${tx.desc}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 truncate">${tx.date} • Conta: <strong class="text-slate-300">${tx.account}</strong> • Categoria: <strong class="text-slate-300">${tx.category}</strong></div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-sm font-bold ${color}">${sign}${formatBRL(tx.amount)}</span>
+            <button type="button" onclick="openEditTransactionModal('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-900 text-slate-300 transition" title="Editar">✏️</button>
+            <button type="button" onclick="deleteTransaction('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900 text-slate-300 transition" title="Excluir">🗑️</button>
+          </div>
+        </div>`;
+    }
+
+    function renderAll() {
+      upgradeStateSchema();
+      const m = state.currentMonth || '2026-10';
+      const monthData = state.months[m] || state.months['2026-10'];
+
+      ['2026-10', '2026-11', '2026-12', '2027-01'].forEach(k => {
+        const btn = document.getElementById('tab-' + k);
+        if (btn) {
+          btn.className = (k === m)
+            ? 'month-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white shadow'
+            : 'month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white';
+        }
+      });
+
+      document.querySelectorAll('.current-month-label').forEach(el => el.textContent = monthData.label);
+
+      const freeBalance = (state.accounts.itau?.balance || 0) + (state.accounts.mp_livre?.balance || 0) + (state.accounts.especie?.balance || 0);
+      const reservesBalance = (state.accounts.res_oferta?.balance || 0) + (state.accounts.res_lifegroup?.balance || 0);
+      const ownTotal = freeBalance + reservesBalance;
+
+      const isBenefitTarget = (t) => t === 'flash' || t === 'vr';
+      const pendingInCash = monthData.incomes.filter(i => !isBenefitTarget(i.target)).reduce((a, i) => a + Math.max(0, i.remaining), 0);
+      const pendingInVR = monthData.incomes.filter(i => i.target === 'vr').reduce((a, i) => a + Math.max(0, i.remaining), 0);
+      const pendingInFlash = monthData.incomes.filter(i => i.target === 'flash').reduce((a, i) => a + Math.max(0, i.remaining), 0);
+
+      const pendingOutFreeCash = monthData.provisions
+        .filter(p => !p.coveredByReserve)
+        .reduce((a, p) => a + Math.max(0, p.remaining), 0);
+
+      const pendingOutReserves = monthData.provisions
+        .filter(p => p.coveredByReserve)
+        .reduce((a, p) => a + Math.max(0, p.remaining), 0);
+
+      const totalOverbudget = monthData.provisions.reduce((a, p) => a + (p.remaining < 0 ? Math.abs(p.remaining) : 0), 0);
+
+      const projectedCloseCash = (m === '2026-10')
+        ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves)
+        : (pendingInCash - pendingOutFreeCash - pendingOutReserves);
+
+      const projectedVR = (state.accounts.vr ? state.accounts.vr.balance : 0) + pendingInVR;
+      const projectedFlash = (state.accounts.flash ? state.accounts.flash.balance : 0) + pendingInFlash;
+      const projectedBenefitsTotal = projectedVR + projectedFlash;
+
+      document.getElementById('kpi-own-balance').textContent = formatBRL(ownTotal);
+      document.getElementById('kpi-free-vs-reserves').textContent = 'Livre: ' + formatBRL(freeBalance) + ' | Reservas: ' + formatBRL(reservesBalance);
+      document.getElementById('kpi-pending-in').textContent = '+' + formatBRL(pendingInCash);
+      document.getElementById('kpi-leandra-status').textContent = `Leandra: ${formatBRL(state.accounts.leandra?.balance || 0)} | VR: ${formatBRL(pendingInVR)} | Flash: ${formatBRL(pendingInFlash)}`;
+      document.getElementById('kpi-pending-out').textContent = '-' + formatBRL(pendingOutFreeCash);
+      document.getElementById('kpi-overbudget-summary').innerHTML = totalOverbudget > 0
+        ? `<span class="text-rose-400 font-semibold">⚠️ Excedente no mês: +${formatBRL(totalOverbudget)}</span> | Reservas: ${formatBRL(pendingOutReserves)}`
+        : `No Caixa: ${formatBRL(pendingOutFreeCash)} | Nas Reservas: ${formatBRL(pendingOutReserves)}`;
+      document.getElementById('kpi-projected-close').textContent = formatBRL(projectedCloseCash);
+      document.getElementById('kpi-projected-patrimony').textContent = (m === '2026-10')
+        ? `VR (${formatBRL(projectedVR)}) + Flash (${formatBRL(projectedFlash)}) = Total: ${formatBRL(projectedCloseCash + projectedBenefitsTotal)}`
+        : 'Saldo Líquido Projetado do Mês';
+
+      let accHtml = '';
+      Object.entries(state.accounts).forEach(([key, acc]) => {
+        const isBenefit = key === 'vr' || key === 'flash';
+        const borderClass = key === 'vr' ? 'border-lime-500/40' : (key === 'flash' ? 'border-pink-500/40' : 'border-slate-800');
+        accHtml += `
+          <div onclick="editAccountBalance('${key}')" class="cursor-pointer bg-slate-900 hover:bg-slate-800 border ${borderClass} rounded-xl p-3 flex flex-col justify-between">
+            <div class="text-xs ${isBenefit ? 'text-emerald-300 font-semibold' : 'text-slate-400'} mb-1 truncate">${acc.name}</div>
+            <div class="text-base font-bold text-white">${formatBRL(acc.balance)}</div>
+          </div>`;
+      });
+      document.getElementById('accounts-grid').innerHTML = accHtml;
+
+      let provHtml = '';
+      const sortedProv = [...monthData.provisions].sort((a, b) => {
+        const aGroup = a.remaining > 0.009 ? 3 : (a.remaining < -0.009 ? 2 : 1);
+        const bGroup = b.remaining > 0.009 ? 3 : (b.remaining < -0.009 ? 2 : 1);
+        if (aGroup !== bGroup) return bGroup - aGroup;
+        return Math.abs(b.remaining) - Math.abs(a.remaining);
+      });
+
+      sortedProv.forEach(p => {
+        const isOver = p.remaining < -0.009;
+        const isDone = !isOver && p.remaining <= 0.009;
+        const excessVal = isOver ? Math.abs(p.remaining) : 0;
+        const executed = +(p.budgeted - p.remaining).toFixed(2);
+
+        if (isOver) {
+          const totalExec = p.budgeted + excessVal;
+          const baseWidth = Math.max(25, Math.round((p.budgeted / totalExec) * 100));
+          const excessWidth = 100 - baseWidth;
+
+          provHtml += `
+            <div onclick="openPlanItemModal('provision', '${p.id}')" class="cursor-pointer bg-rose-950/25 hover:bg-rose-950/40 border border-rose-500/50 rounded-xl p-3.5 shadow-sm transition">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                  <span class="font-bold text-sm text-rose-200">${p.name} ✏️</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold text-slate-300 mr-2">
+                    Orçado: ${formatBRL(p.budgeted)} <strong class="text-rose-400">+ ${formatBRL(excessVal)}</strong>
+                  </span>
+                  <span class="text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-md">
+                    Excedido (+${formatBRL(excessVal)})
+                  </span>
+                </div>
+              </div>
+              <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
+                <div class="bg-emerald-600/80 h-full" style="width:${baseWidth}%"></div>
+                <div class="bg-rose-500 h-full animate-pulse" style="width:${excessWidth}%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-rose-300/80 mt-1">
+                <span>Concluído: <strong>${formatBRL(totalExec)}</strong></span>
+                <span>Ultrapassou <strong>${formatBRL(excessVal)}</strong> do orçamento</span>
+              </div>
+            </div>`;
+        } else {
+          const pct = p.budgeted > 0 ? Math.min(100, Math.round((Math.max(0, executed) / p.budgeted) * 100)) : 100;
+          const badgeColor = p.coveredByReserve ? 'text-purple-300' : (isDone ? 'text-emerald-400' : 'text-amber-400');
+          const barColor = p.coveredByReserve ? 'bg-purple-500' : (isDone ? 'bg-emerald-500' : 'bg-amber-500');
+
+          provHtml += `
+            <div onclick="openPlanItemModal('provision', '${p.id}')" class="cursor-pointer bg-slate-900/70 hover:bg-slate-800/80 border ${p.coveredByReserve ? 'border-purple-500/30' : 'border-slate-800'} rounded-xl p-3.5 ${isDone ? 'opacity-60' : ''} transition">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-sm ${isDone ? 'line-through text-slate-400' : 'text-white'}">${p.name}</span>
+                  ${p.coveredByReserve ? '<span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-700/50">Reserva MP</span>' : ''}
+                </div>
+                <div class="text-right">
+                  <span class="text-xs text-slate-400 mr-2">Orçado: ${formatBRL(p.budgeted)} | Concluído: <strong class="text-slate-200">${formatBRL(Math.max(0, executed))}</strong></span>
+                  <span class="text-sm font-bold ${badgeColor}">${isDone ? 'Liquidado (R$ 0,00)' : 'Pendente: ' + formatBRL(p.remaining)}</span>
+                </div>
+              </div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="${barColor} h-full" style="width:${pct}%"></div>
+              </div>
+            </div>`;
+        }
+      });
+      document.getElementById('provisions-list').innerHTML = provHtml || '<p class="text-xs text-slate-500">Nenhuma provisão cadastrada para este mês.</p>';
+
+      let incHtml = '';
+      monthData.incomes.forEach(inc => {
+        const isRec = inc.remaining <= 0.009;
+        const receivedVal = Math.max(0, +(inc.budgeted - inc.remaining).toFixed(2));
+        const pct = inc.budgeted > 0 ? Math.min(100, Math.round((receivedVal / inc.budgeted) * 100)) : 100;
+        const targetName = state.accounts[inc.target] ? state.accounts[inc.target].name : 'Conta Livre';
+
+        incHtml += `
+          <div onclick="openPlanItemModal('income', '${inc.id}')" class="cursor-pointer bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 transition">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <div class="text-sm font-semibold ${isRec ? 'line-through text-slate-500' : 'text-slate-100'}">${inc.name} ✏️</div>
+              <span class="text-xs font-bold ${isRec ? 'text-emerald-400' : 'text-sky-400'} whitespace-nowrap">
+                ${isRec ? 'Recebido (R$ 0,00)' : 'Falta: ' + formatBRL(inc.remaining)}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+              <span>Previsto: ${formatBRL(inc.budgeted)} | Recebido: <strong class="text-slate-200">${formatBRL(receivedVal)}</strong></span>
+              <span class="text-[11px] text-slate-400">${targetName}</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div class="${isRec ? 'bg-emerald-500' : 'bg-sky-500'} h-full" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      });
+      document.getElementById('incomes-list').innerHTML = incHtml || '<p class="text-xs text-slate-500">Nenhuma previsão de entrada para este mês.</p>';
+
+      const monthTxs = state.transactions.filter(tx => (tx.month || '2026-10') === m);
+      const saidasTxs = monthTxs.filter(tx => tx.type === 'saida');
+      const entradasTxs = monthTxs.filter(tx => tx.type === 'entrada');
+
+      const totalSaidasMes = saidasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+      const totalEntradasMes = entradasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+      document.getElementById('saidas-month-total').textContent = 'Total Gasto no Mês: ' + formatBRL(totalSaidasMes) + ' (' + saidasTxs.length + ')';
+      document.getElementById('entradas-month-total').textContent = 'Total Recebido no Mês: ' + formatBRL(totalEntradasMes) + ' (' + entradasTxs.length + ')';
+      document.getElementById('tx-count').textContent = monthTxs.length + ' registros no mês';
+
+      document.getElementById('saidas-transactions-list').innerHTML = saidasTxs.length
+        ? saidasTxs.map(buildTransactionCardHTML).join('')
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma saída registrada neste mês ainda.</p>';
+
+      document.getElementById('entradas-transactions-list').innerHTML = entradasTxs.length
+        ? entradasTxs.map(buildTransactionCardHTML).join('')
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada registrada neste mês ainda.</p>';
+
+      document.getElementById('transactions-list').innerHTML = monthTxs.length
+        ? monthTxs.map(buildTransactionCardHTML).join('')
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento registrado neste mês ainda.</p>';
+    }
+
+    function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate) {
+      const monthData = state.months[state.currentMonth];
+
+      if (type === 'saida' && targetId) {
+        const checkProv = monthData.provisions.find(p => p.id === targetId);
+        if (checkProv && checkProv.coveredByReserve && checkProv.reserveAccount && accountKey === 'mp_livre') {
+          accountKey = checkProv.reserveAccount;
+        }
+      }
+
+      if (type === 'entrada' && targetId) {
+        const checkInc = monthData.incomes.find(i => i.id === targetId);
+        if (checkInc && checkInc.target && accountKey === 'mp_livre') {
+          accountKey = checkInc.target;
+        }
+      }
+
+      if (!state.accounts[accountKey]) accountKey = 'mp_livre';
+
+      const newTx = {
+        id: existingId || ('tx_' + Date.now()),
+        month: state.currentMonth,
+        date: customDate || new Date().toLocaleDateString('pt-BR'),
+        desc,
+        amount,
+        type,
+        accountKey,
+        account: state.accounts[accountKey].name,
+        targetId: targetId || null,
+        category: 'Avulso',
+        provisionDelta: 0,
+        incomeDelta: 0,
+        leandraDelta: 0
+      };
+
+      if (type === 'saida') {
+        state.accounts[accountKey].balance = +(state.accounts[accountKey].balance - amount).toFixed(2);
+        if (accountKey === 'leandra') {
+          const incL = monthData.incomes.find(i => i.id === 'inc_leandra');
+          if (incL) incL.remaining = Math.max(0, +(incL.remaining - amount).toFixed(2));
+        }
+        let provMsg = 'Despesa avulsa';
+        if (targetId) {
+          const prov = monthData.provisions.find(p => p.id === targetId);
+          if (prov) {
+            prov.remaining = +(prov.remaining - amount).toFixed(2);
+            newTx.provisionDelta = amount;
+            newTx.category = prov.name;
+            if (prov.remaining < 0) {
+              provMsg = `⚠️ Orçamento de "${prov.name}" excedido! (${formatBRL(prov.budgeted)} + ${formatBRL(Math.abs(prov.remaining))})`;
+            } else {
+              const conc = +(prov.budgeted - prov.remaining).toFixed(2);
+              provMsg = `"${prov.name}": Concluído ${formatBRL(conc)} | Pendente ${formatBRL(prov.remaining)}`;
+            }
+          }
+        }
+        state.transactions.unshift(newTx);
+        pushStateToCloud(false);
+        showFeedback('✅ Saída de ' + formatBRL(amount) + ' debitada de ' + state.accounts[accountKey].name + '. ' + provMsg, 'success');
+      } else {
+        state.accounts[accountKey].balance = +(state.accounts[accountKey].balance + amount).toFixed(2);
+        if (desc.toLowerCase().includes('leandra') || targetId === 'inc_leandra') {
+          const beforeL = state.accounts.leandra.balance;
+          state.accounts.leandra.balance = Math.max(0, +(state.accounts.leandra.balance - amount).toFixed(2));
+          newTx.leandraDelta = +(state.accounts.leandra.balance - beforeL).toFixed(2);
+        }
+        let incMsg = 'Entrada extra';
+        newTx.category = 'Entrada Extra';
+        if (targetId) {
+          const inc = monthData.incomes.find(i => i.id === targetId);
+          if (inc) {
+            const before = inc.remaining;
+            inc.remaining = Math.max(0, +(inc.remaining - amount).toFixed(2));
+            newTx.incomeDelta = +(before - inc.remaining).toFixed(2);
+            newTx.category = inc.name;
+            incMsg = 'Previsão "' + inc.name + '" reduzida para ' + formatBRL(inc.remaining);
+          }
+        }
+        state.transactions.unshift(newTx);
+        pushStateToCloud(false);
+        showFeedback('✅ Entrada de ' + formatBRL(amount) + ' creditada em ' + state.accounts[accountKey].name + '. ' + incMsg, 'success');
+      }
+    }
+
+    function showFeedback(msg, status) {
+      const box = document.getElementById('ai-feedback');
+      box.className = 'mt-3 p-3 rounded-xl text-xs border ' + (status === 'success'
+        ? 'bg-emerald-950/80 border-emerald-700 text-emerald-200'
+        : 'bg-rose-950/80 border-rose-700 text-rose-200');
+      box.textContent = msg;
+    }
+
+    function autoSelectReserveAccount() {
+      const catId = document.getElementById('manual-category').value;
+      const accSelect = document.getElementById('manual-account');
+      if (catId === 'lifegroup') accSelect.value = 'res_lifegroup';
+      else if (catId === 'oferta') accSelect.value = 'res_oferta';
+      else if (catId && catId.includes('_va')) accSelect.value = 'vr';
+      else if (catId && catId.includes('_comb')) accSelect.value = 'flash';
+    }
+
+    function populateCategorySelect(selectedId) {
+      const type = document.getElementById('manual-type').value;
+      const catSelect = document.getElementById('manual-category');
+      catSelect.innerHTML = '<option value="">-- Sem vínculo com provisão --</option>';
+      const list = type === 'saida' ? state.months[state.currentMonth].provisions : state.months[state.currentMonth].incomes;
+      list.forEach(item => {
+        const sel = item.id === selectedId ? 'selected' : '';
+        const statusTxt = item.remaining < 0
+          ? `Excedido: ${formatBRL(item.budgeted)} + ${formatBRL(Math.abs(item.remaining))}`
+          : `Pendente: ${formatBRL(item.remaining)}`;
+        catSelect.innerHTML += `<option value="${item.id}" ${sel}>${item.name} (${statusTxt})</option>`;
+      });
+    }
+
+    function openManualModal(type) {
+      document.getElementById('edit-tx-id').value = '';
+      document.getElementById('manual-type').value = type;
+      document.getElementById('manual-modal-title').textContent = type === 'saida' ? 'Nova Saída Manual' : 'Nova Entrada Manual';
+      document.getElementById('manual-desc').value = '';
+      document.getElementById('manual-amount').value = '';
+      populateCategorySelect('');
+      document.getElementById('manual-modal').classList.remove('hidden');
+      document.getElementById('manual-modal').classList.add('flex');
+    }
+
+    function closeManualModal() {
+      document.getElementById('manual-modal').classList.add('hidden');
+      document.getElementById('manual-modal').classList.remove('flex');
+    }
+
+    function submitManualTransaction() {
+      const editId = document.getElementById('edit-tx-id').value;
+      const type = document.getElementById('manual-type').value;
+      const desc = document.getElementById('manual-desc').value.trim() || (type === 'saida' ? 'Saída manual' : 'Entrada manual');
+      const amount = parseFloat(document.getElementById('manual-amount').value);
+      const accountKey = document.getElementById('manual-account').value;
+      const catId = document.getElementById('manual-category').value || null;
+      if (!amount || amount <= 0) return;
+
+      let preservedDate = null;
+      if (editId) {
+        const idx = state.transactions.findIndex(t => t.id === editId);
+        if (idx !== -1) {
+          preservedDate = state.transactions[idx].date;
+          revertTransactionEffects(state.transactions[idx]);
+          state.transactions.splice(idx, 1);
+        }
+      }
+      applyTransaction(type, amount, accountKey, catId, desc, editId || null, preservedDate);
+      closeManualModal();
+    }
+
+    function extractAmountFromText(text) {
+      const lower = text.toLowerCase();
+      const cleanForDigits = lower.replace(/13º|13o|décimo terceiro|decimo terceiro/g, '');
+      const digitMatch = cleanForDigits.match(/(\d+(?:[.,]\d{1,2})?)/);
+      if (digitMatch) return parseFloat(digitMatch[1].replace(',', '.'));
+
+      const wordsMap = {
+        'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3, 'quatro': 4, 'cinco': 5,
+        'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9, 'dez': 10, 'onze': 11, 'doze': 12,
+        'treze': 13, 'quatorze': 14, 'catorze': 14, 'quinze': 15, 'dezesseis': 16,
+        'dezessete': 17, 'dezoito': 18, 'dezenove': 19, 'vinte': 20, 'trinta': 30,
+        'quarenta': 40, 'cinquenta': 50, 'sessenta': 60, 'setenta': 70, 'oitenta': 80,
+        'noventa': 90, 'cem': 100, 'cento': 100, 'duzentos': 200, 'trezentos': 300,
+        'quatrocentos': 400, 'quinhentos': 500, 'seiscentos': 600, 'setecentos': 700,
+        'oitocentos': 800, 'novecentos': 900, 'mil': 1000
+      };
+      const tokens = lower.replace(/[.,!?]/g, ' ').split(/\s+/);
+      let total = 0, foundAny = false;
+      tokens.forEach(w => {
+        if (wordsMap[w] !== undefined) { total += wordsMap[w]; foundAny = true; }
+      });
+      return foundAny ? total : null;
+    }
+
+    function processAIInput() {
+      const inputEl = document.getElementById('ai-input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const lower = text.toLowerCase();
+      const amount = extractAmountFromText(text);
+
+      if (!amount || amount <= 0) {
+        showFeedback('⚠️ Não identifiquei o valor em R$. Fale ou digite o valor, ex: "Paguei 70 de combustível no Mercado Pago".', 'error');
+        return;
+      }
+
+      const isIncome = /(recebi|entrou|caiu|ganhei|transferiu|repassou|creditou|me pagou|devolveu)/.test(lower);
+      const type = isIncome ? 'entrada' : 'saida';
+
+      let accountKey = 'mp_livre';
+      if (/(itaú|itau)/.test(lower)) accountKey = 'itau';
+      else if (/(espécie|especie|dinheiro|físico|fisico|mãos|maos|nota|moeda)/.test(lower)) accountKey = 'especie';
+      else if (/(\bvr\b|cartão vr|cartao vr|\bva\b|vale alimentação|vale alimentacao)/.test(lower)) accountKey = 'vr';
+      else if (/(flash|cartão flash|cartao flash|\bvt\b|vale transporte|vale combustível|vale combustivel)/.test(lower)) accountKey = 'flash';
+      else if (/(reserva oferta|oferta)/.test(lower) && type === 'saida') accountKey = 'res_oferta';
+      else if (/(reserva life|célula|celula|life group|lifegroup)/.test(lower) && type === 'saida') accountKey = 'res_lifegroup';
+      else if (/(da conta da leandra|pela leandra|leandra pagou|leandra comprou)/.test(lower) && type === 'saida') accountKey = 'leandra';
+
+      const monthData = state.months[state.currentMonth];
+      let targetId = null;
+      if (type === 'saida') {
+        if (accountKey !== 'vr' && accountKey !== 'flash') {
+          const matchedProv = monthData.provisions.find(p => p.keywords && p.keywords.some(k => lower.includes(k)));
+          if (matchedProv) targetId = matchedProv.id;
+        }
+      } else {
+        const matchedInc = monthData.incomes.find(i => i.keywords && i.keywords.some(k => lower.includes(k)));
+        if (matchedInc) targetId = matchedInc.id;
+      }
+
+      applyTransaction(type, amount, accountKey, targetId, text);
+      inputEl.value = '';
+    }
+
+    let recognition = null;
+    let isListening = false;
+
+    function toggleSpeechRecognition() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const btn = document.getElementById('mic-btn');
+      const inputEl = document.getElementById('ai-input');
+
+      if (!SR) {
+        inputEl.focus();
+        showFeedback('💡 Seu navegador não tem Web Speech API. Use o Google Chrome ou o microfone do teclado!', 'error');
+        return;
+      }
+
+      if (isListening && recognition) {
+        recognition.stop();
+        return;
+      }
+
+      recognition = new SR();
+      recognition.lang = 'pt-BR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        btn.className = 'absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center pulse-mic';
+        inputEl.placeholder = '🎙️ Ouvindo você... Fale agora!';
+        showFeedback('🎙️ Microfone aberto! Fale o lançamento (ex: "Comprei 40 no cartão VR")...', 'success');
+      };
+
+      recognition.onresult = (e) => {
+        let transcript = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          transcript += e.results[i][0].transcript;
+        }
+        inputEl.value = transcript;
+        if (e.results[0].isFinal) {
+          setTimeout(() => processAIInput(), 350);
+        }
+      };
+
+      recognition.onerror = (e) => {
+        isListening = false;
+        btn.className = 'absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
+        inputEl.placeholder = 'Toque no microfone 🎙️ e fale: "Comprei 50 de mercantil no cartão VR"';
+        showFeedback('⚠️ Microfone: ' + e.error + '. Permita o uso do microfone quando o navegador perguntar.', 'error');
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        btn.className = 'absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
+        inputEl.placeholder = 'Toque no microfone 🎙️ e fale: "Comprei 50 de mercantil no cartão VR"';
+      };
+
+      recognition.start();
+    }
+
+    renderAll();
+    syncFromCloud(false);
+  </script>
+</body>
+</html>
