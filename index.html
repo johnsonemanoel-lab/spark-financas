@@ -22,7 +22,7 @@
 </head>
 <body class="min-h-screen pb-16">
 
-  <!-- Header -->
+  <!-- Header Limpo (Sem os botões de meses no topo) -->
   <header class="border-b border-slate-800 bg-slate-900 sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -36,16 +36,8 @@
               ● Cloud Ativo
             </span>
           </div>
-          <p class="text-xs text-slate-400">Controle de Caixa & Provisões Out/26–Jan/27</p>
+          <p class="text-xs text-slate-400">Controle de Caixa & Provisões • Mês Ativo: <strong class="current-month-label text-emerald-400">Novembro/2026</strong></p>
         </div>
-      </div>
-
-      <!-- Seletor de Mês -->
-      <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-xl border border-slate-700">
-        <button type="button" onclick="changeMonth('2026-10')" id="tab-2026-10" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white">Out/26</button>
-        <button type="button" onclick="changeMonth('2026-11')" id="tab-2026-11" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400">Nov/26</button>
-        <button type="button" onclick="changeMonth('2026-12')" id="tab-2026-12" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400">Dez/26</button>
-        <button type="button" onclick="changeMonth('2027-01')" id="tab-2027-01" class="month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400">Jan/27</button>
       </div>
 
       <!-- Botões de Sincronização Segura -->
@@ -66,7 +58,7 @@
     <section class="glass rounded-2xl p-5 shadow-xl border-l-4 border-l-emerald-500">
       <div class="flex items-center justify-between mb-2">
         <label class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-microphone-lines"></i> Registro Inteligente por Voz ou Texto (IA)
+          <i class="fa-solid fa-microphone-lines"></i> Registro Inteligente por Voz ou Texto (IA) — <span class="current-month-label">Novembro/2026</span>
         </label>
         <span id="last-sync-text" class="text-[11px] text-emerald-400">Conectando à Planilha...</span>
       </div>
@@ -111,21 +103,21 @@
       </div>
 
       <div class="glass rounded-2xl p-4">
-        <div class="text-slate-400 text-xs mb-1">Entradas Pendentes (<span class="current-month-label">Outubro/2026</span>)</div>
-        <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 200,00</div>
+        <div class="text-slate-400 text-xs mb-1">Entradas Pendentes (<span class="current-month-label">Novembro/2026</span>)</div>
+        <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 0,00</div>
         <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Leandra: R$ 0,00 | VR: R$ 0,00 | Flash: R$ 0,00</div>
       </div>
 
       <div class="glass rounded-2xl p-4">
-        <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Outubro/2026</span>)</div>
-        <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 30,00</div>
+        <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Novembro/2026</span>)</div>
+        <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 0,00</div>
         <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
       </div>
 
       <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
         <div class="text-emerald-300 text-xs mb-1">Fechamento Livre Projetado</div>
-        <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 226,31</div>
-        <div id="kpi-projected-patrimony" class="text-[11px] text-emerald-300/80 mt-1">VR + Flash projetado: R$ 246,67</div>
+        <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 0,00</div>
+        <div id="kpi-projected-patrimony" class="text-[11px] text-emerald-300/80 mt-1">VR + Flash projetado: R$ 0,00</div>
       </div>
     </section>
 
@@ -140,8 +132,9 @@
       <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
     </section>
 
-    <!-- 4. SELETOR DE VISÃO: SAÍDAS | ENTRADAS | REGISTROS GERAIS -->
-    <section class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 p-2 rounded-2xl border border-slate-800">
+    <!-- 4. PAINEL INTEGRADO DE NAVEGAÇÃO: ABAS (SAÍDAS | ENTRADAS | REGISTROS GERAIS) + FILTRO DE MESES -->
+    <section class="glass rounded-2xl p-4 space-y-3 border border-slate-800">
+      <!-- Linha 1: Botões de Visão -->
       <div class="grid grid-cols-3 gap-2 w-full">
         <button
           type="button"
@@ -168,37 +161,90 @@
           <i class="fa-solid fa-clock-rotate-left"></i> Registros Gerais
         </button>
       </div>
+
+      <!-- Linha 2: Filtragem por Mês (Meses Passados + Mês Atual e Futuros + Todos os Lançamentos) -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-days text-emerald-400"></i> Filtrar Mês:
+          </span>
+
+          <!-- Seletor de Meses que já passaram -->
+          <div class="relative">
+            <select
+              id="past-months-select"
+              onchange="if(this.value) changeMonth(this.value)"
+              class="bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500 cursor-pointer"
+            >
+              <option value="">⏮️ Meses Passados...</option>
+            </select>
+          </div>
+
+          <!-- Botões dos Meses Atuais e Futuros -->
+          <div id="active-months-buttons" class="flex items-center gap-1.5 flex-wrap"></div>
+        </div>
+
+        <!-- Filtro de Todos os Lançamentos no Painel -->
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-filter-all-months"
+            onclick="toggleAllMonthsFilter()"
+            class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5"
+            title="Alternar entre ver apenas os lançamentos do mês selecionado ou de todos os meses"
+          >
+            <i class="fa-solid fa-layer-group"></i> <span id="lbl-filter-all">Ver Todos os Meses</span>
+          </button>
+        </div>
+      </div>
     </section>
 
-    <!-- PAINEL 1: VISÃO DE SAÍDAS -->
+    <!-- =================================================================== -->
+    <!-- PAINEL 1: VISÃO DE SAÍDAS (Provisões Retraídas + Saídas Registradas) -->
+    <!-- =================================================================== -->
     <div id="panel-saidas" class="space-y-6">
-      <section class="glass rounded-2xl p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-              <i class="fa-solid fa-list-check"></i> Provisões de Saídas — <span class="current-month-label">Outubro/2026</span>
-            </h2>
-            <p class="text-xs text-slate-400">Clique em qualquer provisão para editar Orçado/Pendente ou crie uma nova.</p>
+      <!-- Provisões de Saídas (Retraídas por padrão, com opção de Expandir) -->
+      <section class="glass rounded-2xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div onclick="toggleProvisionsCollapse('saidas')" class="cursor-pointer flex items-center gap-3 flex-1">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <i id="icon-collapse-saidas" class="fa-solid fa-chevron-right transition-transform duration-200"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                Provisões de Saídas — <span class="current-month-label">Novembro/2026</span>
+                <span id="badge-summary-saidas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+              </h2>
+              <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-saidas" class="text-amber-300 underline">expandir</strong> ou retrair a lista de provisões do mês.</p>
+            </div>
           </div>
           <div class="flex gap-2">
+            <button type="button" onclick="toggleProvisionsCollapse('saidas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
+              <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-saidas">Expandir</span>
+            </button>
             <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700">
               + Nova Provisão
             </button>
             <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
-              + Lançar Saída Manual
+              + Lançar Saída
             </button>
           </div>
         </div>
-        <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+        <!-- Lista retrátil -->
+        <div id="provisions-collapse-body" class="hidden mt-4 pt-4 border-t border-slate-800">
+          <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </div>
       </section>
 
+      <!-- Todas as Saídas Registradas -->
       <section class="glass rounded-2xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
             <h2 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
-              <i class="fa-solid fa-receipt"></i> Saídas Já Registradas em <span class="current-month-label">Outubro/2026</span>
+              <i class="fa-solid fa-receipt"></i> Saídas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
             </h2>
-            <p class="text-xs text-slate-400">Histórico exclusivo de pagamentos e despesas deste mês</p>
+            <p class="text-xs text-slate-400">Clique em ✏️ para editar valor, conta ou data da saída</p>
           </div>
           <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
             Total: R$ 0,00
@@ -208,35 +254,52 @@
       </section>
     </div>
 
-    <!-- PAINEL 2: VISÃO DE ENTRADAS -->
+    <!-- ===================================================================== -->
+    <!-- PAINEL 2: VISÃO DE ENTRADAS (Previsões Retraídas + Entradas Registradas) -->
+    <!-- ===================================================================== -->
     <div id="panel-entradas" class="hidden space-y-6">
-      <section class="glass rounded-2xl p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
-              <i class="fa-solid fa-calendar-check"></i> Previsões de Entradas — <span class="current-month-label">Outubro/2026</span>
-            </h2>
-            <p class="text-xs text-slate-400">Clique em qualquer previsão de entrada para editar valores ou adicione uma nova.</p>
+      <!-- Previsões de Entradas (Retraídas por padrão, com opção de Expandir) -->
+      <section class="glass rounded-2xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div onclick="toggleProvisionsCollapse('entradas')" class="cursor-pointer flex items-center gap-3 flex-1">
+            <div class="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+              <i id="icon-collapse-entradas" class="fa-solid fa-chevron-right transition-transform duration-200"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
+                Previsões de Entradas — <span class="current-month-label">Novembro/2026</span>
+                <span id="badge-summary-entradas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+              </h2>
+              <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-entradas" class="text-sky-300 underline">expandir</strong> ou retrair as previsões de entrada.</p>
+            </div>
           </div>
           <div class="flex gap-2">
+            <button type="button" onclick="toggleProvisionsCollapse('entradas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
+              <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-entradas">Expandir</span>
+            </button>
             <button type="button" onclick="openPlanItemModal('income', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3 py-1.5 rounded-lg border border-slate-700">
               + Nova Previsão
             </button>
             <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
-              + Lançar Entrada Manual
+              + Lançar Entrada
             </button>
           </div>
         </div>
-        <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+        <!-- Lista retrátil -->
+        <div id="incomes-collapse-body" class="hidden mt-4 pt-4 border-t border-slate-800">
+          <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </div>
       </section>
 
+      <!-- Todas as Entradas Registradas -->
       <section class="glass rounded-2xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
             <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-              <i class="fa-solid fa-sack-dollar"></i> Entradas Já Registradas em <span class="current-month-label">Outubro/2026</span>
+              <i class="fa-solid fa-sack-dollar"></i> Entradas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
             </h2>
-            <p class="text-xs text-slate-400">Histórico exclusivo de recebimentos e créditos deste mês</p>
+            <p class="text-xs text-slate-400">Clique em ✏️ para editar valor, conta ou data da entrada</p>
           </div>
           <span id="entradas-month-total" class="text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-3 py-1 rounded-lg">
             Total: R$ 0,00
@@ -246,15 +309,17 @@
       </section>
     </div>
 
-    <!-- PAINEL 3: VISÃO DE REGISTROS GERAIS -->
+    <!-- ===================================================================== -->
+    <!-- PAINEL 3: VISÃO DE REGISTROS GERAIS (Todos os Lançamentos + Filtro)   -->
+    <!-- ===================================================================== -->
     <div id="panel-registros" class="hidden space-y-6">
       <section class="glass rounded-2xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
             <h2 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-              <i class="fa-solid fa-clock-rotate-left"></i> Histórico Geral de Registros — <span class="current-month-label">Outubro/2026</span>
+              <i class="fa-solid fa-clock-rotate-left"></i> Todos os Lançamentos (<span class="tx-filter-scope-label">Novembro/2026</span>)
             </h2>
-            <p class="text-xs text-slate-400">Todos os lançamentos de entradas e saídas. Clique em ✏️ para editar ou 🗑️ para excluir e estornar.</p>
+            <p class="text-xs text-slate-400">Visão consolidada de entradas e saídas. Clique em ✏️ para alterar data/valor ou 🗑️ para excluir.</p>
           </div>
           <span id="tx-count" class="text-xs bg-slate-800 px-3 py-1 rounded-lg text-slate-300 border border-slate-700">0 registros</span>
         </div>
@@ -264,7 +329,7 @@
 
   </main>
 
-  <!-- Modal Lançamento Manual / Edição de Transação -->
+  <!-- Modal Lançamento Manual / Edição de Transação (Com Seletor de Data!) -->
   <div id="manual-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
     <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700">
       <div class="flex justify-between items-center mb-4">
@@ -273,12 +338,18 @@
       </div>
       <div class="space-y-3 text-sm">
         <input type="hidden" id="edit-tx-id" value="" />
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Tipo de Operação</label>
-          <select id="manual-type" onchange="populateCategorySelect()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
-            <option value="saida">Saída / Pagamento (-)</option>
-            <option value="entrada">Entrada / Recebimento (+)</option>
-          </select>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Tipo de Operação</label>
+            <select id="manual-type" onchange="populateCategorySelect()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              <option value="saida">Saída (-)</option>
+              <option value="entrada">Entrada (+)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Data do Lançamento</label>
+            <input id="manual-date" type="date" onchange="onManualDateChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+          </div>
         </div>
         <div>
           <label class="block text-xs text-slate-400 mb-1">Descrição</label>
@@ -374,11 +445,27 @@
   </div>
 
   <script>
-    // URL DA SUA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT (BANCO DE DADOS NA PLANILHA)
     const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyQo-EhNJBaqyf-Zn9qS4JrE9WZJ5N7EhRXCOJZE7vqmzwJKb59CqX4hwO4GtxLO7wV/exec";
 
+    const MONTH_META = {
+      '2026-10': { short: 'Out/26', label: 'Outubro/2026' },
+      '2026-11': { short: 'Nov/26', label: 'Novembro/2026' },
+      '2026-12': { short: 'Dez/26', label: 'Dezembro/2026' },
+      '2027-01': { short: 'Jan/27', label: 'Janeiro/2027' }
+    };
+
+    // Detecta automaticamente o mês atual do calendário (ex: Novembro/2026 -> '2026-11')
+    function getSystemDefaultMonth() {
+      const now = new Date();
+      const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      if (MONTH_META[ym]) return ym;
+      const keys = Object.keys(MONTH_META).sort();
+      if (ym < keys[0]) return keys[0];
+      return keys[keys.length - 1];
+    }
+
     const INITIAL_STATE = {
-      currentMonth: '2026-10',
+      currentMonth: getSystemDefaultMonth(),
       accounts: {
         especie: { name: 'Dinheiro em Espécie', balance: 0.00, type: 'free' },
         res_oferta: { name: 'Reserva MP (Oferta)', balance: 0.00, type: 'reserve' },
@@ -399,11 +486,67 @@
     };
 
     let state = JSON.parse(localStorage.getItem('spark_github_cache_v1')) || JSON.parse(JSON.stringify(INITIAL_STATE));
+    // Sempre inicia o app no mês atual do calendário ao entrar!
+    state.currentMonth = getSystemDefaultMonth();
+
     let currentView = 'saidas';
+    let showAllMonthsTx = false; // Quando true, mostra os lançamentos de todos os meses no painel
+    let isProvisionsExpanded = { saidas: false, entradas: false }; // Retraído por padrão!
     let isCloudLoaded = !!localStorage.getItem('spark_github_cache_v1');
 
     function formatBRL(val) {
       return 'R$ ' + Number(val || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    // Conversores de data DD/MM/YYYY <-> YYYY-MM-DD
+    function brDateToISO(brDate) {
+      if (!brDate) return new Date().toISOString().slice(0, 10);
+      const parts = brDate.split('/');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function isoDateToBR(isoDate) {
+      if (!isoDate) return new Date().toLocaleDateString('pt-BR');
+      const parts = isoDate.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return isoDate;
+    }
+
+    function monthFromBRDate(brDate) {
+      if (!brDate) return null;
+      const parts = brDate.split('/');
+      if (parts.length === 3) {
+        const ym = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+        if (state.months && state.months[ym]) return ym;
+      }
+      return null;
+    }
+
+    function toggleProvisionsCollapse(panel) {
+      isProvisionsExpanded[panel] = !isProvisionsExpanded[panel];
+      const isExp = isProvisionsExpanded[panel];
+
+      if (panel === 'saidas') {
+        document.getElementById('provisions-collapse-body').classList.toggle('hidden', !isExp);
+        document.getElementById('icon-collapse-saidas').style.transform = isExp ? 'rotate(90deg)' : 'rotate(0deg)';
+        document.getElementById('btn-txt-collapse-saidas').textContent = isExp ? 'Retrair' : 'Expandir';
+        document.getElementById('lbl-toggle-saidas').textContent = isExp ? 'retrair' : 'expandir';
+      } else {
+        document.getElementById('incomes-collapse-body').classList.toggle('hidden', !isExp);
+        document.getElementById('icon-collapse-entradas').style.transform = isExp ? 'rotate(90deg)' : 'rotate(0deg)';
+        document.getElementById('btn-txt-collapse-entradas').textContent = isExp ? 'Retrair' : 'Expandir';
+        document.getElementById('lbl-toggle-entradas').textContent = isExp ? 'retrair' : 'expandir';
+      }
+    }
+
+    function toggleAllMonthsFilter() {
+      showAllMonthsTx = !showAllMonthsTx;
+      renderAll();
     }
 
     function changeView(viewName) {
@@ -435,11 +578,12 @@
       if (!state.transactions) state.transactions = [];
       state.transactions.forEach((tx, idx) => {
         if (!tx.id) tx.id = 'tx_' + Date.now() + '_' + idx;
-        if (!tx.month) tx.month = '2026-10';
+        const inferredMonth = monthFromBRDate(tx.date);
+        if (inferredMonth) tx.month = inferredMonth;
+        else if (!tx.month) tx.month = '2026-10';
       });
     }
 
-    // GRAVAÇÃO NA PLANILHA (COMPATÍVEL COM GITHUB PAGES E APPS SCRIPT)
     async function pushStateToCloud(showMsg) {
       if (!isCloudLoaded) {
         showFeedback('⏳ Sincronizando seus dados atuais da planilha antes de salvar...', 'error');
@@ -479,17 +623,19 @@
       }
     }
 
-    // LEITURA DA PLANILHA (COMPATÍVEL COM GITHUB PAGES E APPS SCRIPT)
     async function syncFromCloud(manual) {
       const syncLabel = document.getElementById('last-sync-text');
       syncLabel.textContent = 'Sincronizando com a Planilha...';
+      const systemMonth = getSystemDefaultMonth();
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run
           .withSuccessHandler((remoteState) => {
             isCloudLoaded = true;
             if (remoteState && remoteState.accounts && remoteState.months) {
+              const keepCurrentMonth = manual ? state.currentMonth : systemMonth;
               state = remoteState;
+              state.currentMonth = keepCurrentMonth;
               upgradeStateSchema();
               localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
               renderAll();
@@ -507,7 +653,9 @@
         const data = await res.json();
         isCloudLoaded = true;
         if (data && data.status === 'ok' && data.state && data.state.accounts) {
+          const keepCurrentMonth = manual ? state.currentMonth : systemMonth;
           state = data.state;
+          state.currentMonth = keepCurrentMonth;
           upgradeStateSchema();
           localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
           renderAll();
@@ -518,13 +666,69 @@
       } catch (err) {
         isCloudLoaded = true;
         syncLabel.textContent = 'Pronto (Cache Local Ativo)';
-        if (manual) showFeedback('⚠️ Verifique se no Código.gs a função doGet retorna JSON e foi implantada como "Qualquer pessoa".', 'error');
       }
     }
 
     function changeMonth(m) {
+      if (!m || !state.months[m]) return;
       state.currentMonth = m;
+      showAllMonthsTx = false;
       renderAll();
+    }
+
+    function renderMonthNavigation() {
+      const sysMonth = getSystemDefaultMonth();
+      const activeMonth = state.currentMonth || sysMonth;
+      const allKeys = Object.keys(state.months);
+
+      const pastKeys = allKeys.filter(k => k < sysMonth);
+      const currentAndFutureKeys = allKeys.filter(k => k >= sysMonth);
+
+      // Popula o Select de Meses Passados
+      const pastSelect = document.getElementById('past-months-select');
+      if (pastKeys.length > 0) {
+        pastSelect.classList.remove('hidden');
+        let opts = `<option value="">⏮️ Meses Anteriores (${pastKeys.length})</option>`;
+        pastKeys.forEach(k => {
+          const sel = (!showAllMonthsTx && activeMonth === k) ? 'selected' : '';
+          const meta = MONTH_META[k] || { short: k, label: state.months[k].label };
+          opts += `<option value="${k}" ${sel}>📅 ${meta.label}</option>`;
+        });
+        pastSelect.innerHTML = opts;
+        pastSelect.className = (!showAllMonthsTx && pastKeys.includes(activeMonth))
+          ? 'bg-amber-600 text-white border border-amber-500 text-xs font-bold rounded-xl px-3 py-1.5 cursor-pointer shadow'
+          : 'bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-3 py-1.5 cursor-pointer';
+      } else {
+        pastSelect.classList.add('hidden');
+      }
+
+      // Popula botões do Mês Atual e Futuros
+      const btnContainer = document.getElementById('active-months-buttons');
+      let btnsHtml = '';
+      currentAndFutureKeys.forEach(k => {
+        const meta = MONTH_META[k] || { short: k, label: state.months[k].label };
+        const isCurrentSys = (k === sysMonth);
+        const isSelected = (!showAllMonthsTx && activeMonth === k);
+        const cls = isSelected
+          ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow transition'
+          : 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition';
+        btnsHtml += `
+          <button type="button" onclick="changeMonth('${k}')" class="${cls}">
+            ${meta.short} ${isCurrentSys ? '<span class="text-[10px] opacity-90">(Atual)</span>' : ''}
+          </button>`;
+      });
+      btnContainer.innerHTML = btnsHtml;
+
+      // Atualiza estilo do botão "Ver Todos os Meses"
+      const btnAll = document.getElementById('btn-filter-all-months');
+      const lblAll = document.getElementById('lbl-filter-all');
+      if (showAllMonthsTx) {
+        btnAll.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white border border-purple-500 shadow transition flex items-center gap-1.5';
+        lblAll.textContent = 'Mostrando Todos os Meses';
+      } else {
+        btnAll.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5';
+        lblAll.textContent = 'Ver Todos os Meses';
+      }
     }
 
     function editAccountBalance(accKey) {
@@ -534,16 +738,6 @@
         const parsed = parseFloat(novo.replace(',', '.'));
         if (!isNaN(parsed)) {
           acc.balance = +parsed.toFixed(2);
-          if (accKey === 'res_lifegroup' && state.months['2026-10']) {
-            const p = state.months['2026-10'].provisions.find(x => x.id === 'lifegroup');
-            if (p) p.remaining = acc.balance;
-          } else if (accKey === 'res_oferta' && state.months['2026-10']) {
-            const p = state.months['2026-10'].provisions.find(x => x.id === 'oferta');
-            if (p) p.remaining = acc.balance;
-          } else if (accKey === 'leandra' && state.months['2026-10']) {
-            const incL = state.months['2026-10'].incomes.find(x => x.id === 'inc_leandra');
-            if (incL) incL.remaining = acc.balance;
-          }
           pushStateToCloud(true);
         }
       }
@@ -651,36 +845,14 @@
           item.budgeted = +budgeted.toFixed(2);
           item.remaining = +remaining.toFixed(2);
           item.keywords = keywords;
-          if (kind === 'income') {
-            item.target = target;
-            if (item.id === 'inc_leandra' && state.currentMonth === '2026-10') {
-              state.accounts.leandra.balance = Math.max(0, item.remaining);
-            }
-          } else {
-            if (item.coveredByReserve && item.reserveAccount && state.accounts[item.reserveAccount]) {
-              state.accounts[item.reserveAccount].balance = Math.max(0, item.remaining);
-            }
-          }
+          if (kind === 'income') item.target = target;
         }
       } else {
         const newId = (kind === 'income' ? 'inc_' : 'prov_') + Date.now();
         if (kind === 'income') {
-          monthData.incomes.push({
-            id: newId,
-            name,
-            budgeted: +budgeted.toFixed(2),
-            remaining: +remaining.toFixed(2),
-            target,
-            keywords
-          });
+          monthData.incomes.push({ id: newId, name, budgeted: +budgeted.toFixed(2), remaining: +remaining.toFixed(2), target, keywords });
         } else {
-          monthData.provisions.push({
-            id: newId,
-            name,
-            budgeted: +budgeted.toFixed(2),
-            remaining: +remaining.toFixed(2),
-            keywords
-          });
+          monthData.provisions.push({ id: newId, name, budgeted: +budgeted.toFixed(2), remaining: +remaining.toFixed(2), keywords });
         }
       }
 
@@ -755,30 +927,41 @@
       document.getElementById('edit-tx-id').value = tx.id;
       document.getElementById('manual-modal-title').textContent = 'Editar Lançamento';
       document.getElementById('manual-type').value = tx.type === 'entrada' ? 'entrada' : 'saida';
+      document.getElementById('manual-date').value = brDateToISO(tx.date);
       document.getElementById('manual-desc').value = tx.desc;
       document.getElementById('manual-amount').value = tx.amount;
       document.getElementById('manual-account').value = tx.accountKey || 'mp_livre';
-      populateCategorySelect(tx.targetId || '');
+      populateCategorySelect(tx.targetId || '', tx.month || state.currentMonth);
       document.getElementById('manual-modal').classList.remove('hidden');
       document.getElementById('manual-modal').classList.add('flex');
+    }
+
+    function onManualDateChange() {
+      const iso = document.getElementById('manual-date').value;
+      const br = isoDateToBR(iso);
+      const targetMonth = monthFromBRDate(br) || state.currentMonth;
+      const currentSelectedCat = document.getElementById('manual-category').value;
+      populateCategorySelect(currentSelectedCat, targetMonth);
     }
 
     function buildTransactionCardHTML(tx) {
       const sign = tx.type === 'entrada' ? '+' : '-';
       const color = tx.type === 'entrada' ? 'text-emerald-400' : 'text-rose-400';
       const badgeBg = tx.type === 'entrada' ? 'bg-emerald-950/60 border-emerald-800/50 text-emerald-300' : 'bg-rose-950/60 border-rose-800/50 text-rose-300';
+      const mShort = MONTH_META[tx.month] ? MONTH_META[tx.month].short : (tx.month || '');
       return `
         <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 mb-0.5">
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeBg}">${tx.type === 'entrada' ? 'Entrada' : 'Saída'}</span>
+              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">${tx.date} (${mShort})</span>
               <span class="font-semibold text-slate-100 truncate">${tx.desc}</span>
             </div>
-            <div class="text-[11px] text-slate-400 truncate">${tx.date} • Conta: <strong class="text-slate-300">${tx.account}</strong> • Categoria: <strong class="text-slate-300">${tx.category}</strong></div>
+            <div class="text-[11px] text-slate-400 truncate">Conta: <strong class="text-slate-300">${tx.account}</strong> • Categoria: <strong class="text-slate-300">${tx.category}</strong></div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <span class="text-sm font-bold ${color}">${sign}${formatBRL(tx.amount)}</span>
-            <button type="button" onclick="openEditTransactionModal('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-900 text-slate-300 transition" title="Editar">✏️</button>
+            <button type="button" onclick="openEditTransactionModal('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-900 text-slate-300 transition" title="Editar data, valor ou categoria">✏️</button>
             <button type="button" onclick="deleteTransaction('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900 text-slate-300 transition" title="Excluir">🗑️</button>
           </div>
         </div>`;
@@ -786,19 +969,15 @@
 
     function renderAll() {
       upgradeStateSchema();
-      const m = state.currentMonth || '2026-10';
-      const monthData = state.months[m] || state.months['2026-10'];
+      const m = state.currentMonth || getSystemDefaultMonth();
+      const monthData = state.months[m] || state.months['2026-11'] || state.months['2026-10'];
 
-      ['2026-10', '2026-11', '2026-12', '2027-01'].forEach(k => {
-        const btn = document.getElementById('tab-' + k);
-        if (btn) {
-          btn.className = (k === m)
-            ? 'month-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white shadow'
-            : 'month-tab px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white';
-        }
-      });
+      renderMonthNavigation();
 
       document.querySelectorAll('.current-month-label').forEach(el => el.textContent = monthData.label);
+      document.querySelectorAll('.tx-filter-scope-label').forEach(el => {
+        el.textContent = showAllMonthsTx ? 'Todos os Meses' : monthData.label;
+      });
 
       const freeBalance = (state.accounts.itau?.balance || 0) + (state.accounts.mp_livre?.balance || 0) + (state.accounts.especie?.balance || 0);
       const reservesBalance = (state.accounts.res_oferta?.balance || 0) + (state.accounts.res_lifegroup?.balance || 0);
@@ -819,7 +998,8 @@
 
       const totalOverbudget = monthData.provisions.reduce((a, p) => a + (p.remaining < 0 ? Math.abs(p.remaining) : 0), 0);
 
-      const projectedCloseCash = (m === '2026-10')
+      const sysMonth = getSystemDefaultMonth();
+      const projectedCloseCash = (m === sysMonth || m === '2026-10')
         ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves)
         : (pendingInCash - pendingOutFreeCash - pendingOutReserves);
 
@@ -836,10 +1016,15 @@
         ? `<span class="text-rose-400 font-semibold">⚠️ Excedente no mês: +${formatBRL(totalOverbudget)}</span> | Reservas: ${formatBRL(pendingOutReserves)}`
         : `No Caixa: ${formatBRL(pendingOutFreeCash)} | Nas Reservas: ${formatBRL(pendingOutReserves)}`;
       document.getElementById('kpi-projected-close').textContent = formatBRL(projectedCloseCash);
-      document.getElementById('kpi-projected-patrimony').textContent = (m === '2026-10')
-        ? `VR (${formatBRL(projectedVR)}) + Flash (${formatBRL(projectedFlash)}) = Total: ${formatBRL(projectedCloseCash + projectedBenefitsTotal)}`
-        : 'Saldo Líquido Projetado do Mês';
+      document.getElementById('kpi-projected-patrimony').textContent = `VR (${formatBRL(projectedVR)}) + Flash (${formatBRL(projectedFlash)}) = Total: ${formatBRL(projectedCloseCash + projectedBenefitsTotal)}`;
 
+      // Resumo nos cabeçalhos das provisões retraídas
+      const pendingProvCount = monthData.provisions.filter(p => p.remaining > 0.009).length;
+      document.getElementById('badge-summary-saidas').textContent = `${pendingProvCount} pendentes • Resta ${formatBRL(pendingOutFreeCash)}`;
+      const pendingIncCount = monthData.incomes.filter(i => i.remaining > 0.009).length;
+      document.getElementById('badge-summary-entradas').textContent = `${pendingIncCount} pendentes • Falta ${formatBRL(pendingInCash + pendingInVR + pendingInFlash)}`;
+
+      // Contas
       let accHtml = '';
       Object.entries(state.accounts).forEach(([key, acc]) => {
         const isBenefit = key === 'vr' || key === 'flash';
@@ -852,6 +1037,7 @@
       });
       document.getElementById('accounts-grid').innerHTML = accHtml;
 
+      // Provisões de Saída
       let provHtml = '';
       const sortedProv = [...monthData.provisions].sort((a, b) => {
         const aGroup = a.remaining > 0.009 ? 3 : (a.remaining < -0.009 ? 2 : 1);
@@ -921,6 +1107,7 @@
       });
       document.getElementById('provisions-list').innerHTML = provHtml || '<p class="text-xs text-slate-500">Nenhuma provisão cadastrada para este mês.</p>';
 
+      // Previsões de Entrada
       let incHtml = '';
       monthData.incomes.forEach(inc => {
         const isRec = inc.remaining <= 0.009;
@@ -947,32 +1134,37 @@
       });
       document.getElementById('incomes-list').innerHTML = incHtml || '<p class="text-xs text-slate-500">Nenhuma previsão de entrada para este mês.</p>';
 
-      const monthTxs = state.transactions.filter(tx => (tx.month || '2026-10') === m);
-      const saidasTxs = monthTxs.filter(tx => tx.type === 'saida');
-      const entradasTxs = monthTxs.filter(tx => tx.type === 'entrada');
+      // Lançamentos filtrados pelo mês selecionado ou Todos os Meses
+      const scopedTxs = showAllMonthsTx
+        ? state.transactions
+        : state.transactions.filter(tx => (tx.month || '2026-10') === m);
 
-      const totalSaidasMes = saidasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
-      const totalEntradasMes = entradasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+      const saidasTxs = scopedTxs.filter(tx => tx.type === 'saida');
+      const entradasTxs = scopedTxs.filter(tx => tx.type === 'entrada');
 
-      document.getElementById('saidas-month-total').textContent = 'Total Gasto no Mês: ' + formatBRL(totalSaidasMes) + ' (' + saidasTxs.length + ')';
-      document.getElementById('entradas-month-total').textContent = 'Total Recebido no Mês: ' + formatBRL(totalEntradasMes) + ' (' + entradasTxs.length + ')';
-      document.getElementById('tx-count').textContent = monthTxs.length + ' registros no mês';
+      const totalSaidas = saidasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+      const totalEntradas = entradasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+      document.getElementById('saidas-month-total').textContent = 'Total: ' + formatBRL(totalSaidas) + ' (' + saidasTxs.length + ')';
+      document.getElementById('entradas-month-total').textContent = 'Total: ' + formatBRL(totalEntradas) + ' (' + entradasTxs.length + ')';
+      document.getElementById('tx-count').textContent = scopedTxs.length + ' lançamentos exibidos';
 
       document.getElementById('saidas-transactions-list').innerHTML = saidasTxs.length
         ? saidasTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma saída registrada neste mês ainda.</p>';
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma saída registrada neste filtro.</p>';
 
       document.getElementById('entradas-transactions-list').innerHTML = entradasTxs.length
         ? entradasTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada registrada neste mês ainda.</p>';
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada registrada neste filtro.</p>';
 
-      document.getElementById('transactions-list').innerHTML = monthTxs.length
-        ? monthTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento registrado neste mês ainda.</p>';
+      document.getElementById('transactions-list').innerHTML = scopedTxs.length
+        ? scopedTxs.map(buildTransactionCardHTML).join('')
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento registrado neste filtro.</p>';
     }
 
-    function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate) {
-      const monthData = state.months[state.currentMonth];
+    function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate, explicitMonth) {
+      const targetMonthKey = explicitMonth || monthFromBRDate(customDate) || state.currentMonth;
+      const monthData = state.months[targetMonthKey] || state.months[state.currentMonth];
 
       if (type === 'saida' && targetId) {
         const checkProv = monthData.provisions.find(p => p.id === targetId);
@@ -992,7 +1184,7 @@
 
       const newTx = {
         id: existingId || ('tx_' + Date.now()),
-        month: state.currentMonth,
+        month: targetMonthKey,
         date: customDate || new Date().toLocaleDateString('pt-BR'),
         desc,
         amount,
@@ -1029,7 +1221,7 @@
         }
         state.transactions.unshift(newTx);
         pushStateToCloud(false);
-        showFeedback('✅ Saída de ' + formatBRL(amount) + ' debitada de ' + state.accounts[accountKey].name + '. ' + provMsg, 'success');
+        showFeedback('✅ Saída de ' + formatBRL(amount) + ' (' + newTx.date + ') debitada de ' + state.accounts[accountKey].name + '. ' + provMsg, 'success');
       } else {
         state.accounts[accountKey].balance = +(state.accounts[accountKey].balance + amount).toFixed(2);
         if (desc.toLowerCase().includes('leandra') || targetId === 'inc_leandra') {
@@ -1051,7 +1243,7 @@
         }
         state.transactions.unshift(newTx);
         pushStateToCloud(false);
-        showFeedback('✅ Entrada de ' + formatBRL(amount) + ' creditada em ' + state.accounts[accountKey].name + '. ' + incMsg, 'success');
+        showFeedback('✅ Entrada de ' + formatBRL(amount) + ' (' + newTx.date + ') creditada em ' + state.accounts[accountKey].name + '. ' + incMsg, 'success');
       }
     }
 
@@ -1072,11 +1264,13 @@
       else if (catId && catId.includes('_comb')) accSelect.value = 'flash';
     }
 
-    function populateCategorySelect(selectedId) {
+    function populateCategorySelect(selectedId, customMonthKey) {
+      const mKey = customMonthKey || state.currentMonth;
+      const mData = state.months[mKey] || state.months[state.currentMonth];
       const type = document.getElementById('manual-type').value;
       const catSelect = document.getElementById('manual-category');
-      catSelect.innerHTML = '<option value="">-- Sem vínculo com provisão --</option>';
-      const list = type === 'saida' ? state.months[state.currentMonth].provisions : state.months[state.currentMonth].incomes;
+      catSelect.innerHTML = `<option value="">-- Sem vínculo com provisão (${mData.label}) --</option>`;
+      const list = type === 'saida' ? mData.provisions : mData.incomes;
       list.forEach(item => {
         const sel = item.id === selectedId ? 'selected' : '';
         const statusTxt = item.remaining < 0
@@ -1090,9 +1284,10 @@
       document.getElementById('edit-tx-id').value = '';
       document.getElementById('manual-type').value = type;
       document.getElementById('manual-modal-title').textContent = type === 'saida' ? 'Nova Saída Manual' : 'Nova Entrada Manual';
+      document.getElementById('manual-date').value = new Date().toISOString().slice(0, 10);
       document.getElementById('manual-desc').value = '';
       document.getElementById('manual-amount').value = '';
-      populateCategorySelect('');
+      populateCategorySelect('', state.currentMonth);
       document.getElementById('manual-modal').classList.remove('hidden');
       document.getElementById('manual-modal').classList.add('flex');
     }
@@ -1105,22 +1300,23 @@
     function submitManualTransaction() {
       const editId = document.getElementById('edit-tx-id').value;
       const type = document.getElementById('manual-type').value;
+      const isoDate = document.getElementById('manual-date').value;
+      const chosenDateBR = isoDateToBR(isoDate);
+      const targetMonthKey = monthFromBRDate(chosenDateBR) || state.currentMonth;
       const desc = document.getElementById('manual-desc').value.trim() || (type === 'saida' ? 'Saída manual' : 'Entrada manual');
       const amount = parseFloat(document.getElementById('manual-amount').value);
       const accountKey = document.getElementById('manual-account').value;
       const catId = document.getElementById('manual-category').value || null;
       if (!amount || amount <= 0) return;
 
-      let preservedDate = null;
       if (editId) {
         const idx = state.transactions.findIndex(t => t.id === editId);
         if (idx !== -1) {
-          preservedDate = state.transactions[idx].date;
           revertTransactionEffects(state.transactions[idx]);
           state.transactions.splice(idx, 1);
         }
       }
-      applyTransaction(type, amount, accountKey, catId, desc, editId || null, preservedDate);
+      applyTransaction(type, amount, accountKey, catId, desc, editId || null, chosenDateBR, targetMonthKey);
       closeManualModal();
     }
 
