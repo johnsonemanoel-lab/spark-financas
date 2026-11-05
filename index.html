@@ -22,7 +22,7 @@
 </head>
 <body class="min-h-screen pb-16">
 
-  <!-- Header Limpo (Sem os botões de meses no topo) -->
+  <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-900 sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -40,7 +40,6 @@
         </div>
       </div>
 
-      <!-- Botões de Sincronização Segura -->
       <div class="flex items-center gap-2">
         <button type="button" onclick="syncFromCloud(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3.5 py-2 rounded-lg border border-slate-700 transition">
           <i class="fa-solid fa-arrows-rotate mr-1"></i> Sincronizar
@@ -94,30 +93,30 @@
       <div id="ai-feedback" class="hidden mt-3 p-3 rounded-xl text-xs border"></div>
     </section>
 
-    <!-- 2. Cards de Resumo Consolidado -->
+    <!-- 2. Cards de Resumo Consolidado (Sem somar benefícios no Saldo Final Livre) -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="glass rounded-2xl p-4">
         <div class="text-slate-400 text-xs mb-1">Saldo Próprio (Contas + Reservas)</div>
-        <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 56,31</div>
-        <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 56,31 | Reservas: R$ 0,00</div>
+        <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 153,47</div>
+        <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 153,47 | Reservas: R$ 0,00</div>
       </div>
 
       <div class="glass rounded-2xl p-4">
-        <div class="text-slate-400 text-xs mb-1">Entradas Pendentes (<span class="current-month-label">Novembro/2026</span>)</div>
-        <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 0,00</div>
-        <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Leandra: R$ 0,00 | VR: R$ 0,00 | Flash: R$ 0,00</div>
+        <div class="text-slate-400 text-xs mb-1">Entradas em Conta (<span class="current-month-label">Novembro/2026</span>)</div>
+        <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 6.530,35</div>
+        <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Exclusivo Conta Livre (Sem VR/Flash)</div>
       </div>
 
       <div class="glass rounded-2xl p-4">
         <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Novembro/2026</span>)</div>
-        <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 0,00</div>
+        <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 4.788,70</div>
         <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
       </div>
 
       <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
-        <div class="text-emerald-300 text-xs mb-1">Fechamento Livre Projetado</div>
-        <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 0,00</div>
-        <div id="kpi-projected-patrimony" class="text-[11px] text-emerald-300/80 mt-1">VR + Flash projetado: R$ 0,00</div>
+        <div class="text-emerald-300 text-xs mb-1">Saldo Final Livre Projetado</div>
+        <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 1.895,12</div>
+        <div id="kpi-projected-patrimony" class="text-[11px] text-slate-400 mt-1">100% Livre em Contas (Sem Benefícios)</div>
       </div>
     </section>
 
@@ -132,9 +131,9 @@
       <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
     </section>
 
-    <!-- 4. PAINEL INTEGRADO DE NAVEGAÇÃO: ABAS (SAÍDAS | ENTRADAS | REGISTROS GERAIS) + FILTRO DE MESES -->
+    <!-- 4. PAINEL INTEGRADO: ABAS + FILTRO DE MESES + BUSCA, FILTROS E ORDENAÇÃO -->
     <section class="glass rounded-2xl p-4 space-y-3 border border-slate-800">
-      <!-- Linha 1: Botões de Visão -->
+      <!-- Linha 1: Botões de Visão (Saídas | Entradas | Registros Gerais) -->
       <div class="grid grid-cols-3 gap-2 w-full">
         <button
           type="button"
@@ -162,48 +161,112 @@
         </button>
       </div>
 
-      <!-- Linha 2: Filtragem por Mês (Meses Passados + Mês Atual e Futuros + Todos os Lançamentos) -->
+      <!-- Linha 2: Seleção de Meses (Meses Anteriores + Mês Atual e Futuros + Ver Todos) -->
       <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-calendar-days text-emerald-400"></i> Filtrar Mês:
+            <i class="fa-solid fa-calendar-days text-emerald-400"></i> Mês:
           </span>
 
-          <!-- Seletor de Meses que já passaram -->
           <div class="relative">
             <select
               id="past-months-select"
               onchange="if(this.value) changeMonth(this.value)"
               class="bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500 cursor-pointer"
             >
-              <option value="">⏮️ Meses Passados...</option>
+              <option value="">⏮️ Meses Anteriores...</option>
             </select>
           </div>
 
-          <!-- Botões dos Meses Atuais e Futuros -->
           <div id="active-months-buttons" class="flex items-center gap-1.5 flex-wrap"></div>
         </div>
 
-        <!-- Filtro de Todos os Lançamentos no Painel -->
-        <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="btn-filter-all-months"
+          onclick="toggleAllMonthsFilter()"
+          class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-layer-group"></i> <span id="lbl-filter-all">Ver Todos os Meses</span>
+        </button>
+      </div>
+
+      <!-- Linha 3: Barra de Busca por Texto, Filtros (Conta, Categoria, Data) e Ordenação -->
+      <div class="pt-3 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-center">
+        <!-- Busca por Texto -->
+        <div class="relative lg:col-span-2">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input
+            id="filter-search"
+            type="text"
+            oninput="renderAll()"
+            placeholder="Buscar texto, local ou valor..."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <!-- Filtro por Conta -->
+        <div>
+          <select
+            id="filter-account"
+            onchange="renderAll()"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+          >
+            <option value="">💳 Todas as Contas</option>
+          </select>
+        </div>
+
+        <!-- Filtro por Categoria -->
+        <div>
+          <select
+            id="filter-category"
+            onchange="renderAll()"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+          >
+            <option value="">🏷️ Todas as Categorias</option>
+          </select>
+        </div>
+
+        <!-- Filtro por Data Específica -->
+        <div>
+          <input
+            id="filter-date"
+            type="date"
+            onchange="renderAll()"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+            title="Filtrar por um dia específico"
+          />
+        </div>
+
+        <!-- Ordenação + Limpar -->
+        <div class="flex items-center gap-1.5">
+          <select
+            id="sort-by"
+            onchange="renderAll()"
+            class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500"
+            title="Ordenar lançamentos"
+          >
+            <option value="date_desc">⬇️ Data (Mais recentes)</option>
+            <option value="date_asc">⬆️ Data (Mais antigos)</option>
+            <option value="amount_desc">💰 Valor (Maior → Menor)</option>
+            <option value="amount_asc">🪙 Valor (Menor → Maior)</option>
+            <option value="account_asc">🏦 Conta (A → Z)</option>
+            <option value="category_asc">🏷️ Categoria (A → Z)</option>
+          </select>
           <button
             type="button"
-            id="btn-filter-all-months"
-            onclick="toggleAllMonthsFilter()"
-            class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5"
-            title="Alternar entre ver apenas os lançamentos do mês selecionado ou de todos os meses"
+            onclick="clearAllFilters()"
+            class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 text-xs transition"
+            title="Limpar todos os filtros"
           >
-            <i class="fa-solid fa-layer-group"></i> <span id="lbl-filter-all">Ver Todos os Meses</span>
+            <i class="fa-solid fa-filter-circle-xmark"></i>
           </button>
         </div>
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- PAINEL 1: VISÃO DE SAÍDAS (Provisões Retraídas + Saídas Registradas) -->
-    <!-- =================================================================== -->
+    <!-- PAINEL 1: VISÃO DE SAÍDAS -->
     <div id="panel-saidas" class="space-y-6">
-      <!-- Provisões de Saídas (Retraídas por padrão, com opção de Expandir) -->
       <section class="glass rounded-2xl p-4 sm:p-5">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div onclick="toggleProvisionsCollapse('saidas')" class="cursor-pointer flex items-center gap-3 flex-1">
@@ -211,11 +274,11 @@
               <i id="icon-collapse-saidas" class="fa-solid fa-chevron-right transition-transform duration-200"></i>
             </div>
             <div>
-              <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                Provisões de Saídas — <span class="current-month-label">Novembro/2026</span>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2 flex-wrap">
+                <span>Provisões de Saídas — <span class="current-month-label">Novembro/2026</span></span>
                 <span id="badge-summary-saidas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
               </h2>
-              <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-saidas" class="text-amber-300 underline">expandir</strong> ou retrair a lista de provisões do mês.</p>
+              <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-saidas" class="text-amber-300 underline">expandir</strong> ou retrair as provisões do mês.</p>
             </div>
           </div>
           <div class="flex gap-2">
@@ -231,20 +294,18 @@
           </div>
         </div>
 
-        <!-- Lista retrátil -->
         <div id="provisions-collapse-body" class="hidden mt-4 pt-4 border-t border-slate-800">
           <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
       </section>
 
-      <!-- Todas as Saídas Registradas -->
       <section class="glass rounded-2xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
             <h2 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
               <i class="fa-solid fa-receipt"></i> Saídas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
             </h2>
-            <p class="text-xs text-slate-400">Clique em ✏️ para editar valor, conta ou data da saída</p>
+            <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
           </div>
           <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
             Total: R$ 0,00
@@ -254,11 +315,8 @@
       </section>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- PAINEL 2: VISÃO DE ENTRADAS (Previsões Retraídas + Entradas Registradas) -->
-    <!-- ===================================================================== -->
+    <!-- PAINEL 2: VISÃO DE ENTRADAS -->
     <div id="panel-entradas" class="hidden space-y-6">
-      <!-- Previsões de Entradas (Retraídas por padrão, com opção de Expandir) -->
       <section class="glass rounded-2xl p-4 sm:p-5">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div onclick="toggleProvisionsCollapse('entradas')" class="cursor-pointer flex items-center gap-3 flex-1">
@@ -266,14 +324,14 @@
               <i id="icon-collapse-entradas" class="fa-solid fa-chevron-right transition-transform duration-200"></i>
             </div>
             <div>
-              <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
-                Previsões de Entradas — <span class="current-month-label">Novembro/2026</span>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2 flex-wrap">
+                <span>Previsões de Entradas — <span class="current-month-label">Novembro/2026</span></span>
                 <span id="badge-summary-entradas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
               </h2>
               <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-entradas" class="text-sky-300 underline">expandir</strong> ou retrair as previsões de entrada.</p>
             </div>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <button type="button" onclick="toggleProvisionsCollapse('entradas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
               <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-entradas">Expandir</span>
             </button>
@@ -286,20 +344,18 @@
           </div>
         </div>
 
-        <!-- Lista retrátil -->
         <div id="incomes-collapse-body" class="hidden mt-4 pt-4 border-t border-slate-800">
           <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
       </section>
 
-      <!-- Todas as Entradas Registradas -->
       <section class="glass rounded-2xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
             <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
               <i class="fa-solid fa-sack-dollar"></i> Entradas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
             </h2>
-            <p class="text-xs text-slate-400">Clique em ✏️ para editar valor, conta ou data da entrada</p>
+            <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
           </div>
           <span id="entradas-month-total" class="text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-3 py-1 rounded-lg">
             Total: R$ 0,00
@@ -309,9 +365,7 @@
       </section>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- PAINEL 3: VISÃO DE REGISTROS GERAIS (Todos os Lançamentos + Filtro)   -->
-    <!-- ===================================================================== -->
+    <!-- PAINEL 3: VISÃO DE REGISTROS GERAIS -->
     <div id="panel-registros" class="hidden space-y-6">
       <section class="glass rounded-2xl p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -319,9 +373,12 @@
             <h2 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
               <i class="fa-solid fa-clock-rotate-left"></i> Todos os Lançamentos (<span class="tx-filter-scope-label">Novembro/2026</span>)
             </h2>
-            <p class="text-xs text-slate-400">Visão consolidada de entradas e saídas. Clique em ✏️ para alterar data/valor ou 🗑️ para excluir.</p>
+            <p class="text-xs text-slate-400">Visão consolidada com busca, filtro e ordenação. Clique em ✏️ para editar ou 🗑️ para excluir.</p>
           </div>
-          <span id="tx-count" class="text-xs bg-slate-800 px-3 py-1 rounded-lg text-slate-300 border border-slate-700">0 registros</span>
+          <div class="flex items-center gap-2">
+            <span id="geral-filtered-net" class="text-xs font-bold bg-slate-800 px-3 py-1 rounded-lg text-slate-200 border border-slate-700">Saldo Filtro: R$ 0,00</span>
+            <span id="tx-count" class="text-xs bg-purple-950/70 px-3 py-1 rounded-lg text-purple-300 border border-purple-800/60">0 registros</span>
+          </div>
         </div>
         <div id="transactions-list" class="space-y-2.5"></div>
       </section>
@@ -329,7 +386,7 @@
 
   </main>
 
-  <!-- Modal Lançamento Manual / Edição de Transação (Com Seletor de Data!) -->
+  <!-- Modal Lançamento Manual / Edição de Transação -->
   <div id="manual-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
     <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700">
       <div class="flex justify-between items-center mb-4">
@@ -398,7 +455,7 @@
 
         <div>
           <label class="block text-xs text-slate-400 mb-1">Nome / Descrição</label>
-          <input id="plan-item-name" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Ex: Reembolso Óculos Pai" />
+          <input id="plan-item-name" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Ex: Salário Fixo (IEP)" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -454,7 +511,6 @@
       '2027-01': { short: 'Jan/27', label: 'Janeiro/2027' }
     };
 
-    // Detecta automaticamente o mês atual do calendário (ex: Novembro/2026 -> '2026-11')
     function getSystemDefaultMonth() {
       const now = new Date();
       const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
@@ -470,11 +526,11 @@
         especie: { name: 'Dinheiro em Espécie', balance: 0.00, type: 'free' },
         res_oferta: { name: 'Reserva MP (Oferta)', balance: 0.00, type: 'reserve' },
         res_lifegroup: { name: 'Reserva MP (Life Group)', balance: 0.00, type: 'reserve' },
-        mp_livre: { name: 'Mercado Pago (Livre)', balance: 56.31, type: 'free' },
+        mp_livre: { name: 'Mercado Pago (Livre)', balance: 153.47, type: 'free' },
         leandra: { name: 'A Repassar (Leandra)', balance: 0.00, type: 'receivable' },
-        vr: { name: 'Cartão VR (VA)', balance: 20.09, type: 'benefit' },
+        vr: { name: 'Cartão VR (VA)', balance: 0.09, type: 'benefit' },
         itau: { name: 'Itaú (Conta Corrente)', balance: 0.00, type: 'free' },
-        flash: { name: 'Cartão Flash (VT)', balance: 0.27, type: 'benefit' }
+        flash: { name: 'Cartão Flash (VT)', balance: 62.17, type: 'benefit' }
       },
       months: {
         '2026-10': { label: 'Outubro/2026', incomes: [], provisions: [] },
@@ -486,19 +542,25 @@
     };
 
     let state = JSON.parse(localStorage.getItem('spark_github_cache_v1')) || JSON.parse(JSON.stringify(INITIAL_STATE));
-    // Sempre inicia o app no mês atual do calendário ao entrar!
     state.currentMonth = getSystemDefaultMonth();
 
     let currentView = 'saidas';
-    let showAllMonthsTx = false; // Quando true, mostra os lançamentos de todos os meses no painel
-    let isProvisionsExpanded = { saidas: false, entradas: false }; // Retraído por padrão!
+    let showAllMonthsTx = false;
+    let isProvisionsExpanded = { saidas: false, entradas: false };
     let isCloudLoaded = !!localStorage.getItem('spark_github_cache_v1');
 
     function formatBRL(val) {
       return 'R$ ' + Number(val || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    // Conversores de data DD/MM/YYYY <-> YYYY-MM-DD
+    // Normaliza texto removendo acentos para busca inteligente
+    function normalizeStr(str) {
+      return String(str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
     function brDateToISO(brDate) {
       if (!brDate) return new Date().toISOString().slice(0, 10);
       const parts = brDate.split('/');
@@ -517,6 +579,15 @@
       return isoDate;
     }
 
+    function brDateToSortableNumber(brDate) {
+      if (!brDate) return 0;
+      const parts = brDate.split('/');
+      if (parts.length === 3) {
+        return Number(`${parts[2]}${parts[1].padStart(2, '0')}${parts[0].padStart(2, '0')}`);
+      }
+      return 0;
+    }
+
     function monthFromBRDate(brDate) {
       if (!brDate) return null;
       const parts = brDate.split('/');
@@ -525,6 +596,105 @@
         if (state.months && state.months[ym]) return ym;
       }
       return null;
+    }
+
+    function clearAllFilters() {
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-account').value = '';
+      document.getElementById('filter-category').value = '';
+      document.getElementById('filter-date').value = '';
+      document.getElementById('sort-by').value = 'date_desc';
+      renderAll();
+    }
+
+    function populateFilterDropdowns() {
+      const accSelect = document.getElementById('filter-account');
+      const currentAcc = accSelect.value;
+      let accOpts = '<option value="">💳 Todas as Contas</option>';
+      Object.entries(state.accounts).forEach(([key, acc]) => {
+        const sel = (key === currentAcc || acc.name === currentAcc) ? 'selected' : '';
+        accOpts += `<option value="${key}" ${sel}>${acc.name}</option>`;
+      });
+      accSelect.innerHTML = accOpts;
+
+      const catSelect = document.getElementById('filter-category');
+      const currentCat = catSelect.value;
+      const catSet = new Set();
+
+      // Coleta categorias de transações e de provisões/previsões do mês ativo
+      const mData = state.months[state.currentMonth];
+      if (mData) {
+        mData.provisions.forEach(p => catSet.add(p.name));
+        mData.incomes.forEach(i => catSet.add(i.name));
+      }
+      state.transactions.forEach(tx => {
+        if (tx.category) catSet.add(tx.category);
+      });
+
+      const sortedCats = Array.from(catSet).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      let catOpts = '<option value="">🏷️ Todas as Categorias</option>';
+      sortedCats.forEach(c => {
+        const sel = (c === currentCat) ? 'selected' : '';
+        catOpts += `<option value="${c}" ${sel}>${c}</option>`;
+      });
+      catSelect.innerHTML = catOpts;
+    }
+
+    function filterAndSortTransactions(txList) {
+      const searchVal = normalizeStr(document.getElementById('filter-search')?.value || '');
+      const accFilter = document.getElementById('filter-account')?.value || '';
+      const catFilter = document.getElementById('filter-category')?.value || '';
+      const dateFilterISO = document.getElementById('filter-date')?.value || '';
+      const dateFilterBR = dateFilterISO ? isoDateToBR(dateFilterISO) : '';
+      const sortBy = document.getElementById('sort-by')?.value || 'date_desc';
+
+      let result = txList.filter(tx => {
+        // Filtro por Conta
+        if (accFilter) {
+          const accName = state.accounts[accFilter]?.name || '';
+          if (tx.accountKey !== accFilter && tx.account !== accName) return false;
+        }
+        // Filtro por Categoria
+        if (catFilter && tx.category !== catFilter) {
+          return false;
+        }
+        // Filtro por Data específica
+        if (dateFilterBR && tx.date !== dateFilterBR) {
+          return false;
+        }
+        // Filtro por Texto Livre (descrição, categoria, conta, data ou valor)
+        if (searchVal) {
+          const valStr = Number(tx.amount || 0).toFixed(2).replace('.', ',');
+          const haystack = normalizeStr(`${tx.desc} ${tx.category} ${tx.account} ${tx.date} ${valStr}`);
+          if (!haystack.includes(searchVal)) return false;
+        }
+        return true;
+      });
+
+      // Ordenação
+      result.sort((a, b) => {
+        if (sortBy === 'date_desc') {
+          return brDateToSortableNumber(b.date) - brDateToSortableNumber(a.date);
+        }
+        if (sortBy === 'date_asc') {
+          return brDateToSortableNumber(a.date) - brDateToSortableNumber(b.date);
+        }
+        if (sortBy === 'amount_desc') {
+          return Number(b.amount || 0) - Number(a.amount || 0);
+        }
+        if (sortBy === 'amount_asc') {
+          return Number(a.amount || 0) - Number(b.amount || 0);
+        }
+        if (sortBy === 'account_asc') {
+          return String(a.account || '').localeCompare(String(b.account || ''), 'pt-BR');
+        }
+        if (sortBy === 'category_asc') {
+          return String(a.category || '').localeCompare(String(b.category || ''), 'pt-BR');
+        }
+        return 0;
+      });
+
+      return result;
     }
 
     function toggleProvisionsCollapse(panel) {
@@ -684,7 +854,6 @@
       const pastKeys = allKeys.filter(k => k < sysMonth);
       const currentAndFutureKeys = allKeys.filter(k => k >= sysMonth);
 
-      // Popula o Select de Meses Passados
       const pastSelect = document.getElementById('past-months-select');
       if (pastKeys.length > 0) {
         pastSelect.classList.remove('hidden');
@@ -702,7 +871,6 @@
         pastSelect.classList.add('hidden');
       }
 
-      // Popula botões do Mês Atual e Futuros
       const btnContainer = document.getElementById('active-months-buttons');
       let btnsHtml = '';
       currentAndFutureKeys.forEach(k => {
@@ -719,7 +887,6 @@
       });
       btnContainer.innerHTML = btnsHtml;
 
-      // Atualiza estilo do botão "Ver Todos os Meses"
       const btnAll = document.getElementById('btn-filter-all-months');
       const lblAll = document.getElementById('lbl-filter-all');
       if (showAllMonthsTx) {
@@ -952,7 +1119,7 @@
       return `
         <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2 mb-0.5">
+            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeBg}">${tx.type === 'entrada' ? 'Entrada' : 'Saída'}</span>
               <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">${tx.date} (${mShort})</span>
               <span class="font-semibold text-slate-100 truncate">${tx.desc}</span>
@@ -973,6 +1140,7 @@
       const monthData = state.months[m] || state.months['2026-11'] || state.months['2026-10'];
 
       renderMonthNavigation();
+      populateFilterDropdowns();
 
       document.querySelectorAll('.current-month-label').forEach(el => el.textContent = monthData.label);
       document.querySelectorAll('.tx-filter-scope-label').forEach(el => {
@@ -983,6 +1151,7 @@
       const reservesBalance = (state.accounts.res_oferta?.balance || 0) + (state.accounts.res_lifegroup?.balance || 0);
       const ownTotal = freeBalance + reservesBalance;
 
+      // Filtra entradas excluindo benefícios (VR e Flash) do saldo final
       const isBenefitTarget = (t) => t === 'flash' || t === 'vr';
       const pendingInCash = monthData.incomes.filter(i => !isBenefitTarget(i.target)).reduce((a, i) => a + Math.max(0, i.remaining), 0);
       const pendingInVR = monthData.incomes.filter(i => i.target === 'vr').reduce((a, i) => a + Math.max(0, i.remaining), 0);
@@ -999,30 +1168,26 @@
       const totalOverbudget = monthData.provisions.reduce((a, p) => a + (p.remaining < 0 ? Math.abs(p.remaining) : 0), 0);
 
       const sysMonth = getSystemDefaultMonth();
+      // Saldo Final Projetado 100% livre de benefícios (VR e Flash não entram na soma!)
       const projectedCloseCash = (m === sysMonth || m === '2026-10')
         ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves)
         : (pendingInCash - pendingOutFreeCash - pendingOutReserves);
 
-      const projectedVR = (state.accounts.vr ? state.accounts.vr.balance : 0) + pendingInVR;
-      const projectedFlash = (state.accounts.flash ? state.accounts.flash.balance : 0) + pendingInFlash;
-      const projectedBenefitsTotal = projectedVR + projectedFlash;
-
       document.getElementById('kpi-own-balance').textContent = formatBRL(ownTotal);
       document.getElementById('kpi-free-vs-reserves').textContent = 'Livre: ' + formatBRL(freeBalance) + ' | Reservas: ' + formatBRL(reservesBalance);
       document.getElementById('kpi-pending-in').textContent = '+' + formatBRL(pendingInCash);
-      document.getElementById('kpi-leandra-status').textContent = `Leandra: ${formatBRL(state.accounts.leandra?.balance || 0)} | VR: ${formatBRL(pendingInVR)} | Flash: ${formatBRL(pendingInFlash)}`;
+      document.getElementById('kpi-leandra-status').textContent = `Apenas Conta Livre (À parte -> VR: ${formatBRL(pendingInVR)} | Flash: ${formatBRL(pendingInFlash)})`;
       document.getElementById('kpi-pending-out').textContent = '-' + formatBRL(pendingOutFreeCash);
       document.getElementById('kpi-overbudget-summary').innerHTML = totalOverbudget > 0
         ? `<span class="text-rose-400 font-semibold">⚠️ Excedente no mês: +${formatBRL(totalOverbudget)}</span> | Reservas: ${formatBRL(pendingOutReserves)}`
         : `No Caixa: ${formatBRL(pendingOutFreeCash)} | Nas Reservas: ${formatBRL(pendingOutReserves)}`;
       document.getElementById('kpi-projected-close').textContent = formatBRL(projectedCloseCash);
-      document.getElementById('kpi-projected-patrimony').textContent = `VR (${formatBRL(projectedVR)}) + Flash (${formatBRL(projectedFlash)}) = Total: ${formatBRL(projectedCloseCash + projectedBenefitsTotal)}`;
+      document.getElementById('kpi-projected-patrimony').textContent = 'Saldo 100% Livre em Conta (Benefícios não incluídos)';
 
-      // Resumo nos cabeçalhos das provisões retraídas
       const pendingProvCount = monthData.provisions.filter(p => p.remaining > 0.009).length;
       document.getElementById('badge-summary-saidas').textContent = `${pendingProvCount} pendentes • Resta ${formatBRL(pendingOutFreeCash)}`;
       const pendingIncCount = monthData.incomes.filter(i => i.remaining > 0.009).length;
-      document.getElementById('badge-summary-entradas').textContent = `${pendingIncCount} pendentes • Falta ${formatBRL(pendingInCash + pendingInVR + pendingInFlash)}`;
+      document.getElementById('badge-summary-entradas').textContent = `${pendingIncCount} pendentes • Em Conta: ${formatBRL(pendingInCash)}`;
 
       // Contas
       let accHtml = '';
@@ -1134,32 +1299,35 @@
       });
       document.getElementById('incomes-list').innerHTML = incHtml || '<p class="text-xs text-slate-500">Nenhuma previsão de entrada para este mês.</p>';
 
-      // Lançamentos filtrados pelo mês selecionado ou Todos os Meses
-      const scopedTxs = showAllMonthsTx
+      // Escopo de Mês + Aplicação de Filtros e Ordenação
+      const monthScopedTxs = showAllMonthsTx
         ? state.transactions
         : state.transactions.filter(tx => (tx.month || '2026-10') === m);
 
-      const saidasTxs = scopedTxs.filter(tx => tx.type === 'saida');
-      const entradasTxs = scopedTxs.filter(tx => tx.type === 'entrada');
+      const filteredAllTxs = filterAndSortTransactions(monthScopedTxs);
+      const saidasTxs = filteredAllTxs.filter(tx => tx.type === 'saida');
+      const entradasTxs = filteredAllTxs.filter(tx => tx.type === 'entrada');
 
       const totalSaidas = saidasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
       const totalEntradas = entradasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+      const netGeral = totalEntradas - totalSaidas;
 
-      document.getElementById('saidas-month-total').textContent = 'Total: ' + formatBRL(totalSaidas) + ' (' + saidasTxs.length + ')';
-      document.getElementById('entradas-month-total').textContent = 'Total: ' + formatBRL(totalEntradas) + ' (' + entradasTxs.length + ')';
-      document.getElementById('tx-count').textContent = scopedTxs.length + ' lançamentos exibidos';
+      document.getElementById('saidas-month-total').textContent = `Total Filtrado: ${formatBRL(totalSaidas)} (${saidasTxs.length})`;
+      document.getElementById('entradas-month-total').textContent = `Total Filtrado: ${formatBRL(totalEntradas)} (${entradasTxs.length})`;
+      document.getElementById('geral-filtered-net').textContent = `Entradas: +${formatBRL(totalEntradas)} | Saídas: -${formatBRL(totalSaidas)} | Líquido: ${formatBRL(netGeral)}`;
+      document.getElementById('tx-count').textContent = `${filteredAllTxs.length} registros`;
 
       document.getElementById('saidas-transactions-list').innerHTML = saidasTxs.length
         ? saidasTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma saída registrada neste filtro.</p>';
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma saída encontrada para os filtros selecionados.</p>';
 
       document.getElementById('entradas-transactions-list').innerHTML = entradasTxs.length
         ? entradasTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada registrada neste filtro.</p>';
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada encontrada para os filtros selecionados.</p>';
 
-      document.getElementById('transactions-list').innerHTML = scopedTxs.length
-        ? scopedTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento registrado neste filtro.</p>';
+      document.getElementById('transactions-list').innerHTML = filteredAllTxs.length
+        ? filteredAllTxs.map(buildTransactionCardHTML).join('')
+        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento encontrado para os filtros selecionados.</p>';
     }
 
     function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate, explicitMonth) {
