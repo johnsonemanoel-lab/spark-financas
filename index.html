@@ -3,20 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta id="meta-theme-color" name="theme-color" content="#0f172a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Spark Finanças</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background-color: #0f172a; color: #f8fafc; }
-    .glass { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .glass {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
     .pulse-mic { animation: pulseRed 1.4s infinite; }
     @keyframes pulseRed {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
       70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* ==========================================
+       TEMA CLARO (LIGHT MODE) OVERRIDES
+       ========================================== */
+    body.light-mode {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    body.light-mode header.bg-slate-900 {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-bottom-color: #cbd5e1 !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.05);
+    }
+    body.light-mode .glass {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+    body.light-mode .text-white,
+    body.light-mode .text-slate-100,
+    body.light-mode .text-slate-200 {
+      color: #0f172a !important;
+    }
+    body.light-mode .text-slate-300 {
+      color: #334155 !important;
+    }
+    body.light-mode .text-slate-400,
+    body.light-mode .text-slate-500 {
+      color: #475569 !important;
+    }
+    body.light-mode .bg-slate-900,
+    body.light-mode .bg-slate-900\/90,
+    body.light-mode .bg-slate-900\/80,
+    body.light-mode .bg-slate-900\/70 {
+      background-color: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-mode .bg-slate-800,
+    body.light-mode .bg-slate-800\/70,
+    body.light-mode .bg-slate-800\/60 {
+      background-color: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
+      color: #1e293b !important;
+    }
+    body.light-mode .border-slate-800,
+    body.light-mode .border-slate-800\/80,
+    body.light-mode .border-slate-700 {
+      border-color: #cbd5e1 !important;
+    }
+    body.light-mode .text-emerald-400,
+    body.light-mode .text-emerald-300 {
+      color: #047857 !important;
+    }
+    body.light-mode .text-sky-400,
+    body.light-mode .text-sky-300 {
+      color: #0369a1 !important;
+    }
+    body.light-mode .text-amber-400,
+    body.light-mode .text-amber-300 {
+      color: #b45309 !important;
+    }
+    body.light-mode .text-rose-400,
+    body.light-mode .text-rose-300,
+    body.light-mode .text-rose-200 {
+      color: #be123c !important;
+    }
+    body.light-mode .text-violet-300,
+    body.light-mode .text-violet-200,
+    body.light-mode .text-purple-400,
+    body.light-mode .text-purple-300 {
+      color: #6d28d9 !important;
+    }
+    body.light-mode .bg-emerald-950,
+    body.light-mode .bg-emerald-950\/80,
+    body.light-mode .bg-emerald-950\/60,
+    body.light-mode .bg-emerald-950\/20 {
+      background-color: #ecfdf5 !important;
+      border-color: #6ee7b7 !important;
+    }
+    body.light-mode .bg-rose-950,
+    body.light-mode .bg-rose-950\/80,
+    body.light-mode .bg-rose-950\/60,
+    body.light-mode .bg-rose-950\/25 {
+      background-color: #fff1f2 !important;
+      border-color: #fda4af !important;
+    }
+    body.light-mode .bg-violet-950,
+    body.light-mode .bg-violet-950\/80,
+    body.light-mode .bg-violet-950\/70,
+    body.light-mode .bg-violet-950\/40,
+    body.light-mode .bg-violet-950\/30,
+    body.light-mode .bg-violet-950\/25,
+    body.light-mode .bg-purple-950,
+    body.light-mode .bg-purple-950\/70 {
+      background-color: #f5f3ff !important;
+      border-color: #c4b5fd !important;
+    }
+    body.light-mode .keep-white-text,
+    body.light-mode .bg-emerald-600,
+    body.light-mode .bg-rose-600,
+    body.light-mode .bg-sky-600,
+    body.light-mode .bg-purple-600,
+    body.light-mode .bg-violet-600,
+    body.light-mode .bg-amber-600 {
+      color: #ffffff !important;
     }
   </style>
 </head>
@@ -36,11 +151,24 @@
               ● Cloud Ativo
             </span>
           </div>
-          <p class="text-xs text-slate-400">Controle de Caixa & Provisões • Mês Ativo: <strong class="current-month-label text-emerald-400">Novembro/2026</strong></p>
+          <p class="text-xs text-slate-400">Controle de Caixa, Cartões & Provisões • Mês Ativo: <strong class="current-month-label text-emerald-400">Novembro/2026</strong></p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button
+          type="button"
+          id="theme-toggle-btn"
+          onclick="toggleTheme()"
+          class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5 font-semibold"
+          title="Alternar entre Tema Claro e Tema Escuro"
+        >
+          <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
+          <span id="theme-toggle-label">Tema Claro</span>
+        </button>
+        <button type="button" onclick="openPayInvoiceModal()" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3.5 py-2 rounded-lg border border-violet-700/80 transition font-semibold">
+          <i class="fa-regular fa-credit-card mr-1"></i> Pagar Fatura
+        </button>
         <button type="button" onclick="syncFromCloud(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3.5 py-2 rounded-lg border border-slate-700 transition">
           <i class="fa-solid fa-arrows-rotate mr-1"></i> Sincronizar
         </button>
@@ -55,7 +183,7 @@
 
     <!-- 1. Barra de Lançamento Rápido por Voz / IA -->
     <section class="glass rounded-2xl p-5 shadow-xl border-l-4 border-l-emerald-500">
-      <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
         <label class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
           <i class="fa-solid fa-microphone-lines"></i> Registro Inteligente por Voz ou Texto (IA) — <span class="current-month-label">Novembro/2026</span>
         </label>
@@ -67,7 +195,7 @@
           <input
             id="ai-input"
             type="text"
-            placeholder='Toque no microfone 🎙️ e fale: "Comprei 50 de mercantil no cartão VR"'
+            placeholder='Ex: "Comprei 300 de fraldas em 2x no Nubank" ou "Comprei 150 de mercantil no Cartão Pan"'
             class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
             onkeydown="if(event.key === 'Enter') processAIInput()"
           />
@@ -75,7 +203,7 @@
             type="button"
             id="mic-btn"
             onclick="toggleSpeechRecognition()"
-            class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow"
+            class="keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow"
             title="Clique e fale o lançamento"
           >
             <i class="fa-solid fa-microphone"></i>
@@ -84,10 +212,17 @@
         <button
           type="button"
           onclick="processAIInput()"
-          class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition"
+          class="keep-white-text bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition"
         >
           <i class="fa-solid fa-bolt"></i> Lançar e Salvar no BD
         </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mt-2.5 text-[11px] text-slate-400">
+        <span class="text-slate-500">Exemplos por Voz/IA:</span>
+        <span class="bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-violet-300">💳 "...em 3x no Nubank / Pan / Santander" (respeita o dia de fechamento!)</span>
+        <span class="bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-emerald-300">🥗 "...no cartão VR" / "...no Flash"</span>
+        <span class="bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-sky-300">⚡ "...com Pix" (Mercado Pago Livre)</span>
       </div>
 
       <div id="ai-feedback" class="hidden mt-3 p-3 rounded-xl text-xs border"></div>
@@ -120,15 +255,40 @@
       </div>
     </section>
 
-    <!-- 3. Saldos por Conta Bancária / Carteira -->
-    <section class="glass rounded-2xl p-5">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">
-          💳 Posição Atual das Contas, Reservas & Benefícios (VR / Flash)
-        </h2>
-        <span class="text-xs text-slate-400">Clique em qualquer card para ajustar o saldo manualmente</span>
+    <!-- 3. Saldos por Conta Bancária / Carteira & Cartões de Crédito -->
+    <section class="glass rounded-2xl p-5 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">
+            🏦 Contas Bancárias, Reservas & Benefícios (VR / Flash)
+          </h2>
+          <p class="text-xs text-slate-400">Clique em qualquer card para ajustar o saldo manualmente</p>
+        </div>
       </div>
       <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
+
+      <!-- Sub-seção dedicada aos Cartões de Crédito com Fechamento e Vencimento -->
+      <div class="pt-4 border-t border-slate-800/80">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-violet-300 flex items-center gap-1.5">
+              <i class="fa-regular fa-credit-card"></i> Cartões de Crédito & Controle de Faturas (Virada Automática)
+            </h3>
+            <p class="text-[11px] text-slate-400">
+              Compras feitas a partir do <strong>Dia de Fechamento</strong> caem automaticamente na fatura do mês seguinte. Clique em um cartão para configurar fechamento, limite ou fatura.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="openNewCardModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-violet-300 px-3 py-1.5 rounded-lg border border-slate-700 transition font-semibold">
+              + Novo Cartão
+            </button>
+            <button type="button" onclick="openPayInvoiceModal()" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-700/80 transition font-semibold">
+              Baixar / Pagar Fatura
+            </button>
+          </div>
+        </div>
+        <div id="credit-cards-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      </div>
     </section>
 
     <!-- 4. PAINEL INTEGRADO: ABAS + FILTRO DE MESES + BUSCA, FILTROS E ORDENAÇÃO -->
@@ -139,7 +299,7 @@
           type="button"
           id="view-btn-saidas"
           onclick="changeView('saidas')"
-          class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg"
+          class="keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg"
         >
           <i class="fa-solid fa-arrow-trend-down"></i> Saídas
         </button>
@@ -200,7 +360,7 @@
             id="filter-search"
             type="text"
             oninput="renderAll()"
-            placeholder="Buscar texto, local ou valor..."
+            placeholder="Buscar texto, local, cartão, parcela ou valor..."
             class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
           />
         </div>
@@ -212,7 +372,7 @@
             onchange="renderAll()"
             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
           >
-            <option value="">💳 Todas as Contas</option>
+            <option value="">💳 Todas as Contas / Cartões</option>
           </select>
         </div>
 
@@ -281,12 +441,15 @@
               <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-saidas" class="text-amber-300 underline">expandir</strong> ou retrair as provisões do mês.</p>
             </div>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <button type="button" onclick="toggleProvisionsCollapse('saidas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
               <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-saidas">Expandir</span>
             </button>
             <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700">
               + Nova Provisão
+            </button>
+            <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-800 font-semibold">
+              💳 Compra no Cartão
             </button>
             <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
               + Lançar Saída
@@ -307,9 +470,14 @@
             </h2>
             <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
           </div>
-          <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
-            Total: R$ 0,00
-          </span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="saidas-credit-total" class="text-xs font-semibold bg-violet-950/80 text-violet-300 border border-violet-800/60 px-3 py-1 rounded-lg">
+              Nos Cartões: R$ 0,00
+            </span>
+            <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
+              Total: R$ 0,00
+            </span>
+          </div>
         </div>
         <div id="saidas-transactions-list" class="space-y-2.5"></div>
       </section>
@@ -375,7 +543,7 @@
             </h2>
             <p class="text-xs text-slate-400">Visão consolidada com busca, filtro e ordenação. Clique em ✏️ para editar ou 🗑️ para excluir.</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <span id="geral-filtered-net" class="text-xs font-bold bg-slate-800 px-3 py-1 rounded-lg text-slate-200 border border-slate-700">Saldo Filtro: R$ 0,00</span>
             <span id="tx-count" class="text-xs bg-purple-950/70 px-3 py-1 rounded-lg text-purple-300 border border-purple-800/60">0 registros</span>
           </div>
@@ -388,7 +556,7 @@
 
   <!-- Modal Lançamento Manual / Edição de Transação -->
   <div id="manual-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
-    <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700">
+    <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700 max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 id="manual-modal-title" class="font-bold text-base">Novo Lançamento</h3>
         <button type="button" onclick="closeManualModal()" class="text-slate-400 hover:text-white">✕</button>
@@ -398,44 +566,83 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs text-slate-400 mb-1">Tipo de Operação</label>
-            <select id="manual-type" onchange="populateCategorySelect()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            <select id="manual-type" onchange="onManualTypeOrAccountChange(); populateCategorySelect();" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
               <option value="saida">Saída (-)</option>
               <option value="entrada">Entrada (+)</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Data do Lançamento</label>
+            <label class="block text-xs text-slate-400 mb-1">Data da Compra / Lançamento</label>
             <input id="manual-date" type="date" onchange="onManualDateChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
           </div>
         </div>
         <div>
           <label class="block text-xs text-slate-400 mb-1">Descrição</label>
-          <input id="manual-desc" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Ex: Compra de Mercantil" />
+          <input id="manual-desc" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Ex: Compra de Mercantil / Fraldas" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Valor (R$)</label>
-            <input id="manual-amount" type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="0.00" />
+            <label id="lbl-manual-amount" class="block text-xs text-slate-400 mb-1">Valor (R$)</label>
+            <input id="manual-amount" type="number" step="0.01" oninput="updateInstallmentPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="0.00" />
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Conta Movimentada</label>
-            <select id="manual-account" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
-              <option value="mp_livre">Mercado Pago (Livre)</option>
-              <option value="itau">Itaú</option>
-              <option value="especie">Dinheiro Físico</option>
-              <option value="vr">Cartão VR (VA)</option>
-              <option value="flash">Cartão Flash (VT)</option>
-              <option value="leandra">Saldo c/ Leandra</option>
-              <option value="res_oferta">Reserva Oferta MP</option>
-              <option value="res_lifegroup">Reserva Life Group MP</option>
-            </select>
+            <label class="block text-xs text-slate-400 mb-1">Conta / Cartão Movimentado</label>
+            <select id="manual-account" onchange="onManualTypeOrAccountChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></select>
           </div>
         </div>
+
+        <!-- Opções de Parcelamento e Virada de Fatura no Cartão de Crédito -->
+        <div id="credit-installments-wrapper" class="hidden bg-violet-950/30 border border-violet-700/50 rounded-xl p-3 space-y-2.5">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="text-xs font-bold text-violet-300 flex items-center gap-1.5">
+              <i class="fa-regular fa-credit-card"></i> Opções da Fatura & Parcelamento
+            </span>
+            <span id="installment-preview-badge" class="text-[11px] font-semibold text-violet-200 bg-violet-900/60 px-2 py-0.5 rounded">1x à vista</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-slate-300 mb-1">Nº de Parcelas</label>
+              <select id="manual-installments" onchange="updateInstallmentPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                <option value="1">1x (À vista na fatura)</option>
+                <option value="2">2x sem juros</option>
+                <option value="3">3x sem juros</option>
+                <option value="4">4x sem juros</option>
+                <option value="5">5x sem juros</option>
+                <option value="6">6x sem juros</option>
+                <option value="7">7x</option>
+                <option value="8">8x</option>
+                <option value="9">9x</option>
+                <option value="10">10x</option>
+                <option value="11">11x</option>
+                <option value="12">12x</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-300 mb-1">O valor digitado é:</label>
+              <select id="manual-amount-mode" onchange="updateInstallmentPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                <option value="total">Valor Total da Compra</option>
+                <option value="parcela">Valor de Cada Parcela</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] text-slate-300 mb-1">Regra de Virada da Fatura (1ª Parcela):</label>
+            <select id="manual-invoice-rollover" onchange="onManualDateChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+              <option value="auto">⚡ Automático pelo dia de fechamento do cartão</option>
+              <option value="current">📅 Forçar 1ª parcela no mês da data da compra</option>
+              <option value="next">⏭️ Forçar 1ª parcela para o mês seguinte</option>
+            </select>
+          </div>
+
+          <div id="closing-day-info" class="text-[11px] bg-slate-900/90 border border-slate-800 rounded-lg p-2 text-slate-300 leading-snug"></div>
+        </div>
+
         <div>
           <label class="block text-xs text-slate-400 mb-1">Vincular à Provisão / Previsão do Mês</label>
           <select id="manual-category" onchange="autoSelectReserveAccount()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></select>
         </div>
-        <button type="button" id="btn-save-modal" onclick="submitManualTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl mt-2">
+        <button type="button" id="btn-save-modal" onclick="submitManualTransaction()" class="keep-white-text w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl mt-2">
           Confirmar e Gravar no BD
         </button>
       </div>
@@ -489,11 +696,13 @@
           <input id="plan-item-keywords" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300" placeholder="Ex: aluguel, inquilino" />
         </div>
 
+        <div id="plan-modal-error" class="hidden text-xs text-rose-300 bg-rose-950/70 border border-rose-800 rounded-lg p-2"></div>
+
         <div class="flex gap-2 pt-2">
           <button type="button" id="btn-delete-plan-item" onclick="deletePlanItem()" class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 font-semibold px-4 py-2.5 rounded-xl text-xs">
             🗑️ Excluir
           </button>
-          <button type="button" onclick="savePlanItem()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl">
+          <button type="button" onclick="savePlanItem()" class="keep-white-text flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl">
             Salvar Alterações
           </button>
         </div>
@@ -501,8 +710,164 @@
     </div>
   </div>
 
+  <!-- Modal Ajuste Manual de Saldo / Configuração de Cartão de Crédito -->
+  <div id="balance-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
+    <div class="glass rounded-2xl max-w-md w-full p-5 border border-slate-700">
+      <div class="flex justify-between items-center mb-3">
+        <h3 id="balance-modal-title" class="font-bold text-base">Ajustar Saldo</h3>
+        <button type="button" onclick="closeBalanceModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <input type="hidden" id="balance-modal-key" value="" />
+        <p id="balance-modal-desc" class="text-xs text-slate-400"></p>
+
+        <div id="balance-modal-card-name-wrap" class="hidden">
+          <label class="block text-xs text-slate-400 mb-1">Nome do Cartão</label>
+          <input id="balance-modal-card-name" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm" placeholder="Ex: Cartão Nubank" />
+        </div>
+
+        <div>
+          <label id="balance-modal-val-label" class="block text-xs text-slate-400 mb-1">Novo Valor (R$)</label>
+          <input id="balance-modal-input" type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-base font-bold" />
+        </div>
+
+        <!-- Campos extras para Cartão de Crédito: Fechamento, Vencimento e Limite -->
+        <div id="balance-modal-credit-config" class="hidden space-y-3 pt-2 border-t border-slate-800">
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Dia Fechamento</label>
+              <input id="balance-modal-closing" type="number" min="1" max="31" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white text-xs font-bold" placeholder="Ex: 5" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Dia Vencimento</label>
+              <input id="balance-modal-due" type="number" min="1" max="31" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white text-xs font-bold" placeholder="Ex: 12" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Limite Total (R$)</label>
+              <input id="balance-modal-limit" type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white text-xs font-bold" placeholder="2000.00" />
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-tight">
+            Compras feitas a partir do <strong>Dia de Fechamento</strong> são jogadas automaticamente para a fatura do mês seguinte.
+          </p>
+        </div>
+
+        <div id="balance-modal-credit-actions" class="hidden pt-1">
+          <button type="button" onclick="openPayInvoiceFromCardModal()" class="w-full bg-violet-950 hover:bg-violet-900 text-violet-200 border border-violet-700 font-semibold py-2 rounded-xl text-xs">
+            💳 Pagar / Baixar Fatura deste Cartão
+          </button>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btn-delete-card" onclick="deleteCreditCardModal()" class="hidden bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 px-3 py-2 rounded-xl text-xs font-semibold">
+            🗑️
+          </button>
+          <button type="button" onclick="closeBalanceModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-semibold">
+            Cancelar
+          </button>
+          <button type="button" onclick="saveAccountBalanceModal()" class="keep-white-text flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-xs font-semibold">
+            Salvar Saldo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pagar Fatura do Cartão de Crédito -->
+  <div id="pay-invoice-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
+    <div class="glass rounded-2xl max-w-md w-full p-5 border border-violet-700/60">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold text-base text-violet-300 flex items-center gap-2">
+          <i class="fa-regular fa-credit-card"></i> Pagar Fatura do Cartão
+        </h3>
+        <button type="button" onclick="closePayInvoiceModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Qual cartão você está pagando?</label>
+          <select id="pay-invoice-card" onchange="onPayInvoiceCardChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold"></select>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Fatura Acumulada Total neste Cartão:</span>
+            <strong id="pay-invoice-total-label" class="text-violet-300">R$ 0,00</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Lançamentos no Mês Ativo (<span class="current-month-label">Novembro/2026</span>):</span>
+            <strong id="pay-invoice-month-label" class="text-white">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Valor a Pagar (R$)</label>
+            <input id="pay-invoice-amount" type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold" placeholder="0.00" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Data do Pagamento</label>
+            <input id="pay-invoice-date" type="date" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Debitar de qual conta livre?</label>
+          <select id="pay-invoice-source" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            <option value="mp_livre">Mercado Pago (Livre)</option>
+            <option value="itau">Itaú (Conta Corrente)</option>
+            <option value="especie">Dinheiro em Espécie</option>
+          </select>
+        </div>
+
+        <p class="text-[11px] text-slate-400 leading-tight">
+          O pagamento reduz o saldo da conta bancária escolhida e abate o saldo devedor do cartão selecionado, sem duplicar o desconto nas provisões já abatidas na compra.
+        </p>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closePayInvoiceModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-xs font-semibold">
+            Cancelar
+          </button>
+          <button type="button" onclick="submitPayInvoice()" class="keep-white-text flex-1 bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2.5 rounded-xl text-xs">
+            Confirmar Pagamento de Fatura
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação de Exclusão -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
+    <div class="glass rounded-2xl max-w-sm w-full p-5 border border-slate-700">
+      <h3 id="confirm-modal-title" class="font-bold text-base text-white mb-2">Confirmar Exclusão</h3>
+      <p id="confirm-modal-msg" class="text-xs text-slate-300 mb-4 leading-relaxed"></p>
+      <div id="confirm-modal-group-option" class="hidden mb-4 bg-violet-950/40 border border-violet-700/50 rounded-xl p-2.5">
+        <label class="flex items-center gap-2 text-xs text-violet-200 cursor-pointer">
+          <input type="checkbox" id="confirm-delete-all-installments" checked class="rounded border-slate-600" />
+          <span>Excluir também todas as outras parcelas vinculadas a esta compra</span>
+        </label>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeConfirmModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-semibold">
+          Cancelar
+        </button>
+        <button type="button" id="confirm-modal-yes" onclick="executeConfirmedAction()" class="keep-white-text flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl text-xs font-semibold">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyQo-EhNJBaqyf-Zn9qS4JrE9WZJ5N7EhRXCOJZE7vqmzwJKb59CqX4hwO4GtxLO7wV/exec";
+
+    const MONTH_NAMES_PT = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    const MONTH_SHORT_PT = [
+      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+    ];
 
     const MONTH_META = {
       '2026-10': { short: 'Out/26', label: 'Outubro/2026' },
@@ -510,6 +875,91 @@
       '2026-12': { short: 'Dez/26', label: 'Dezembro/2026' },
       '2027-01': { short: 'Jan/27', label: 'Janeiro/2027' }
     };
+
+    // ==========================================
+    // CONTROLE DE TEMA (CLARO / ESCURO)
+    // ==========================================
+    let currentTheme = 'dark';
+
+    function loadThemePreference() {
+      try {
+        const saved = localStorage.getItem('spark_theme_mode');
+        if (saved === 'light' || saved === 'dark') {
+          currentTheme = saved;
+        }
+      } catch (e) {}
+      applyThemeUI();
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('spark_theme_mode', currentTheme);
+      } catch (e) {}
+      applyThemeUI();
+    }
+
+    function applyThemeUI() {
+      const isLight = currentTheme === 'light';
+      document.body.classList.toggle('light-mode', isLight);
+      const iconEl = document.getElementById('theme-toggle-icon');
+      const labelEl = document.getElementById('theme-toggle-label');
+      const metaTheme = document.getElementById('meta-theme-color');
+      if (iconEl && labelEl) {
+        if (isLight) {
+          iconEl.className = 'fa-solid fa-moon text-indigo-600';
+          labelEl.textContent = 'Tema Escuro';
+        } else {
+          iconEl.className = 'fa-solid fa-sun text-amber-300';
+          labelEl.textContent = 'Tema Claro';
+        }
+      }
+      if (metaTheme) {
+        metaTheme.setAttribute('content', isLight ? '#f1f5f9' : '#0f172a');
+      }
+    }
+
+    function getMonthMeta(ym) {
+      if (MONTH_META[ym]) return MONTH_META[ym];
+      const parts = String(ym || '').split('-');
+      if (parts.length === 2) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        if (!isNaN(y) && m >= 0 && m < 12) {
+          const meta = {
+            short: `${MONTH_SHORT_PT[m]}/${String(y).slice(-2)}`,
+            label: `${MONTH_NAMES_PT[m]}/${y}`
+          };
+          MONTH_META[ym] = meta;
+          return meta;
+        }
+      }
+      return { short: ym, label: ym };
+    }
+
+    function addMonthsToYM(ym, delta) {
+      const parts = String(ym || '2026-11').split('-');
+      let year = parseInt(parts[0], 10) || 2026;
+      let month = (parseInt(parts[1], 10) || 11) - 1 + delta;
+      year += Math.floor(month / 12);
+      month = ((month % 12) + 12) % 12;
+      const newYM = `${year}-${String(month + 1).padStart(2, '0')}`;
+      getMonthMeta(newYM);
+      return newYM;
+    }
+
+    function addMonthsToBRDate(brDate, delta) {
+      const iso = brDateToISO(brDate);
+      const parts = iso.split('-');
+      let year = parseInt(parts[0], 10);
+      let month = parseInt(parts[1], 10) - 1 + delta;
+      let day = parseInt(parts[2], 10);
+      year += Math.floor(month / 12);
+      month = ((month % 12) + 12) % 12;
+      const maxDay = new Date(year, month + 1, 0).getDate();
+      const safeDay = Math.min(day, maxDay);
+      return `${String(safeDay).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
+    }
 
     function getSystemDefaultMonth() {
       const now = new Date();
@@ -525,35 +975,149 @@
       accounts: {
         especie: { name: 'Dinheiro em Espécie', balance: 0.00, type: 'free' },
         res_oferta: { name: 'Reserva MP (Oferta)', balance: 0.00, type: 'reserve' },
-        res_lifegroup: { name: 'Reserva MP (Life Group)', balance: 0.00, type: 'reserve' },
-        mp_livre: { name: 'Mercado Pago (Livre)', balance: 153.47, type: 'free' },
+        res_lifegroup: { name: 'Reserva MP (Life Group)', balance: 72.00, type: 'reserve' },
+        mp_livre: { name: 'Mercado Pago (Livre)', balance: 404.70, type: 'free' },
         leandra: { name: 'A Repassar (Leandra)', balance: 0.00, type: 'receivable' },
-        vr: { name: 'Cartão VR (VA)', balance: 0.09, type: 'benefit' },
+        vr: { name: 'Cartão VR (VA)', balance: 97.35, type: 'benefit' },
         itau: { name: 'Itaú (Conta Corrente)', balance: 0.00, type: 'free' },
-        flash: { name: 'Cartão Flash (VT)', balance: 62.17, type: 'benefit' }
+        flash: { name: 'Cartão Flash (VT)', balance: 0.17, type: 'benefit' },
+        credit_card: { name: 'Cartão Nubank', balance: 510.00, type: 'credit', closingDay: 5, dueDay: 12, limit: 2000.00 },
+        cc_pan: { name: 'Cartão Pan', balance: 0.00, type: 'credit', closingDay: 15, dueDay: 22, limit: 7250.00 },
+        cc_santander: { name: 'Cartão Santander', balance: 0.00, type: 'credit', closingDay: 23, dueDay: 30, limit: 3000.00 }
       },
       months: {
         '2026-10': { label: 'Outubro/2026', incomes: [], provisions: [] },
-        '2026-11': { label: 'Novembro/2026', incomes: [], provisions: [] },
-        '2026-12': { label: 'Dezembro/2026', incomes: [], provisions: [] },
-        '2027-01': { label: 'Janeiro/2027', incomes: [], provisions: [] }
+        '2026-11': {
+          label: 'Novembro/2026',
+          incomes: [
+            { id: 'nov_sal', name: 'Salário Fixo (IEP)', budgeted: 3627.75, remaining: 3627.75, target: 'itau', keywords: ['salário', 'salario'] },
+            { id: 'nov_13', name: '13º Salário (1ª Parcela)', budgeted: 1999.62, remaining: 1999.62, target: 'itau', keywords: ['13º', 'decimo', 'décimo'] },
+            { id: 'nov_aluguel', name: 'Aluguel Recebido (Inquilino - dia 10)', budgeted: 700, remaining: 0, target: 'mp_livre', keywords: ['aluguel'] },
+            { id: 'nov_oculos', name: 'Reembolso Óculos Pai (dia 22 - 06/06 Final)', budgeted: 200, remaining: 200, target: 'mp_livre', keywords: ['óculos', 'oculos', 'pai'] },
+            { id: 'nov_va', name: 'Cartão VR - Vale-Alimentação (19 dias úteis)', budgeted: 342, remaining: 180, target: 'vr', keywords: ['vale alimentação', 'alimentacao', 'cartão vr', 'cartao vr', 'crédito vr', 'credito vr', 'va'] },
+            { id: 'nov_comb', name: 'Cartão Flash - VT / Combustível (19 dias úteis)', budgeted: 190, remaining: 95, target: 'flash', keywords: ['vale combustível', 'combustivel flash', 'vt', 'vale transporte', 'crédito flash', 'flash'] }
+          ],
+          provisions: [
+            { id: 'mercantil', name: 'Mercantil / Supermercado', budgeted: 1400, remaining: 862.79, keywords: ['mercantil', 'mercado', 'supermercado', 'padaria', 'pão', 'pao'] },
+            { id: 'caixa', name: 'Financiamento Casa Caixa (36/420)', budgeted: 743, remaining: 743, keywords: ['financiamento', 'caixa'] },
+            { id: 'dizimo', name: 'Dízimo (10% Salário + Aluguel + 13º)', budgeted: 633.04, remaining: 633.04, keywords: ['dízimo', 'dizimo'] },
+            { id: 'consignado', name: 'Consignado (dia 26 | 07/24)', budgeted: 345.55, remaining: 345.55, keywords: ['consignado'] },
+            { id: 'combustivel', name: 'Combustível', budgeted: 190, remaining: 170, keywords: ['combustível', 'combustivel', 'gasolina', 'uber', 'posto'] },
+            { id: 'energia', name: 'Energia Elétrica (Enel)', budgeted: 96.13, remaining: 96.13, keywords: ['energia', 'enel', 'luz'] },
+            { id: 'inter', name: 'Dívida Banco Inter (dia 26 | 10/10 Quitação!)', budgeted: 180.64, remaining: 180.64, keywords: ['inter', 'banco inter'] },
+            { id: 'luke', name: 'Ração do Luke', budgeted: 145, remaining: 145, keywords: ['luke', 'ração', 'racao'] },
+            { id: 'lifegroup', name: 'Life Group', budgeted: 90, remaining: 68.01, keywords: ['life group', 'célula', 'celula'], coveredByReserve: true, reserveAccount: 'res_lifegroup' },
+            { id: 'agua_cagece', name: 'Água Encanada (Cagece)', budgeted: 154.32, remaining: 154.32, keywords: ['cagece', 'água encanada'] },
+            { id: 'internet', name: 'Internet (dia 10)', budgeted: 85, remaining: 85, keywords: ['internet'] },
+            { id: 'recarga', name: 'Recargas de Celular (Johnson + Leandra)', budgeted: 60, remaining: 0, keywords: ['recarga', 'celular', 'créditos'] },
+            { id: 'agua_mineral', name: 'Água Mineral (Bebedouro)', budgeted: 90, remaining: 60, keywords: ['água mineral', 'agua mineral', 'garrafão', 'água', 'agua'] },
+            { id: 'oferta', name: 'Oferta Igreja', budgeted: 40, remaining: 40, keywords: ['oferta'], coveredByReserve: true, reserveAccount: 'res_oferta' },
+            { id: 'google_one', name: 'Google One (dia 05)', budgeted: 35.99, remaining: 35.99, keywords: ['google one'] },
+            { id: 'corte', name: 'Corte de Cabelo', budgeted: 20, remaining: 0, keywords: ['corte', 'cabelo'] },
+            { id: 'prov_1793050067815', name: 'Licenciamento moto', budgeted: 189, remaining: 189, keywords: ['licenciamento'] },
+            { id: 'prov_1793051493255', name: 'Filho', budgeted: 320, remaining: 108.04, keywords: ['filho', 'emanuel', 'fralda', 'fraldas', 'farmácia', 'farmacia'] },
+            { id: 'prov_1793207727481', name: 'Lazer', budgeted: 100, remaining: 100, keywords: ['lazer', 'diversão', 'relaxamento', 'descanso'] },
+            { id: 'prov_1793671062394', name: 'Gastos fim de ano', budgeted: 1000, remaining: 1000, keywords: ['orçamento', 'gastos', 'fim do ano'] }
+          ]
+        },
+        '2026-12': {
+          label: 'Dezembro/2026',
+          incomes: [
+            { id: 'dez_sal', name: 'Salário Fixo (IEP)', budgeted: 3630.73, remaining: 3630.73, target: 'itau', keywords: ['salário', 'salario'] },
+            { id: 'dez_13', name: '13º Salário (2ª Parcela)', budgeted: 1631.11, remaining: 1631.11, target: 'itau', keywords: ['13º', 'decimo'] },
+            { id: 'dez_aluguel', name: 'Aluguel Recebido (Inquilino - dia 10)', budgeted: 700, remaining: 700, target: 'mp_livre', keywords: ['aluguel'] },
+            { id: 'dez_va', name: 'Cartão VR - Vale-Alimentação (22 dias úteis)', budgeted: 396, remaining: 396, target: 'vr', keywords: ['vale alimentação', 'alimentacao', 'cartão vr', 'cartao vr', 'va'] },
+            { id: 'dez_comb', name: 'Cartão Flash - VT / Combustível (22 dias úteis)', budgeted: 220, remaining: 220, target: 'flash', keywords: ['vale combustível', 'combustivel flash', 'vt', 'flash'] }
+          ],
+          provisions: [
+            { id: 'mercantil', name: 'Mercantil / Supermercado', budgeted: 1400, remaining: 1300, keywords: ['mercantil', 'mercado', 'supermercado'] },
+            { id: 'caixa', name: 'Financiamento Casa Caixa (37/420)', budgeted: 744, remaining: 744, keywords: ['financiamento', 'caixa'] },
+            { id: 'dizimo', name: 'Dízimo (10% Salário + Aluguel + 13º)', budgeted: 596.18, remaining: 596.18, keywords: ['dízimo', 'dizimo'] },
+            { id: 'consignado', name: 'Consignado (dia 26 | 08/24)', budgeted: 345.55, remaining: 345.55, keywords: ['consignado'] },
+            { id: 'combustivel', name: 'Combustível', budgeted: 190, remaining: 190, keywords: ['combustível', 'combustivel', 'gasolina'] },
+            { id: 'energia', name: 'Energia Elétrica (Enel)', budgeted: 190, remaining: 190, keywords: ['energia', 'enel'] },
+            { id: 'luke', name: 'Ração do Luke', budgeted: 145, remaining: 145, keywords: ['luke', 'ração'] },
+            { id: 'lifegroup', name: 'Life Group', budgeted: 90, remaining: 90, keywords: ['life group', 'célula'] },
+            { id: 'agua_cagece', name: 'Água Encanada (Cagece)', budgeted: 87, remaining: 87, keywords: ['cagece'] },
+            { id: 'internet', name: 'Internet (dia 10)', budgeted: 85, remaining: 85, keywords: ['internet'] },
+            { id: 'recarga', name: 'Recargas de Celular (Johnson + Leandra)', budgeted: 60, remaining: 60, keywords: ['recarga'] },
+            { id: 'agua_mineral', name: 'Água Mineral (Bebedouro)', budgeted: 90, remaining: 90, keywords: ['água mineral'] },
+            { id: 'oferta', name: 'Oferta Igreja', budgeted: 40, remaining: 40, keywords: ['oferta'] },
+            { id: 'google_one', name: 'Google One (dia 05)', budgeted: 35.99, remaining: 35.99, keywords: ['google one'] },
+            { id: 'corte', name: 'Corte de Cabelo', budgeted: 20, remaining: 20, keywords: ['corte', 'cabelo'] },
+            { id: 'prov_1793051582224', name: 'Filho', budgeted: 320, remaining: 320, keywords: ['filho', 'emanuel', 'fralda', 'fraldas'] },
+            { id: 'prov_1793671106913', name: 'Gastos fim do ano', budgeted: 1000, remaining: 1000, keywords: ['gastos', 'fim do ano'] }
+          ]
+        },
+        '2027-01': {
+          label: 'Janeiro/2027',
+          incomes: [
+            { id: 'jan_sal', name: 'Salário Fixo (IEP)', budgeted: 3630.73, remaining: 3630.73, target: 'itau', keywords: ['salário', 'salario'] },
+            { id: 'jan_aluguel', name: 'Aluguel Recebido (Inquilino - dia 10)', budgeted: 700, remaining: 700, target: 'mp_livre', keywords: ['aluguel'] },
+            { id: 'jan_va', name: 'Cartão VR - Vale-Alimentação (20 dias úteis)', budgeted: 360, remaining: 360, target: 'vr', keywords: ['vale alimentação', 'alimentacao', 'cartão vr', 'va'] },
+            { id: 'jan_comb', name: 'Cartão Flash - VT / Combustível (20 dias úteis)', budgeted: 200, remaining: 200, target: 'flash', keywords: ['vale combustível', 'vt', 'flash'] }
+          ],
+          provisions: [
+            { id: 'mercantil', name: 'Mercantil / Supermercado', budgeted: 1400, remaining: 1400, keywords: ['mercantil', 'mercado'] },
+            { id: 'caixa', name: 'Financiamento Casa Caixa (38/420)', budgeted: 745, remaining: 745, keywords: ['financiamento', 'caixa'] },
+            { id: 'consignado', name: 'Consignado (dia 26 | 09/24)', budgeted: 345.55, remaining: 345.55, keywords: ['consignado'] },
+            { id: 'dizimo', name: 'Dízimo (10% Salário + Aluguel)', budgeted: 433.07, remaining: 433.07, keywords: ['dízimo', 'dizimo'] },
+            { id: 'combustivel', name: 'Combustível', budgeted: 190, remaining: 190, keywords: ['combustível', 'gasolina'] },
+            { id: 'energia', name: 'Energia Elétrica (Enel)', budgeted: 190, remaining: 190, keywords: ['energia', 'enel'] },
+            { id: 'luke', name: 'Ração do Luke', budgeted: 145, remaining: 145, keywords: ['luke', 'ração'] },
+            { id: 'lifegroup', name: 'Life Group', budgeted: 90, remaining: 90, keywords: ['life group', 'célula'] },
+            { id: 'agua_cagece', name: 'Água Encanada (Cagece)', budgeted: 87, remaining: 87, keywords: ['cagece'] },
+            { id: 'internet', name: 'Internet (dia 10)', budgeted: 85, remaining: 85, keywords: ['internet'] },
+            { id: 'recarga', name: 'Recargas de Celular (Johnson + Leandra)', budgeted: 60, remaining: 60, keywords: ['recarga'] },
+            { id: 'agua_mineral', name: 'Água Mineral (Bebedouro)', budgeted: 90, remaining: 90, keywords: ['água mineral'] },
+            { id: 'oferta', name: 'Oferta Igreja', budgeted: 40, remaining: 40, keywords: ['oferta'] },
+            { id: 'google_one', name: 'Google One (dia 05)', budgeted: 35.99, remaining: 35.99, keywords: ['google one'] },
+            { id: 'corte', name: 'Corte de Cabelo', budgeted: 20, remaining: 20, keywords: ['corte', 'cabelo'] },
+            { id: 'prov_1793051621961', name: 'Filho', budgeted: 320, remaining: 320, keywords: ['filho', 'emanuel', 'fralda', 'fraldas'] }
+          ]
+        }
       },
       transactions: []
     };
 
-    let state = JSON.parse(localStorage.getItem('spark_github_cache_v1')) || JSON.parse(JSON.stringify(INITIAL_STATE));
+    function safeGetCache() {
+      try {
+        const raw = localStorage.getItem('spark_github_cache_v1');
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeSetCache(data) {
+      try {
+        localStorage.setItem('spark_github_cache_v1', JSON.stringify(data));
+      } catch (e) {}
+    }
+
+    let state = safeGetCache() || JSON.parse(JSON.stringify(INITIAL_STATE));
     state.currentMonth = getSystemDefaultMonth();
 
     let currentView = 'saidas';
     let showAllMonthsTx = false;
     let isProvisionsExpanded = { saidas: false, entradas: false };
-    let isCloudLoaded = !!localStorage.getItem('spark_github_cache_v1');
+    let isCloudLoaded = !!safeGetCache();
+    let pendingConfirmAction = null;
+
+    function isCreditCardAccount(accKey) {
+      if (!accKey) return false;
+      const acc = state.accounts?.[accKey];
+      return !!(acc && acc.type === 'credit') || accKey === 'credit_card' || String(accKey).startsWith('cc_');
+    }
+
+    function getCreditCardEntries() {
+      return Object.entries(state.accounts || {}).filter(([k, acc]) => isCreditCardAccount(k));
+    }
 
     function formatBRL(val) {
       return 'R$ ' + Number(val || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    // Normaliza texto removendo acentos para busca inteligente
     function normalizeStr(str) {
       return String(str || '')
         .toLowerCase()
@@ -588,14 +1152,54 @@
       return 0;
     }
 
+    function ensureMonthExists(ym) {
+      if (!ym) return;
+      const meta = getMonthMeta(ym);
+      if (!state.months[ym]) {
+        state.months[ym] = {
+          label: meta.label,
+          incomes: [],
+          provisions: []
+        };
+      }
+    }
+
     function monthFromBRDate(brDate) {
       if (!brDate) return null;
       const parts = brDate.split('/');
       if (parts.length === 3) {
         const ym = `${parts[2]}-${parts[1].padStart(2, '0')}`;
-        if (state.months && state.months[ym]) return ym;
+        ensureMonthExists(ym);
+        return ym;
       }
       return null;
+    }
+
+    function getDayFromBRDate(brDate) {
+      if (!brDate) return new Date().getDate();
+      const parts = brDate.split('/');
+      if (parts.length === 3) {
+        return parseInt(parts[0], 10) || 1;
+      }
+      return 1;
+    }
+
+    // Calcula em qual mês-fatura a 1ª parcela deve cair com base no Dia de Fechamento do cartão
+    function resolveFirstInvoiceMonth(brDate, cardKey, rolloverMode) {
+      const purchaseMonth = monthFromBRDate(brDate) || state.currentMonth;
+      if (!isCreditCardAccount(cardKey)) return purchaseMonth;
+
+      if (rolloverMode === 'current') return purchaseMonth;
+      if (rolloverMode === 'next') return addMonthsToYM(purchaseMonth, 1);
+
+      const card = state.accounts[cardKey];
+      const closingDay = Number(card?.closingDay || 0);
+      const purchaseDay = getDayFromBRDate(brDate);
+
+      if (closingDay > 0 && purchaseDay >= closingDay) {
+        return addMonthsToYM(purchaseMonth, 1);
+      }
+      return purchaseMonth;
     }
 
     function clearAllFilters() {
@@ -607,13 +1211,54 @@
       renderAll();
     }
 
+    function populateAccountSelects() {
+      const manualAcc = document.getElementById('manual-account');
+      if (!manualAcc) return;
+      const prevVal = manualAcc.value;
+
+      const regularAccounts = [];
+      const creditCards = [];
+
+      Object.entries(state.accounts).forEach(([key, acc]) => {
+        if (isCreditCardAccount(key)) {
+          creditCards.push([key, acc]);
+        } else {
+          regularAccounts.push([key, acc]);
+        }
+      });
+
+      let html = '<optgroup label="Contas, Benefícios e Reservas">';
+      regularAccounts.forEach(([key, acc]) => {
+        html += `<option value="${key}">${acc.name}</option>`;
+      });
+      html += '</optgroup>';
+
+      if (creditCards.length > 0) {
+        html += '<optgroup label="💳 Cartões de Crédito (Fatura)">';
+        creditCards.forEach(([key, acc]) => {
+          const closeTxt = acc.closingDay ? ` (Fecha dia ${String(acc.closingDay).padStart(2, '0')})` : '';
+          html += `<option value="${key}">💳 ${acc.name}${closeTxt}</option>`;
+        });
+        html += '</optgroup>';
+      }
+
+      manualAcc.innerHTML = html;
+      if (prevVal && state.accounts[prevVal]) {
+        manualAcc.value = prevVal;
+      }
+    }
+
     function populateFilterDropdowns() {
+      populateAccountSelects();
+
       const accSelect = document.getElementById('filter-account');
       const currentAcc = accSelect.value;
-      let accOpts = '<option value="">💳 Todas as Contas</option>';
+      let accOpts = '<option value="">💳 Todas as Contas / Cartões</option>';
+      accOpts += '<option value="__ALL_CREDIT_CARDS__" ' + (currentAcc === '__ALL_CREDIT_CARDS__' ? 'selected' : '') + '>💳 Todos os Cartões de Crédito</option>';
       Object.entries(state.accounts).forEach(([key, acc]) => {
         const sel = (key === currentAcc || acc.name === currentAcc) ? 'selected' : '';
-        accOpts += `<option value="${key}" ${sel}>${acc.name}</option>`;
+        const prefix = isCreditCardAccount(key) ? '💳 ' : '';
+        accOpts += `<option value="${key}" ${sel}>${prefix}${acc.name}</option>`;
       });
       accSelect.innerHTML = accOpts;
 
@@ -621,7 +1266,6 @@
       const currentCat = catSelect.value;
       const catSet = new Set();
 
-      // Coleta categorias de transações e de provisões/previsões do mês ativo
       const mData = state.months[state.currentMonth];
       if (mData) {
         mData.provisions.forEach(p => catSet.add(p.name));
@@ -649,20 +1293,18 @@
       const sortBy = document.getElementById('sort-by')?.value || 'date_desc';
 
       let result = txList.filter(tx => {
-        // Filtro por Conta
-        if (accFilter) {
+        if (accFilter === '__ALL_CREDIT_CARDS__') {
+          if (!isCreditCardAccount(tx.accountKey)) return false;
+        } else if (accFilter) {
           const accName = state.accounts[accFilter]?.name || '';
           if (tx.accountKey !== accFilter && tx.account !== accName) return false;
         }
-        // Filtro por Categoria
         if (catFilter && tx.category !== catFilter) {
           return false;
         }
-        // Filtro por Data específica
         if (dateFilterBR && tx.date !== dateFilterBR) {
           return false;
         }
-        // Filtro por Texto Livre (descrição, categoria, conta, data ou valor)
         if (searchVal) {
           const valStr = Number(tx.amount || 0).toFixed(2).replace('.', ',');
           const haystack = normalizeStr(`${tx.desc} ${tx.category} ${tx.account} ${tx.date} ${valStr}`);
@@ -671,7 +1313,6 @@
         return true;
       });
 
-      // Ordenação
       result.sort((a, b) => {
         if (sortBy === 'date_desc') {
           return brDateToSortableNumber(b.date) - brDateToSortableNumber(a.date);
@@ -726,9 +1367,9 @@
         const btn = document.getElementById('view-btn-' + v);
         if (v === viewName) {
           panel.classList.remove('hidden');
-          if (v === 'saidas') btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg';
-          if (v === 'entradas') btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-sky-600 text-white shadow-lg';
-          if (v === 'registros') btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-purple-600 text-white shadow-lg';
+          if (v === 'saidas') btn.className = 'keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg';
+          if (v === 'entradas') btn.className = 'keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-sky-600 text-white shadow-lg';
+          if (v === 'registros') btn.className = 'keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-purple-600 text-white shadow-lg';
         } else {
           panel.classList.add('hidden');
           btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60';
@@ -738,19 +1379,54 @@
     }
 
     function upgradeStateSchema() {
-      if (!state.accounts) return;
+      if (!state.accounts) state.accounts = {};
       if (!state.accounts.vr) {
         state.accounts.vr = { name: 'Cartão VR (VA)', balance: 0.00, type: 'benefit' };
       }
       if (state.accounts.flash) {
         state.accounts.flash.name = 'Cartão Flash (VT)';
       }
+
+      // Garante os cartões de crédito padrão (mantendo saldo de credit_card vindo da planilha)
+      if (!state.accounts.credit_card) {
+        state.accounts.credit_card = { name: 'Cartão Nubank', balance: 0.00, type: 'credit', closingDay: 5, dueDay: 12, limit: 2000.00 };
+      } else {
+        state.accounts.credit_card.type = 'credit';
+        if (!state.accounts.credit_card.closingDay) state.accounts.credit_card.closingDay = 5;
+        if (!state.accounts.credit_card.dueDay) state.accounts.credit_card.dueDay = 12;
+        if (state.accounts.credit_card.limit === undefined) state.accounts.credit_card.limit = 2000.00;
+        if (!state.accounts.credit_card.name || state.accounts.credit_card.name === 'Cartão de Crédito (Fatura)') {
+          state.accounts.credit_card.name = 'Cartão Nubank';
+        }
+      }
+
+      if (!state.accounts.cc_pan) {
+        state.accounts.cc_pan = { name: 'Cartão Pan', balance: 0.00, type: 'credit', closingDay: 15, dueDay: 22, limit: 7250.00 };
+      } else {
+        state.accounts.cc_pan.type = 'credit';
+        if (!state.accounts.cc_pan.closingDay) state.accounts.cc_pan.closingDay = 15;
+        if (!state.accounts.cc_pan.dueDay) state.accounts.cc_pan.dueDay = 22;
+      }
+
+      if (!state.accounts.cc_santander) {
+        state.accounts.cc_santander = { name: 'Cartão Santander', balance: 0.00, type: 'credit', closingDay: 23, dueDay: 30, limit: 3000.00 };
+      } else {
+        state.accounts.cc_santander.type = 'credit';
+        if (!state.accounts.cc_santander.closingDay) state.accounts.cc_santander.closingDay = 23;
+        if (!state.accounts.cc_santander.dueDay) state.accounts.cc_santander.dueDay = 30;
+      }
+
+      if (!state.months) state.months = {};
+      Object.keys(state.months).forEach(ym => getMonthMeta(ym));
       if (!state.transactions) state.transactions = [];
       state.transactions.forEach((tx, idx) => {
         if (!tx.id) tx.id = 'tx_' + Date.now() + '_' + idx;
-        const inferredMonth = monthFromBRDate(tx.date);
-        if (inferredMonth) tx.month = inferredMonth;
-        else if (!tx.month) tx.month = '2026-10';
+        if (!tx.month) {
+          const inferredMonth = monthFromBRDate(tx.date);
+          tx.month = inferredMonth || '2026-10';
+        } else {
+          ensureMonthExists(tx.month);
+        }
       });
     }
 
@@ -761,7 +1437,7 @@
         return;
       }
       upgradeStateSchema();
-      localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
+      safeSetCache(state);
       renderAll();
 
       const syncLabel = document.getElementById('last-sync-text');
@@ -807,7 +1483,7 @@
               state = remoteState;
               state.currentMonth = keepCurrentMonth;
               upgradeStateSchema();
-              localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
+              safeSetCache(state);
               renderAll();
               const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
               syncLabel.textContent = 'Sincronizado às ' + now;
@@ -827,7 +1503,7 @@
           state = data.state;
           state.currentMonth = keepCurrentMonth;
           upgradeStateSchema();
-          localStorage.setItem('spark_github_cache_v1', JSON.stringify(state));
+          safeSetCache(state);
           renderAll();
           const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           syncLabel.textContent = 'Sincronizado às ' + now;
@@ -849,7 +1525,7 @@
     function renderMonthNavigation() {
       const sysMonth = getSystemDefaultMonth();
       const activeMonth = state.currentMonth || sysMonth;
-      const allKeys = Object.keys(state.months);
+      const allKeys = Object.keys(state.months).sort();
 
       const pastKeys = allKeys.filter(k => k < sysMonth);
       const currentAndFutureKeys = allKeys.filter(k => k >= sysMonth);
@@ -860,12 +1536,12 @@
         let opts = `<option value="">⏮️ Meses Anteriores (${pastKeys.length})</option>`;
         pastKeys.forEach(k => {
           const sel = (!showAllMonthsTx && activeMonth === k) ? 'selected' : '';
-          const meta = MONTH_META[k] || { short: k, label: state.months[k].label };
+          const meta = getMonthMeta(k);
           opts += `<option value="${k}" ${sel}>📅 ${meta.label}</option>`;
         });
         pastSelect.innerHTML = opts;
         pastSelect.className = (!showAllMonthsTx && pastKeys.includes(activeMonth))
-          ? 'bg-amber-600 text-white border border-amber-500 text-xs font-bold rounded-xl px-3 py-1.5 cursor-pointer shadow'
+          ? 'keep-white-text bg-amber-600 text-white border border-amber-500 text-xs font-bold rounded-xl px-3 py-1.5 cursor-pointer shadow'
           : 'bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-3 py-1.5 cursor-pointer';
       } else {
         pastSelect.classList.add('hidden');
@@ -874,11 +1550,11 @@
       const btnContainer = document.getElementById('active-months-buttons');
       let btnsHtml = '';
       currentAndFutureKeys.forEach(k => {
-        const meta = MONTH_META[k] || { short: k, label: state.months[k].label };
+        const meta = getMonthMeta(k);
         const isCurrentSys = (k === sysMonth);
         const isSelected = (!showAllMonthsTx && activeMonth === k);
         const cls = isSelected
-          ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow transition'
+          ? 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow transition'
           : 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition';
         btnsHtml += `
           <button type="button" onclick="changeMonth('${k}')" class="${cls}">
@@ -890,7 +1566,7 @@
       const btnAll = document.getElementById('btn-filter-all-months');
       const lblAll = document.getElementById('lbl-filter-all');
       if (showAllMonthsTx) {
-        btnAll.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white border border-purple-500 shadow transition flex items-center gap-1.5';
+        btnAll.className = 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white border border-purple-500 shadow transition flex items-center gap-1.5';
         lblAll.textContent = 'Mostrando Todos os Meses';
       } else {
         btnAll.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5';
@@ -898,22 +1574,218 @@
       }
     }
 
+    function openNewCardModal() {
+      document.getElementById('balance-modal-key').value = '__NEW_CARD__';
+      document.getElementById('balance-modal-title').textContent = '💳 Adicionar Novo Cartão de Crédito';
+      document.getElementById('balance-modal-desc').textContent = 'Configure o nome, o dia de fechamento, o vencimento e a fatura inicial do novo cartão.';
+      document.getElementById('balance-modal-card-name-wrap').classList.remove('hidden');
+      document.getElementById('balance-modal-card-name').value = '';
+      document.getElementById('balance-modal-val-label').textContent = 'Fatura Atual em Aberto (R$)';
+      document.getElementById('balance-modal-input').value = '0.00';
+      document.getElementById('balance-modal-credit-config').classList.remove('hidden');
+      document.getElementById('balance-modal-closing').value = '10';
+      document.getElementById('balance-modal-due').value = '17';
+      document.getElementById('balance-modal-limit').value = '2000.00';
+      document.getElementById('balance-modal-credit-actions').classList.add('hidden');
+      document.getElementById('btn-delete-card').classList.add('hidden');
+      document.getElementById('balance-modal').classList.remove('hidden');
+      document.getElementById('balance-modal').classList.add('flex');
+    }
+
     function editAccountBalance(accKey) {
       const acc = state.accounts[accKey];
-      const novo = prompt('Ajustar saldo atual de ' + acc.name + ' (R$):', acc.balance.toFixed(2).replace('.', ','));
-      if (novo !== null) {
-        const parsed = parseFloat(novo.replace(',', '.'));
-        if (!isNaN(parsed)) {
-          acc.balance = +parsed.toFixed(2);
-          pushStateToCloud(true);
-        }
+      if (!acc) return;
+      const isCC = isCreditCardAccount(accKey);
+
+      document.getElementById('balance-modal-key').value = accKey;
+      document.getElementById('balance-modal-title').textContent = isCC
+        ? '💳 Configurar ' + acc.name
+        : 'Ajustar Saldo: ' + acc.name;
+      document.getElementById('balance-modal-desc').textContent = isCC
+        ? 'Ajuste o saldo da fatura acumulada, o dia de fechamento para virada automática ou o limite.'
+        : 'Informe o saldo disponível atual para ' + acc.name + '.';
+
+      document.getElementById('balance-modal-card-name-wrap').classList.toggle('hidden', !isCC);
+      if (isCC) {
+        document.getElementById('balance-modal-card-name').value = acc.name || '';
+        document.getElementById('balance-modal-val-label').textContent = 'Fatura Total Acumulada (R$)';
+        document.getElementById('balance-modal-closing').value = acc.closingDay || 5;
+        document.getElementById('balance-modal-due').value = acc.dueDay || 12;
+        document.getElementById('balance-modal-limit').value = Number(acc.limit || 2000).toFixed(2);
+      } else {
+        document.getElementById('balance-modal-val-label').textContent = 'Novo Saldo (R$)';
       }
+
+      document.getElementById('balance-modal-input').value = Number(acc.balance || 0).toFixed(2);
+      document.getElementById('balance-modal-credit-config').classList.toggle('hidden', !isCC);
+      document.getElementById('balance-modal-credit-actions').classList.toggle('hidden', !isCC);
+      document.getElementById('btn-delete-card').classList.toggle('hidden', !isCC || accKey === 'credit_card');
+
+      document.getElementById('balance-modal').classList.remove('hidden');
+      document.getElementById('balance-modal').classList.add('flex');
+    }
+
+    function closeBalanceModal() {
+      document.getElementById('balance-modal').classList.add('hidden');
+      document.getElementById('balance-modal').classList.remove('flex');
+    }
+
+    function openPayInvoiceFromCardModal() {
+      const accKey = document.getElementById('balance-modal-key').value;
+      closeBalanceModal();
+      openPayInvoiceModal(accKey);
+    }
+
+    function deleteCreditCardModal() {
+      const accKey = document.getElementById('balance-modal-key').value;
+      if (!accKey || accKey === 'credit_card' || !state.accounts[accKey]) return;
+      const cardName = state.accounts[accKey].name;
+      closeBalanceModal();
+      openConfirmModal(
+        'Remover Cartão',
+        `Deseja remover o cartão "${cardName}" da lista de cartões ativos?`,
+        false,
+        () => {
+          delete state.accounts[accKey];
+          pushStateToCloud(true);
+          showFeedback(`🗑️ Cartão "${cardName}" removido!`, 'success');
+        }
+      );
+    }
+
+    function saveAccountBalanceModal() {
+      const accKey = document.getElementById('balance-modal-key').value;
+      const val = parseFloat(document.getElementById('balance-modal-input').value);
+      if (isNaN(val)) return;
+
+      if (accKey === '__NEW_CARD__') {
+        const rawName = document.getElementById('balance-modal-card-name').value.trim() || 'Novo Cartão';
+        const closingDay = Math.min(31, Math.max(1, parseInt(document.getElementById('balance-modal-closing').value, 10) || 10));
+        const dueDay = Math.min(31, Math.max(1, parseInt(document.getElementById('balance-modal-due').value, 10) || 17));
+        const limit = parseFloat(document.getElementById('balance-modal-limit').value) || 2000;
+        const newKey = 'cc_' + Date.now();
+        state.accounts[newKey] = {
+          name: rawName,
+          balance: +val.toFixed(2),
+          type: 'credit',
+          closingDay,
+          dueDay,
+          limit: +limit.toFixed(2)
+        };
+        closeBalanceModal();
+        pushStateToCloud(true);
+        showFeedback(`💳 Cartão "${rawName}" (Fecha dia ${closingDay} / Vence dia ${dueDay}) adicionado!`, 'success');
+        return;
+      }
+
+      if (accKey && state.accounts[accKey]) {
+        const acc = state.accounts[accKey];
+        acc.balance = +val.toFixed(2);
+        if (isCreditCardAccount(accKey)) {
+          const newName = document.getElementById('balance-modal-card-name').value.trim();
+          if (newName) acc.name = newName;
+          acc.closingDay = Math.min(31, Math.max(1, parseInt(document.getElementById('balance-modal-closing').value, 10) || 5));
+          acc.dueDay = Math.min(31, Math.max(1, parseInt(document.getElementById('balance-modal-due').value, 10) || 12));
+          acc.limit = +(parseFloat(document.getElementById('balance-modal-limit').value) || 0).toFixed(2);
+        }
+        closeBalanceModal();
+        pushStateToCloud(true);
+      }
+    }
+
+    function getMonthCreditCardSpend(monthKey, specificCardKey) {
+      return state.transactions
+        .filter(tx => {
+          if ((tx.month || '2026-10') !== monthKey || tx.type !== 'saida') return false;
+          if (specificCardKey) return tx.accountKey === specificCardKey;
+          return isCreditCardAccount(tx.accountKey);
+        })
+        .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+    }
+
+    function getTotalCreditCardsBalance() {
+      return getCreditCardEntries().reduce((sum, [, acc]) => sum + Number(acc.balance || 0), 0);
+    }
+
+    function openPayInvoiceModal(preselectedCardKey) {
+      const cardSelect = document.getElementById('pay-invoice-card');
+      const cards = getCreditCardEntries();
+      let opts = '';
+      cards.forEach(([key, acc]) => {
+        const sel = (key === preselectedCardKey) ? 'selected' : '';
+        opts += `<option value="${key}" ${sel}>💳 ${acc.name} (Fatura: ${formatBRL(acc.balance)})</option>`;
+      });
+      cardSelect.innerHTML = opts;
+      if (preselectedCardKey && state.accounts[preselectedCardKey]) {
+        cardSelect.value = preselectedCardKey;
+      }
+      onPayInvoiceCardChange();
+      document.getElementById('pay-invoice-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('pay-invoice-modal').classList.remove('hidden');
+      document.getElementById('pay-invoice-modal').classList.add('flex');
+    }
+
+    function onPayInvoiceCardChange() {
+      const cardKey = document.getElementById('pay-invoice-card').value || 'credit_card';
+      const activeMonth = state.currentMonth || getSystemDefaultMonth();
+      const totalInvoice = Number(state.accounts[cardKey]?.balance || 0);
+      const monthInvoice = getMonthCreditCardSpend(activeMonth, cardKey);
+      document.getElementById('pay-invoice-total-label').textContent = formatBRL(totalInvoice);
+      document.getElementById('pay-invoice-month-label').textContent = formatBRL(monthInvoice);
+      document.getElementById('pay-invoice-amount').value = (monthInvoice > 0 ? monthInvoice : totalInvoice).toFixed(2);
+    }
+
+    function closePayInvoiceModal() {
+      document.getElementById('pay-invoice-modal').classList.add('hidden');
+      document.getElementById('pay-invoice-modal').classList.remove('flex');
+    }
+
+    function submitPayInvoice() {
+      const cardKey = document.getElementById('pay-invoice-card').value || 'credit_card';
+      const amount = parseFloat(document.getElementById('pay-invoice-amount').value);
+      const isoDate = document.getElementById('pay-invoice-date').value;
+      const sourceKey = document.getElementById('pay-invoice-source').value || 'mp_livre';
+      if (!amount || amount <= 0 || !state.accounts[sourceKey] || !state.accounts[cardKey]) return;
+
+      const brDate = isoDateToBR(isoDate);
+      const targetMonthKey = monthFromBRDate(brDate) || state.currentMonth;
+      const cardObj = state.accounts[cardKey];
+
+      state.accounts[sourceKey].balance = +(state.accounts[sourceKey].balance - amount).toFixed(2);
+      const beforeCC = Number(cardObj.balance || 0);
+      cardObj.balance = Math.max(0, +(beforeCC - amount).toFixed(2));
+      const ccDelta = +(beforeCC - cardObj.balance).toFixed(2);
+
+      const payTx = {
+        id: 'tx_paycc_' + Date.now(),
+        month: targetMonthKey,
+        date: brDate,
+        desc: `Pagamento Fatura ${cardObj.name}`,
+        amount: +amount.toFixed(2),
+        type: 'saida',
+        accountKey: sourceKey,
+        account: state.accounts[sourceKey].name,
+        targetId: null,
+        category: `Fatura ${cardObj.name}`,
+        provisionDelta: 0,
+        incomeDelta: 0,
+        leandraDelta: 0,
+        paidCardKey: cardKey,
+        creditCardPayDelta: ccDelta,
+        isInvoicePayment: true
+      };
+
+      state.transactions.unshift(payTx);
+      closePayInvoiceModal();
+      pushStateToCloud(false);
+      showFeedback(`✅ Fatura do ${cardObj.name} paga (${formatBRL(amount)}) via ${state.accounts[sourceKey].name}. Saldo restante da fatura: ${formatBRL(cardObj.balance)}!`, 'success');
     }
 
     function openPlanItemModal(kind, itemId) {
       const monthData = state.months[state.currentMonth];
       document.getElementById('plan-item-kind').value = kind;
       document.getElementById('plan-item-id').value = itemId || '';
+      document.getElementById('plan-modal-error').classList.add('hidden');
 
       const targetWrapper = document.getElementById('plan-target-wrapper');
       const deleteBtn = document.getElementById('btn-delete-plan-item');
@@ -992,9 +1864,11 @@
       const remaining = parseFloat(document.getElementById('plan-item-remaining').value);
       const target = document.getElementById('plan-item-target').value;
       const kwRaw = document.getElementById('plan-item-keywords').value;
+      const errEl = document.getElementById('plan-modal-error');
 
       if (!name || isNaN(budgeted) || isNaN(remaining)) {
-        alert('Preencha o nome, o valor previsto/orçado e o valor pendente.');
+        errEl.textContent = 'Preencha o nome, o valor previsto/orçado e o valor pendente.';
+        errEl.classList.remove('hidden');
         return;
       }
 
@@ -1028,6 +1902,33 @@
       showFeedback(`✏️ ${kind === 'income' ? 'Previsão de Entrada' : 'Provisão de Saída'} "${name}" salva com sucesso!`, 'success');
     }
 
+    function openConfirmModal(title, msg, showGroupCheckbox, callback) {
+      document.getElementById('confirm-modal-title').textContent = title;
+      document.getElementById('confirm-modal-msg').textContent = msg;
+      const grpEl = document.getElementById('confirm-modal-group-option');
+      if (showGroupCheckbox) {
+        grpEl.classList.remove('hidden');
+        document.getElementById('confirm-delete-all-installments').checked = true;
+      } else {
+        grpEl.classList.add('hidden');
+      }
+      pendingConfirmAction = callback;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+      document.getElementById('confirm-modal').classList.add('flex');
+    }
+
+    function closeConfirmModal() {
+      pendingConfirmAction = null;
+      document.getElementById('confirm-modal').classList.add('hidden');
+      document.getElementById('confirm-modal').classList.remove('flex');
+    }
+
+    function executeConfirmedAction() {
+      const fn = pendingConfirmAction;
+      closeConfirmModal();
+      if (typeof fn === 'function') fn();
+    }
+
     function deletePlanItem() {
       const kind = document.getElementById('plan-item-kind').value;
       const itemId = document.getElementById('plan-item-id').value;
@@ -1038,13 +1939,18 @@
       const idx = list.findIndex(x => x.id === itemId);
       if (idx === -1) return;
 
-      if (!confirm(`Deseja excluir "${list[idx].name}" deste mês?`)) return;
-
-      const removedName = list[idx].name;
-      list.splice(idx, 1);
-      closePlanItemModal();
-      pushStateToCloud(true);
-      showFeedback(`🗑️ Item "${removedName}" removido do planejamento do mês.`, 'success');
+      const itemName = list[idx].name;
+      openConfirmModal(
+        'Excluir Item do Mês',
+        `Deseja excluir "${itemName}" deste mês?`,
+        false,
+        () => {
+          list.splice(idx, 1);
+          closePlanItemModal();
+          pushStateToCloud(true);
+          showFeedback(`🗑️ Item "${itemName}" removido do planejamento do mês.`, 'success');
+        }
+      );
     }
 
     function revertTransactionEffects(tx) {
@@ -1052,20 +1958,45 @@
       const accKey = tx.accountKey || 'mp_livre';
 
       if (tx.type === 'saida') {
-        if (state.accounts[accKey]) state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+        if (isCreditCardAccount(accKey)) {
+          if (state.accounts[accKey]) {
+            state.accounts[accKey].balance = Math.max(0, +(state.accounts[accKey].balance - tx.amount).toFixed(2));
+          }
+        } else if (state.accounts[accKey]) {
+          state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+        }
+
+        if (tx.isInvoicePayment && tx.creditCardPayDelta) {
+          const targetCard = tx.paidCardKey || 'credit_card';
+          if (state.accounts[targetCard]) {
+            state.accounts[targetCard].balance = +(state.accounts[targetCard].balance + tx.creditCardPayDelta).toFixed(2);
+          }
+        }
+
         if (accKey === 'leandra' && txMonth) {
           const incL = txMonth.incomes.find(i => i.id === 'inc_leandra');
           if (incL) incL.remaining = +(incL.remaining + tx.amount).toFixed(2);
         }
         if (tx.targetId && txMonth) {
-          const prov = txMonth.provisions.find(p => p.id === tx.targetId);
-          if (prov) {
-            const restoreVal = tx.provisionDelta !== undefined ? tx.provisionDelta : tx.amount;
-            prov.remaining = +(prov.remaining + restoreVal).toFixed(2);
+          const provIdx = txMonth.provisions.findIndex(p => p.id === tx.targetId);
+          if (provIdx !== -1) {
+            const prov = txMonth.provisions[provIdx];
+            if (prov.autoCreatedForTx === tx.id) {
+              txMonth.provisions.splice(provIdx, 1);
+            } else {
+              const restoreVal = tx.provisionDelta !== undefined ? tx.provisionDelta : tx.amount;
+              prov.remaining = +(prov.remaining + restoreVal).toFixed(2);
+            }
           }
         }
       } else if (tx.type === 'entrada') {
-        if (state.accounts[accKey]) state.accounts[accKey].balance = +(state.accounts[accKey].balance - tx.amount).toFixed(2);
+        if (isCreditCardAccount(accKey)) {
+          if (state.accounts[accKey]) {
+            state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+          }
+        } else if (state.accounts[accKey]) {
+          state.accounts[accKey].balance = +(state.accounts[accKey].balance - tx.amount).toFixed(2);
+        }
         if (tx.leandraDelta) state.accounts.leandra.balance = +(state.accounts.leandra.balance - tx.leandraDelta).toFixed(2);
         if (tx.targetId && txMonth) {
           const inc = txMonth.incomes.find(i => i.id === tx.targetId);
@@ -1081,16 +2012,38 @@
       const idx = state.transactions.findIndex(t => t.id === txId);
       if (idx === -1) return;
       const tx = state.transactions[idx];
-      if (!confirm('Excluir "' + tx.desc + '" (' + formatBRL(tx.amount) + ')? O saldo e a provisão serão restaurados.')) return;
-      revertTransactionEffects(tx);
-      state.transactions.splice(idx, 1);
-      pushStateToCloud(false);
-      showFeedback('🗑️ Lançamento excluído e saldos recalculados!', 'success');
+      const siblings = tx.groupId
+        ? state.transactions.filter(t => t.groupId === tx.groupId)
+        : [];
+      const hasMultipleInstallments = siblings.length > 1;
+
+      openConfirmModal(
+        'Excluir Lançamento',
+        `Excluir "${tx.desc}" (${formatBRL(tx.amount)})? O saldo e a provisão serão restaurados automaticamente.`,
+        hasMultipleInstallments,
+        () => {
+          const deleteAll = hasMultipleInstallments && document.getElementById('confirm-delete-all-installments').checked;
+          if (deleteAll) {
+            const toDelete = state.transactions.filter(t => t.groupId === tx.groupId);
+            toDelete.forEach(item => revertTransactionEffects(item));
+            state.transactions = state.transactions.filter(t => t.groupId !== tx.groupId);
+            pushStateToCloud(false);
+            showFeedback(`🗑️ Todas as ${toDelete.length} parcelas da compra foram excluídas e os saldos restaurados!`, 'success');
+          } else {
+            revertTransactionEffects(tx);
+            const curIdx = state.transactions.findIndex(t => t.id === txId);
+            if (curIdx !== -1) state.transactions.splice(curIdx, 1);
+            pushStateToCloud(false);
+            showFeedback('🗑️ Lançamento excluído e saldos recalculados!', 'success');
+          }
+        }
+      );
     }
 
     function openEditTransactionModal(txId) {
       const tx = state.transactions.find(t => t.id === txId);
       if (!tx) return;
+      populateAccountSelects();
       document.getElementById('edit-tx-id').value = tx.id;
       document.getElementById('manual-modal-title').textContent = 'Editar Lançamento';
       document.getElementById('manual-type').value = tx.type === 'entrada' ? 'entrada' : 'saida';
@@ -1098,33 +2051,115 @@
       document.getElementById('manual-desc').value = tx.desc;
       document.getElementById('manual-amount').value = tx.amount;
       document.getElementById('manual-account').value = tx.accountKey || 'mp_livre';
-      populateCategorySelect(tx.targetId || '', tx.month || state.currentMonth);
+      document.getElementById('manual-installments').value = '1';
+      document.getElementById('manual-amount-mode').value = 'total';
+      document.getElementById('manual-invoice-rollover').value = 'current';
+      onManualTypeOrAccountChange(tx.targetId || '', tx.month || state.currentMonth);
       document.getElementById('manual-modal').classList.remove('hidden');
       document.getElementById('manual-modal').classList.add('flex');
+    }
+
+    function updateClosingDayRolloverBanner() {
+      const infoEl = document.getElementById('closing-day-info');
+      if (!infoEl) return;
+      const accKey = document.getElementById('manual-account')?.value || '';
+      if (!isCreditCardAccount(accKey)) return;
+
+      const card = state.accounts[accKey];
+      const iso = document.getElementById('manual-date')?.value || new Date().toISOString().slice(0, 10);
+      const brDate = isoDateToBR(iso);
+      const day = getDayFromBRDate(brDate);
+      const rolloverMode = document.getElementById('manual-invoice-rollover')?.value || 'auto';
+      const firstMonth = resolveFirstInvoiceMonth(brDate, accKey, rolloverMode);
+      const firstMonthLabel = getMonthMeta(firstMonth).label;
+      const closingDay = Number(card?.closingDay || 5);
+      const dueDay = Number(card?.dueDay || 12);
+
+      if (rolloverMode === 'auto') {
+        if (day >= closingDay) {
+          infoEl.innerHTML = `<span class="text-amber-300 font-semibold">⏭️ Virada Automática Ativa:</span> Compra dia <strong>${String(day).padStart(2, '0')}</strong> (fechamento do ${card.name} é dia <strong>${String(closingDay).padStart(2, '0')}</strong>, venc. dia ${String(dueDay).padStart(2, '0')}). A 1ª parcela cairá na fatura de <strong class="text-violet-300 underline">${firstMonthLabel}</strong>.`;
+        } else {
+          infoEl.innerHTML = `<span class="text-emerald-300 font-semibold">📅 Antes do Fechamento:</span> Compra dia <strong>${String(day).padStart(2, '0')}</strong> (antes do fechamento dia <strong>${String(closingDay).padStart(2, '0')}</strong>). A 1ª parcela entrará na fatura de <strong class="text-violet-300 underline">${firstMonthLabel}</strong>.`;
+        }
+      } else {
+        infoEl.innerHTML = `1ª parcela configurada manualmente para cair na fatura de <strong class="text-violet-300 underline">${firstMonthLabel}</strong>.`;
+      }
     }
 
     function onManualDateChange() {
       const iso = document.getElementById('manual-date').value;
       const br = isoDateToBR(iso);
-      const targetMonth = monthFromBRDate(br) || state.currentMonth;
+      const accKey = document.getElementById('manual-account').value;
+      const rolloverMode = document.getElementById('manual-invoice-rollover')?.value || 'auto';
+      const editId = document.getElementById('edit-tx-id').value;
+
+      const targetMonth = (!editId && isCreditCardAccount(accKey))
+        ? resolveFirstInvoiceMonth(br, accKey, rolloverMode)
+        : (monthFromBRDate(br) || state.currentMonth);
+
+      ensureMonthExists(targetMonth);
+      updateClosingDayRolloverBanner();
       const currentSelectedCat = document.getElementById('manual-category').value;
       populateCategorySelect(currentSelectedCat, targetMonth);
     }
 
+    function onManualTypeOrAccountChange(selectedCatId, customMonthKey) {
+      const type = document.getElementById('manual-type').value;
+      const acc = document.getElementById('manual-account').value;
+      const editId = document.getElementById('edit-tx-id').value;
+      const wrapper = document.getElementById('credit-installments-wrapper');
+
+      if (type === 'saida' && isCreditCardAccount(acc) && !editId) {
+        wrapper.classList.remove('hidden');
+        updateClosingDayRolloverBanner();
+      } else {
+        wrapper.classList.add('hidden');
+      }
+      updateInstallmentPreview();
+      const iso = document.getElementById('manual-date').value;
+      const br = iso ? isoDateToBR(iso) : new Date().toLocaleDateString('pt-BR');
+      const rolloverMode = document.getElementById('manual-invoice-rollover')?.value || 'auto';
+      const targetMonth = customMonthKey || ((!editId && isCreditCardAccount(acc)) ? resolveFirstInvoiceMonth(br, acc, rolloverMode) : monthFromBRDate(br)) || state.currentMonth;
+      ensureMonthExists(targetMonth);
+      populateCategorySelect(selectedCatId || '', targetMonth);
+    }
+
+    function updateInstallmentPreview() {
+      const count = parseInt(document.getElementById('manual-installments')?.value || '1', 10) || 1;
+      const mode = document.getElementById('manual-amount-mode')?.value || 'total';
+      const rawVal = parseFloat(document.getElementById('manual-amount')?.value || '0') || 0;
+      const badge = document.getElementById('installment-preview-badge');
+      if (!badge) return;
+
+      if (count <= 1) {
+        badge.textContent = rawVal > 0 ? `1x de ${formatBRL(rawVal)}` : '1x à vista';
+      } else if (mode === 'total') {
+        const each = rawVal > 0 ? (rawVal / count) : 0;
+        badge.textContent = `${count}x de ${formatBRL(each)} (Total ${formatBRL(rawVal)})`;
+      } else {
+        const total = rawVal * count;
+        badge.textContent = `${count}x de ${formatBRL(rawVal)} (Total ${formatBRL(total)})`;
+      }
+    }
+
     function buildTransactionCardHTML(tx) {
       const sign = tx.type === 'entrada' ? '+' : '-';
-      const color = tx.type === 'entrada' ? 'text-emerald-400' : 'text-rose-400';
-      const badgeBg = tx.type === 'entrada' ? 'bg-emerald-950/60 border-emerald-800/50 text-emerald-300' : 'bg-rose-950/60 border-rose-800/50 text-rose-300';
-      const mShort = MONTH_META[tx.month] ? MONTH_META[tx.month].short : (tx.month || '');
+      const isCC = isCreditCardAccount(tx.accountKey);
+      const color = tx.type === 'entrada' ? 'text-emerald-400' : (isCC ? 'text-violet-300' : 'text-rose-400');
+      const badgeBg = tx.type === 'entrada'
+        ? 'bg-emerald-950/60 border-emerald-800/50 text-emerald-300'
+        : (isCC ? 'bg-violet-950/70 border-violet-700/60 text-violet-300' : 'bg-rose-950/60 border-rose-800/50 text-rose-300');
+      const mShort = getMonthMeta(tx.month).short;
+      const labelType = tx.type === 'entrada' ? 'Entrada' : (isCC ? '💳 Fatura ' + mShort : 'Saída');
       return `
-        <div class="bg-slate-900/90 hover:bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
+        <div class="bg-slate-900/90 hover:bg-slate-900 border ${isCC ? 'border-violet-800/40' : 'border-slate-800'} rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeBg}">${tx.type === 'entrada' ? 'Entrada' : 'Saída'}</span>
-              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">${tx.date} (${mShort})</span>
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeBg}">${labelType}</span>
+              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">Compra: ${tx.date}</span>
               <span class="font-semibold text-slate-100 truncate">${tx.desc}</span>
             </div>
-            <div class="text-[11px] text-slate-400 truncate">Conta: <strong class="text-slate-300">${tx.account}</strong> • Categoria: <strong class="text-slate-300">${tx.category}</strong></div>
+            <div class="text-[11px] text-slate-400 truncate">Conta/Cartão: <strong class="text-slate-300">${tx.account}</strong> • Categoria: <strong class="text-slate-300">${tx.category}</strong></div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <span class="text-sm font-bold ${color}">${sign}${formatBRL(tx.amount)}</span>
@@ -1137,7 +2172,8 @@
     function renderAll() {
       upgradeStateSchema();
       const m = state.currentMonth || getSystemDefaultMonth();
-      const monthData = state.months[m] || state.months['2026-11'] || state.months['2026-10'];
+      ensureMonthExists(m);
+      const monthData = state.months[m];
 
       renderMonthNavigation();
       populateFilterDropdowns();
@@ -1151,7 +2187,6 @@
       const reservesBalance = (state.accounts.res_oferta?.balance || 0) + (state.accounts.res_lifegroup?.balance || 0);
       const ownTotal = freeBalance + reservesBalance;
 
-      // Filtra entradas excluindo benefícios (VR e Flash) do saldo final
       const isBenefitTarget = (t) => t === 'flash' || t === 'vr';
       const pendingInCash = monthData.incomes.filter(i => !isBenefitTarget(i.target)).reduce((a, i) => a + Math.max(0, i.remaining), 0);
       const pendingInVR = monthData.incomes.filter(i => i.target === 'vr').reduce((a, i) => a + Math.max(0, i.remaining), 0);
@@ -1165,42 +2200,93 @@
         .filter(p => p.coveredByReserve)
         .reduce((a, p) => a + Math.max(0, p.remaining), 0);
 
+      const monthCreditCardSpend = getMonthCreditCardSpend(m);
+      const totalCreditCardInvoice = getTotalCreditCardsBalance();
       const totalOverbudget = monthData.provisions.reduce((a, p) => a + (p.remaining < 0 ? Math.abs(p.remaining) : 0), 0);
 
       const sysMonth = getSystemDefaultMonth();
-      // Saldo Final Projetado 100% livre de benefícios (VR e Flash não entram na soma!)
+      const unpaidCCInMonth = Math.min(totalCreditCardInvoice, monthCreditCardSpend);
       const projectedCloseCash = (m === sysMonth || m === '2026-10')
-        ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves)
-        : (pendingInCash - pendingOutFreeCash - pendingOutReserves);
+        ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves - unpaidCCInMonth)
+        : (pendingInCash - pendingOutFreeCash - pendingOutReserves - monthCreditCardSpend);
 
       document.getElementById('kpi-own-balance').textContent = formatBRL(ownTotal);
-      document.getElementById('kpi-free-vs-reserves').textContent = 'Livre: ' + formatBRL(freeBalance) + ' | Reservas: ' + formatBRL(reservesBalance);
+      document.getElementById('kpi-free-vs-reserves').textContent = `Livre: ${formatBRL(freeBalance)} | Reservas: ${formatBRL(reservesBalance)}`;
       document.getElementById('kpi-pending-in').textContent = '+' + formatBRL(pendingInCash);
       document.getElementById('kpi-leandra-status').textContent = `Apenas Conta Livre (À parte -> VR: ${formatBRL(pendingInVR)} | Flash: ${formatBRL(pendingInFlash)})`;
       document.getElementById('kpi-pending-out').textContent = '-' + formatBRL(pendingOutFreeCash);
       document.getElementById('kpi-overbudget-summary').innerHTML = totalOverbudget > 0
-        ? `<span class="text-rose-400 font-semibold">⚠️ Excedente no mês: +${formatBRL(totalOverbudget)}</span> | Reservas: ${formatBRL(pendingOutReserves)}`
-        : `No Caixa: ${formatBRL(pendingOutFreeCash)} | Nas Reservas: ${formatBRL(pendingOutReserves)}`;
+        ? `<span class="text-rose-400 font-semibold">⚠️ Excedente: +${formatBRL(totalOverbudget)}</span> | Faturas Mês: <strong class="text-violet-300">${formatBRL(monthCreditCardSpend)}</strong>`
+        : `No Caixa: ${formatBRL(pendingOutFreeCash)} | Faturas Mês: <strong class="text-violet-300">${formatBRL(monthCreditCardSpend)}</strong>`;
       document.getElementById('kpi-projected-close').textContent = formatBRL(projectedCloseCash);
-      document.getElementById('kpi-projected-patrimony').textContent = 'Saldo 100% Livre em Conta (Benefícios não incluídos)';
+      document.getElementById('kpi-projected-patrimony').textContent = unpaidCCInMonth > 0
+        ? `Já descontando ${formatBRL(unpaidCCInMonth)} das faturas do mês`
+        : 'Saldo 100% Livre em Conta (Benefícios não incluídos)';
 
       const pendingProvCount = monthData.provisions.filter(p => p.remaining > 0.009).length;
       document.getElementById('badge-summary-saidas').textContent = `${pendingProvCount} pendentes • Resta ${formatBRL(pendingOutFreeCash)}`;
       const pendingIncCount = monthData.incomes.filter(i => i.remaining > 0.009).length;
       document.getElementById('badge-summary-entradas').textContent = `${pendingIncCount} pendentes • Em Conta: ${formatBRL(pendingInCash)}`;
 
-      // Contas
+      // 1. Contas Regulares (Bancos, Reservas, Benefícios)
       let accHtml = '';
       Object.entries(state.accounts).forEach(([key, acc]) => {
+        if (isCreditCardAccount(key)) return;
         const isBenefit = key === 'vr' || key === 'flash';
         const borderClass = key === 'vr' ? 'border-lime-500/40' : (key === 'flash' ? 'border-pink-500/40' : 'border-slate-800');
         accHtml += `
-          <div onclick="editAccountBalance('${key}')" class="cursor-pointer bg-slate-900 hover:bg-slate-800 border ${borderClass} rounded-xl p-3 flex flex-col justify-between">
+          <div onclick="editAccountBalance('${key}')" class="cursor-pointer bg-slate-900 hover:bg-slate-800 border ${borderClass} rounded-xl p-3 flex flex-col justify-between transition">
             <div class="text-xs ${isBenefit ? 'text-emerald-300 font-semibold' : 'text-slate-400'} mb-1 truncate">${acc.name}</div>
             <div class="text-base font-bold text-white">${formatBRL(acc.balance)}</div>
           </div>`;
       });
       document.getElementById('accounts-grid').innerHTML = accHtml;
+
+      // 2. Grid Dedicado aos Cartões de Crédito (Múltiplos Cartões + Fechamento e Vencimento)
+      let ccHtml = '';
+      const todayDay = new Date().getDate();
+      getCreditCardEntries().forEach(([key, acc]) => {
+        const cardMonthSpend = getMonthCreditCardSpend(m, key);
+        const limit = Number(acc.limit || 0);
+        const used = Number(acc.balance || 0);
+        const avail = Math.max(0, +(limit - used).toFixed(2));
+        const pctUsed = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+        const closingDay = acc.closingDay || 5;
+        const dueDay = acc.dueDay || 12;
+        const isTurned = todayDay >= closingDay;
+
+        ccHtml += `
+          <div onclick="editAccountBalance('${key}')" class="cursor-pointer bg-violet-950/25 hover:bg-violet-950/40 border border-violet-500/50 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-xs font-bold text-violet-300 truncate">💳 ${acc.name} ✏️</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full border ${isTurned ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'}">
+                  ${isTurned ? 'Fatura Virou (Próx. Mês)' : 'Fatura Aberta'}
+                </span>
+              </div>
+              <div class="flex items-baseline justify-between gap-2 my-1">
+                <div>
+                  <div class="text-[10px] text-slate-400">Fatura Acumulada</div>
+                  <div class="text-lg font-bold text-white">${formatBRL(used)}</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-[10px] text-slate-400">Em ${getMonthMeta(m).short}</div>
+                  <div class="text-sm font-bold text-violet-300">${formatBRL(cardMonthSpend)}</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-800/80 space-y-1.5">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>📅 Fecha dia <strong>${String(closingDay).padStart(2, '0')}</strong> • Vence dia <strong>${String(dueDay).padStart(2, '0')}</strong></span>
+                <span>Disp: <strong class="text-emerald-300">${formatBRL(avail)}</strong></span>
+              </div>
+              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-violet-500 h-full" style="width:${pctUsed}%"></div>
+              </div>
+            </div>
+          </div>`;
+      });
+      document.getElementById('credit-cards-grid').innerHTML = ccHtml;
 
       // Provisões de Saída
       let provHtml = '';
@@ -1309,9 +2395,11 @@
       const entradasTxs = filteredAllTxs.filter(tx => tx.type === 'entrada');
 
       const totalSaidas = saidasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+      const totalSaidasCC = saidasTxs.filter(t => isCreditCardAccount(t.accountKey)).reduce((acc, t) => acc + Number(t.amount || 0), 0);
       const totalEntradas = entradasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
       const netGeral = totalEntradas - totalSaidas;
 
+      document.getElementById('saidas-credit-total').textContent = `Nos Cartões: ${formatBRL(totalSaidasCC)}`;
       document.getElementById('saidas-month-total').textContent = `Total Filtrado: ${formatBRL(totalSaidas)} (${saidasTxs.length})`;
       document.getElementById('entradas-month-total').textContent = `Total Filtrado: ${formatBRL(totalEntradas)} (${entradasTxs.length})`;
       document.getElementById('geral-filtered-net').textContent = `Entradas: +${formatBRL(totalEntradas)} | Saídas: -${formatBRL(totalSaidas)} | Líquido: ${formatBRL(netGeral)}`;
@@ -1330,8 +2418,115 @@
         : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento encontrado para os filtros selecionados.</p>';
     }
 
+    function findMatchingProvisionInMonth(monthObj, sourceProv, cleanDesc) {
+      if (!monthObj || !monthObj.provisions) return null;
+      if (sourceProv) {
+        const byId = monthObj.provisions.find(p => p.id === sourceProv.id);
+        if (byId) return byId;
+        const normSource = normalizeStr(sourceProv.name);
+        const byName = monthObj.provisions.find(p => normalizeStr(p.name) === normSource || normalizeStr(p.name).includes(normSource) || normSource.includes(normalizeStr(p.name)));
+        if (byName) return byName;
+      }
+      if (cleanDesc) {
+        const lower = cleanDesc.toLowerCase();
+        const byKw = monthObj.provisions.find(p => p.keywords && p.keywords.some(k => lower.includes(k)));
+        if (byKw) return byKw;
+      }
+      return null;
+    }
+
+    function applyCreditCardInstallments(cardKey, totalOrInstallmentAmount, mode, installmentsCount, targetId, desc, purchaseDateBR, firstInvoiceMonthKey) {
+      if (!state.accounts[cardKey]) cardKey = 'credit_card';
+      const cardObj = state.accounts[cardKey];
+
+      const n = Math.max(1, parseInt(installmentsCount, 10) || 1);
+      const totalAmount = mode === 'parcela'
+        ? +(totalOrInstallmentAmount * n).toFixed(2)
+        : +totalOrInstallmentAmount.toFixed(2);
+
+      const baseInstallment = Math.floor((totalAmount / n) * 100) / 100;
+      const firstInstallment = +(totalAmount - baseInstallment * (n - 1)).toFixed(2);
+
+      ensureMonthExists(firstInvoiceMonthKey);
+      const firstMonthObj = state.months[firstInvoiceMonthKey] || state.months[state.currentMonth];
+      let baseProv = targetId && firstMonthObj ? firstMonthObj.provisions.find(p => p.id === targetId) : null;
+      if (!baseProv && targetId && state.months[state.currentMonth]) {
+        baseProv = state.months[state.currentMonth].provisions.find(p => p.id === targetId);
+      }
+
+      const groupId = n > 1 ? ('grp_' + Date.now()) : null;
+
+      for (let i = 0; i < n; i++) {
+        const instAmount = i === 0 ? firstInstallment : baseInstallment;
+        const mKey = addMonthsToYM(firstInvoiceMonthKey, i);
+        ensureMonthExists(mKey);
+        const mData = state.months[mKey];
+        const instDateBR = i === 0 ? purchaseDateBR : addMonthsToBRDate(purchaseDateBR, i);
+        const instDesc = n > 1 ? `${desc} (${i + 1}/${n})` : desc;
+        const txId = `tx_${Date.now()}_${i}`;
+
+        let matchedProv = findMatchingProvisionInMonth(mData, baseProv, desc);
+        let categoryName = cardObj.name;
+        let provId = null;
+        let provDelta = 0;
+
+        if (matchedProv) {
+          matchedProv.remaining = +(matchedProv.remaining - instAmount).toFixed(2);
+          provId = matchedProv.id;
+          provDelta = instAmount;
+          categoryName = matchedProv.name;
+        } else if (baseProv) {
+          const autoProvId = `prov_auto_${Date.now()}_${i}`;
+          mData.provisions.push({
+            id: autoProvId,
+            name: baseProv.name,
+            budgeted: instAmount,
+            remaining: 0,
+            keywords: baseProv.keywords || [baseProv.name.toLowerCase()],
+            autoCreatedForTx: txId
+          });
+          provId = autoProvId;
+          provDelta = instAmount;
+          categoryName = baseProv.name;
+        }
+
+        cardObj.balance = +(cardObj.balance + instAmount).toFixed(2);
+
+        state.transactions.unshift({
+          id: txId,
+          groupId,
+          month: mKey,
+          date: instDateBR,
+          desc: instDesc,
+          amount: instAmount,
+          type: 'saida',
+          accountKey: cardKey,
+          account: cardObj.name,
+          targetId: provId,
+          category: categoryName,
+          provisionDelta: provDelta,
+          incomeDelta: 0,
+          leandraDelta: 0
+        });
+      }
+
+      pushStateToCloud(false);
+      const firstLabel = getMonthMeta(firstInvoiceMonthKey).label;
+      const purchaseMonth = monthFromBRDate(purchaseDateBR);
+      const rolledOverNote = (firstInvoiceMonthKey !== purchaseMonth)
+        ? ` (Fatura após fechamento dia ${String(cardObj.closingDay || 5).padStart(2, '0')} → 1ª parcela em ${firstLabel})`
+        : ` (Início em ${firstLabel})`;
+
+      if (n > 1) {
+        showFeedback(`💳 Compra parcelada em ${n}x (Total ${formatBRL(totalAmount)}) no ${cardObj.name}${rolledOverNote}! Fatura acumulada: ${formatBRL(cardObj.balance)}.`, 'success');
+      } else {
+        showFeedback(`💳 Compra de ${formatBRL(totalAmount)} lançada no ${cardObj.name}${rolledOverNote}! Fatura acumulada: ${formatBRL(cardObj.balance)}.`, 'success');
+      }
+    }
+
     function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate, explicitMonth) {
       const targetMonthKey = explicitMonth || monthFromBRDate(customDate) || state.currentMonth;
+      ensureMonthExists(targetMonthKey);
       const monthData = state.months[targetMonthKey] || state.months[state.currentMonth];
 
       if (type === 'saida' && targetId) {
@@ -1349,6 +2544,7 @@
       }
 
       if (!state.accounts[accountKey]) accountKey = 'mp_livre';
+      const isCC = isCreditCardAccount(accountKey);
 
       const newTx = {
         id: existingId || ('tx_' + Date.now()),
@@ -1360,19 +2556,24 @@
         accountKey,
         account: state.accounts[accountKey].name,
         targetId: targetId || null,
-        category: 'Avulso',
+        category: isCC ? state.accounts[accountKey].name : 'Avulso',
         provisionDelta: 0,
         incomeDelta: 0,
         leandraDelta: 0
       };
 
       if (type === 'saida') {
-        state.accounts[accountKey].balance = +(state.accounts[accountKey].balance - amount).toFixed(2);
+        if (isCC) {
+          state.accounts[accountKey].balance = +(state.accounts[accountKey].balance + amount).toFixed(2);
+        } else {
+          state.accounts[accountKey].balance = +(state.accounts[accountKey].balance - amount).toFixed(2);
+        }
+
         if (accountKey === 'leandra') {
           const incL = monthData.incomes.find(i => i.id === 'inc_leandra');
           if (incL) incL.remaining = Math.max(0, +(incL.remaining - amount).toFixed(2));
         }
-        let provMsg = 'Despesa avulsa';
+        let provMsg = isCC ? 'Lançado na fatura do cartão' : 'Despesa avulsa';
         if (targetId) {
           const prov = monthData.provisions.find(p => p.id === targetId);
           if (prov) {
@@ -1389,16 +2590,21 @@
         }
         state.transactions.unshift(newTx);
         pushStateToCloud(false);
-        showFeedback('✅ Saída de ' + formatBRL(amount) + ' (' + newTx.date + ') debitada de ' + state.accounts[accountKey].name + '. ' + provMsg, 'success');
+        const actionVerb = isCC ? 'lançada na fatura de ' : 'debitada de ';
+        showFeedback('✅ Saída de ' + formatBRL(amount) + ' (' + newTx.date + ') ' + actionVerb + state.accounts[accountKey].name + '. ' + provMsg, 'success');
       } else {
-        state.accounts[accountKey].balance = +(state.accounts[accountKey].balance + amount).toFixed(2);
+        if (isCC) {
+          state.accounts[accountKey].balance = Math.max(0, +(state.accounts[accountKey].balance - amount).toFixed(2));
+        } else {
+          state.accounts[accountKey].balance = +(state.accounts[accountKey].balance + amount).toFixed(2);
+        }
         if (desc.toLowerCase().includes('leandra') || targetId === 'inc_leandra') {
           const beforeL = state.accounts.leandra.balance;
           state.accounts.leandra.balance = Math.max(0, +(state.accounts.leandra.balance - amount).toFixed(2));
           newTx.leandraDelta = +(state.accounts.leandra.balance - beforeL).toFixed(2);
         }
-        let incMsg = 'Entrada extra';
-        newTx.category = 'Entrada Extra';
+        let incMsg = isCC ? 'Estorno/abatimento na fatura' : 'Entrada extra';
+        newTx.category = isCC ? 'Abatimento Fatura' : 'Entrada Extra';
         if (targetId) {
           const inc = monthData.incomes.find(i => i.id === targetId);
           if (inc) {
@@ -1411,7 +2617,7 @@
         }
         state.transactions.unshift(newTx);
         pushStateToCloud(false);
-        showFeedback('✅ Entrada de ' + formatBRL(amount) + ' (' + newTx.date + ') creditada em ' + state.accounts[accountKey].name + '. ' + incMsg, 'success');
+        showFeedback('✅ Entrada de ' + formatBRL(amount) + ' (' + newTx.date + ') registrada em ' + state.accounts[accountKey].name + '. ' + incMsg, 'success');
       }
     }
 
@@ -1426,6 +2632,7 @@
     function autoSelectReserveAccount() {
       const catId = document.getElementById('manual-category').value;
       const accSelect = document.getElementById('manual-account');
+      if (isCreditCardAccount(accSelect.value)) return;
       if (catId === 'lifegroup') accSelect.value = 'res_lifegroup';
       else if (catId === 'oferta') accSelect.value = 'res_oferta';
       else if (catId && catId.includes('_va')) accSelect.value = 'vr';
@@ -1434,6 +2641,7 @@
 
     function populateCategorySelect(selectedId, customMonthKey) {
       const mKey = customMonthKey || state.currentMonth;
+      ensureMonthExists(mKey);
       const mData = state.months[mKey] || state.months[state.currentMonth];
       const type = document.getElementById('manual-type').value;
       const catSelect = document.getElementById('manual-category');
@@ -1448,14 +2656,21 @@
       });
     }
 
-    function openManualModal(type) {
+    function openManualModal(type, defaultAccount) {
+      populateAccountSelects();
       document.getElementById('edit-tx-id').value = '';
       document.getElementById('manual-type').value = type;
-      document.getElementById('manual-modal-title').textContent = type === 'saida' ? 'Nova Saída Manual' : 'Nova Entrada Manual';
+      document.getElementById('manual-modal-title').textContent = isCreditCardAccount(defaultAccount)
+        ? '💳 Nova Compra no Cartão de Crédito'
+        : (type === 'saida' ? 'Nova Saída Manual' : 'Nova Entrada Manual');
       document.getElementById('manual-date').value = new Date().toISOString().slice(0, 10);
       document.getElementById('manual-desc').value = '';
       document.getElementById('manual-amount').value = '';
-      populateCategorySelect('', state.currentMonth);
+      document.getElementById('manual-account').value = defaultAccount || 'mp_livre';
+      document.getElementById('manual-installments').value = '1';
+      document.getElementById('manual-amount-mode').value = 'total';
+      document.getElementById('manual-invoice-rollover').value = 'auto';
+      onManualTypeOrAccountChange('', null);
       document.getElementById('manual-modal').classList.remove('hidden');
       document.getElementById('manual-modal').classList.add('flex');
     }
@@ -1470,28 +2685,64 @@
       const type = document.getElementById('manual-type').value;
       const isoDate = document.getElementById('manual-date').value;
       const chosenDateBR = isoDateToBR(isoDate);
-      const targetMonthKey = monthFromBRDate(chosenDateBR) || state.currentMonth;
-      const desc = document.getElementById('manual-desc').value.trim() || (type === 'saida' ? 'Saída manual' : 'Entrada manual');
-      const amount = parseFloat(document.getElementById('manual-amount').value);
       const accountKey = document.getElementById('manual-account').value;
+      const isCC = isCreditCardAccount(accountKey);
+      const desc = document.getElementById('manual-desc').value.trim() || (isCC ? `Compra no ${state.accounts[accountKey]?.name || 'Cartão'}` : (type === 'saida' ? 'Saída manual' : 'Entrada manual'));
+      const amount = parseFloat(document.getElementById('manual-amount').value);
       const catId = document.getElementById('manual-category').value || null;
       if (!amount || amount <= 0) return;
 
       if (editId) {
         const idx = state.transactions.findIndex(t => t.id === editId);
+        let prevMonth = monthFromBRDate(chosenDateBR) || state.currentMonth;
         if (idx !== -1) {
+          prevMonth = state.transactions[idx].month || prevMonth;
           revertTransactionEffects(state.transactions[idx]);
           state.transactions.splice(idx, 1);
         }
+        applyTransaction(type, amount, accountKey, catId, desc, editId, chosenDateBR, prevMonth);
+        closeManualModal();
+        return;
       }
-      applyTransaction(type, amount, accountKey, catId, desc, editId || null, chosenDateBR, targetMonthKey);
+
+      const installmentsCount = parseInt(document.getElementById('manual-installments')?.value || '1', 10) || 1;
+      const amountMode = document.getElementById('manual-amount-mode')?.value || 'total';
+      const rolloverMode = document.getElementById('manual-invoice-rollover')?.value || 'auto';
+
+      if (type === 'saida' && isCC) {
+        const firstInvoiceMonthKey = resolveFirstInvoiceMonth(chosenDateBR, accountKey, rolloverMode);
+        applyCreditCardInstallments(accountKey, amount, amountMode, installmentsCount, catId, desc, chosenDateBR, firstInvoiceMonthKey);
+      } else {
+        const targetMonthKey = monthFromBRDate(chosenDateBR) || state.currentMonth;
+        applyTransaction(type, amount, accountKey, catId, desc, null, chosenDateBR, targetMonthKey);
+      }
       closeManualModal();
+    }
+
+    function extractInstallmentsFromText(text) {
+      const lower = text.toLowerCase();
+      const numMatch = lower.match(/(?:parcelado\s+em\s+|em\s+)?(\d{1,2})\s*(?:x|vezes|parcelas)\b/);
+      if (numMatch) {
+        const n = parseInt(numMatch[1], 10);
+        if (n >= 1 && n <= 24) return n;
+      }
+      const wordInstallments = {
+        'duas vezes': 2, 'três vezes': 3, 'tres vezes': 3, 'quatro vezes': 4,
+        'cinco vezes': 5, 'seis vezes': 6, 'dez vezes': 10, 'doze vezes': 12
+      };
+      for (const [phrase, val] of Object.entries(wordInstallments)) {
+        if (lower.includes(phrase)) return val;
+      }
+      if (/\bparcelado\b/.test(lower)) return 2;
+      return 1;
     }
 
     function extractAmountFromText(text) {
       const lower = text.toLowerCase();
-      const cleanForDigits = lower.replace(/13º|13o|décimo terceiro|decimo terceiro/g, '');
-      const digitMatch = cleanForDigits.match(/(\d+(?:[.,]\d{1,2})?)/);
+      const cleanForDigits = lower
+        .replace(/13º|13o|décimo terceiro|decimo terceiro/g, '')
+        .replace(/(?:parcelado\s+em\s+|em\s+)?\d{1,2}\s*(?:x|vezes|parcelas)\b/g, '');
+      const digitMatch = cleanForDigits.match(/(?:r\$\s*)?(\d+(?:[.,]\d{1,2})?)/);
       if (digitMatch) return parseFloat(digitMatch[1].replace(',', '.'));
 
       const wordsMap = {
@@ -1504,12 +2755,31 @@
         'quatrocentos': 400, 'quinhentos': 500, 'seiscentos': 600, 'setecentos': 700,
         'oitocentos': 800, 'novecentos': 900, 'mil': 1000
       };
-      const tokens = lower.replace(/[.,!?]/g, ' ').split(/\s+/);
+      const tokens = cleanForDigits.replace(/[.,!?]/g, ' ').split(/\s+/);
       let total = 0, foundAny = false;
       tokens.forEach(w => {
         if (wordsMap[w] !== undefined) { total += wordsMap[w]; foundAny = true; }
       });
       return foundAny ? total : null;
+    }
+
+    function detectCreditCardFromText(lowerText) {
+      if (/(cartão pan|cartao pan|\bpan\b|meliuz)/.test(lowerText) && state.accounts.cc_pan) return 'cc_pan';
+      if (/(santander)/.test(lowerText) && state.accounts.cc_santander) return 'cc_santander';
+      if (/(nubank|roxinho)/.test(lowerText) && state.accounts.credit_card) return 'credit_card';
+
+      // Verifica cartões personalizados criados pelo usuário
+      for (const [key, acc] of getCreditCardEntries()) {
+        const cleanCardName = normalizeStr(acc.name).replace(/cartao|de|credito|fatura/g, '').trim();
+        if (cleanCardName && cleanCardName.length >= 3 && normalizeStr(lowerText).includes(cleanCardName)) {
+          return key;
+        }
+      }
+
+      if (/(cartão de crédito|cartao de credito|no crédito|no credito|no cartão|no cartao|fatura|parcelado|\b\d{1,2}\s*x\b|\b\d{1,2}\s*vezes\b)/.test(lowerText)) {
+        return 'credit_card';
+      }
+      return null;
     }
 
     function processAIInput() {
@@ -1521,35 +2791,77 @@
       const amount = extractAmountFromText(text);
 
       if (!amount || amount <= 0) {
-        showFeedback('⚠️ Não identifiquei o valor em R$. Fale ou digite o valor, ex: "Paguei 70 de combustível no Mercado Pago".', 'error');
+        showFeedback('⚠️ Não identifiquei o valor em R$. Fale ou digite o valor, ex: "Comprei 120 de mercantil em 2x no Nubank".', 'error');
+        return;
+      }
+
+      // Verifica se é pagamento de fatura do cartão por comando de voz
+      if (/(paguei a fatura|pagar fatura|pagamento da fatura|quitei a fatura)/.test(lower)) {
+        const cardKey = detectCreditCardFromText(lower) || 'credit_card';
+        let sourceKey = 'mp_livre';
+        if (/(itaú|itau)/.test(lower)) sourceKey = 'itau';
+        else if (/(espécie|especie|dinheiro)/.test(lower)) sourceKey = 'especie';
+        openPayInvoiceModal(cardKey);
+        document.getElementById('pay-invoice-amount').value = amount.toFixed(2);
+        document.getElementById('pay-invoice-date').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('pay-invoice-source').value = sourceKey;
+        submitPayInvoice();
+        inputEl.value = '';
         return;
       }
 
       const isIncome = /(recebi|entrou|caiu|ganhei|transferiu|repassou|creditou|me pagou|devolveu)/.test(lower);
       const type = isIncome ? 'entrada' : 'saida';
+      const installments = type === 'saida' ? extractInstallmentsFromText(text) : 1;
 
       let accountKey = 'mp_livre';
-      if (/(itaú|itau)/.test(lower)) accountKey = 'itau';
-      else if (/(espécie|especie|dinheiro|físico|fisico|mãos|maos|nota|moeda)/.test(lower)) accountKey = 'especie';
-      else if (/(\bvr\b|cartão vr|cartao vr|\bva\b|vale alimentação|vale alimentacao)/.test(lower)) accountKey = 'vr';
-      else if (/(flash|cartão flash|cartao flash|\bvt\b|vale transporte|vale combustível|vale combustivel)/.test(lower)) accountKey = 'flash';
-      else if (/(reserva oferta|oferta)/.test(lower) && type === 'saida') accountKey = 'res_oferta';
-      else if (/(reserva life|célula|celula|life group|lifegroup)/.test(lower) && type === 'saida') accountKey = 'res_lifegroup';
-      else if (/(da conta da leandra|pela leandra|leandra pagou|leandra comprou)/.test(lower) && type === 'saida') accountKey = 'leandra';
+      if (/(\bvr\b|cartão vr|cartao vr|\bva\b|vale alimentação|vale alimentacao)/.test(lower)) {
+        accountKey = 'vr';
+      } else if (/(flash|cartão flash|cartao flash|\bvt\b|vale transporte|vale combustível|vale combustivel)/.test(lower)) {
+        accountKey = 'flash';
+      } else {
+        const detectedCC = detectCreditCardFromText(lower);
+        if (detectedCC) {
+          accountKey = detectedCC;
+        } else if (/(itaú|itau)/.test(lower)) {
+          accountKey = 'itau';
+        } else if (/(espécie|especie|dinheiro|físico|fisico|mãos|maos|nota|moeda)/.test(lower)) {
+          accountKey = 'especie';
+        } else if (/(reserva oferta|oferta)/.test(lower) && type === 'saida') {
+          accountKey = 'res_oferta';
+        } else if (/(reserva life|célula|celula|life group|lifegroup)/.test(lower) && type === 'saida') {
+          accountKey = 'res_lifegroup';
+        } else if (/(da conta da leandra|pela leandra|leandra pagou|leandra comprou)/.test(lower) && type === 'saida') {
+          accountKey = 'leandra';
+        }
+      }
 
-      const monthData = state.months[state.currentMonth];
+      const todayBR = new Date().toLocaleDateString('pt-BR');
+      const isCC = isCreditCardAccount(accountKey);
+      const firstMonthKey = (type === 'saida' && isCC)
+        ? resolveFirstInvoiceMonth(todayBR, accountKey, 'auto')
+        : state.currentMonth;
+
+      ensureMonthExists(firstMonthKey);
+      const monthData = state.months[firstMonthKey] || state.months[state.currentMonth];
       let targetId = null;
       if (type === 'saida') {
-        if (accountKey !== 'vr' && accountKey !== 'flash') {
-          const matchedProv = monthData.provisions.find(p => p.keywords && p.keywords.some(k => lower.includes(k)));
-          if (matchedProv) targetId = matchedProv.id;
-        }
+        const matchedProv = monthData.provisions.find(p => p.keywords && p.keywords.some(k => lower.includes(k)));
+        if (matchedProv) targetId = matchedProv.id;
       } else {
         const matchedInc = monthData.incomes.find(i => i.keywords && i.keywords.some(k => lower.includes(k)));
         if (matchedInc) targetId = matchedInc.id;
       }
 
-      applyTransaction(type, amount, accountKey, targetId, text);
+      const cleanDesc = text
+        .replace(/\s+(?:parcelado\s+)?(?:em\s+)?\d{1,2}\s*(?:x|vezes|parcelas)\b/gi, '')
+        .trim();
+
+      if (type === 'saida' && isCC) {
+        applyCreditCardInstallments(accountKey, amount, 'total', installments, targetId, cleanDesc || text, todayBR, firstMonthKey);
+      } else {
+        applyTransaction(type, amount, accountKey, targetId, text, null, todayBR, state.currentMonth);
+      }
       inputEl.value = '';
     }
 
@@ -1579,9 +2891,9 @@
 
       recognition.onstart = () => {
         isListening = true;
-        btn.className = 'absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center pulse-mic';
+        btn.className = 'keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center pulse-mic';
         inputEl.placeholder = '🎙️ Ouvindo você... Fale agora!';
-        showFeedback('🎙️ Microfone aberto! Fale o lançamento (ex: "Comprei 40 no cartão VR")...', 'success');
+        showFeedback('🎙️ Microfone aberto! Fale o lançamento (ex: "Comprei 100 de mercantil em 2x no Nubank")...', 'success');
       };
 
       recognition.onresult = (e) => {
@@ -1597,20 +2909,21 @@
 
       recognition.onerror = (e) => {
         isListening = false;
-        btn.className = 'absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
-        inputEl.placeholder = 'Toque no microfone 🎙️ e fale: "Comprei 50 de mercantil no cartão VR"';
+        btn.className = 'keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
+        inputEl.placeholder = 'Ex: "Comprei 300 de fraldas em 2x no Nubank"';
         showFeedback('⚠️ Microfone: ' + e.error + '. Permita o uso do microfone quando o navegador perguntar.', 'error');
       };
 
       recognition.onend = () => {
         isListening = false;
-        btn.className = 'absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
-        inputEl.placeholder = 'Toque no microfone 🎙️ e fale: "Comprei 50 de mercantil no cartão VR"';
+        btn.className = 'keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
+        inputEl.placeholder = 'Ex: "Comprei 300 de fraldas em 2x no Nubank"';
       };
 
       recognition.start();
     }
 
+    loadThemePreference();
     renderAll();
     syncFromCloud(false);
   </script>
