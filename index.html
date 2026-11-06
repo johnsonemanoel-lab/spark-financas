@@ -9,18 +9,57 @@
   <title>Spark Finanças</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background-color: #0f172a;
+      background-color: #0b131e;
       color: #f8fafc;
       transition: background-color 0.25s ease, color 0.25s ease;
     }
     .glass {
-      background: rgba(30, 41, 59, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(21, 32, 48, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
+    .sidebar-surface {
+      background-color: #0d1821;
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+    }
+    /* Estilo inspirado na imagem de referência: pílula verde-menta suave no item ativo */
+    .nav-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.7rem 0.95rem;
+      border-radius: 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      transition: all 0.18s ease;
+      text-align: left;
+    }
+    .nav-pill:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
+    .nav-pill.active {
+      background-color: #b7ebd0 !important;
+      color: #063925 !important;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.18);
+    }
+    .nav-pill.active .nav-icon,
+    .nav-pill.active .nav-badge {
+      color: #063925 !important;
+    }
+    .nav-pill.active .nav-badge {
+      background-color: rgba(6, 57, 37, 0.12) !important;
+      border-color: rgba(6, 57, 37, 0.2) !important;
+    }
+
     .pulse-mic { animation: pulseRed 1.4s infinite; }
     @keyframes pulseRed {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -34,6 +73,22 @@
     body.light-mode {
       background-color: #f1f5f9;
       color: #0f172a;
+    }
+    body.light-mode .sidebar-surface {
+      background-color: #ffffff !important;
+      border-right-color: #cbd5e1 !important;
+      box-shadow: 2px 0 12px rgba(15, 23, 42, 0.04);
+    }
+    body.light-mode .nav-pill {
+      color: #334155;
+    }
+    body.light-mode .nav-pill:hover {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    body.light-mode .nav-pill.active {
+      background-color: #a7f3d0 !important;
+      color: #064e3b !important;
     }
     body.light-mode header.bg-slate-900 {
       background-color: rgba(255, 255, 255, 0.95) !important;
@@ -135,150 +190,391 @@
     }
   </style>
 </head>
-<body class="min-h-screen pb-16">
+<body class="min-h-screen flex flex-col lg:flex-row">
 
-  <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900 sticky top-0 z-30">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-          <i class="fa-solid fa-wallet text-lg"></i>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="font-bold text-lg leading-tight">Spark Finanças</h1>
-            <span id="sheet-link-badge" class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+  <!-- Overlay Mobile da Sidebar -->
+  <div
+    id="sidebar-backdrop"
+    onclick="closeMobileSidebar()"
+    class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden"
+  ></div>
+
+  <!-- ==========================================
+       ABA LATERAL (SIDEBAR INSPIRADA NO MODELO)
+       ========================================== -->
+  <aside
+    id="app-sidebar"
+    class="sidebar-surface fixed lg:sticky top-0 left-0 z-50 h-screen w-72 shrink-0 flex flex-col justify-between p-4 -translate-x-full lg:translate-x-0"
+  >
+    <div class="space-y-6 overflow-y-auto pr-1">
+      <!-- Identidade do App -->
+      <div class="flex items-center justify-between gap-2 px-1 pt-1">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-wallet text-lg"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-bold text-base leading-tight text-white">Spark Finanças</h1>
+            </div>
+            <span id="sheet-link-badge" class="inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
               ● Cloud Ativo
             </span>
           </div>
-          <p class="text-xs text-slate-400">Controle de Caixa, Cartões & Provisões • Mês Ativo: <strong class="current-month-label text-emerald-400">Novembro/2026</strong></p>
+        </div>
+        <button
+          type="button"
+          onclick="closeMobileSidebar()"
+          class="lg:hidden text-slate-400 hover:text-white px-2 py-1 rounded-lg"
+          title="Fechar menu"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Card de Saldo Livre Projetado na Sidebar -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-400">
+          <span>Mês Ativo: <strong class="current-month-label text-emerald-400">Novembro/2026</strong></span>
+          <i class="fa-solid fa-chart-line text-emerald-400"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-400">Caixa Livre Atual</div>
+            <div id="sidebar-free-balance" class="text-sm font-bold text-white">R$ 404,70</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-400">Livre Projetado</div>
+            <div id="sidebar-projected-balance" class="text-sm font-bold text-emerald-400">R$ 1.895,12</div>
+          </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 flex-wrap">
+      <!-- GRUPO: SEU DINHEIRO (Inspirado na imagem enviada) -->
+      <nav class="space-y-1.5" aria-label="Navegação Principal">
+        <div class="px-3 pb-1 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+          SEU DINHEIRO
+        </div>
+
         <button
           type="button"
-          id="theme-toggle-btn"
-          onclick="toggleTheme()"
-          class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5 font-semibold"
-          title="Alternar entre Tema Claro e Tema Escuro"
+          id="nav-btn-saidas"
+          onclick="changeView('saidas')"
+          class="nav-pill active"
         >
-          <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
-          <span id="theme-toggle-label">Tema Claro</span>
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-arrow-up-right-from-square text-xs w-4 text-center"></i>
+            <span>Despesas e provisões</span>
+          </span>
+          <span id="nav-badge-saidas" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
         </button>
-        <button type="button" onclick="openPayInvoiceModal()" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3.5 py-2 rounded-lg border border-violet-700/80 transition font-semibold">
-          <i class="fa-regular fa-credit-card mr-1"></i> Pagar Fatura
-        </button>
-        <button type="button" onclick="syncFromCloud(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3.5 py-2 rounded-lg border border-slate-700 transition">
-          <i class="fa-solid fa-arrows-rotate mr-1"></i> Sincronizar
-        </button>
-        <button type="button" onclick="pushStateToCloud(true)" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3.5 py-2 rounded-lg border border-emerald-700 transition">
-          <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Salvar na Planilha
-        </button>
-      </div>
-    </div>
-  </header>
 
-  <main class="max-w-6xl mx-auto px-4 mt-6 space-y-6">
+        <button
+          type="button"
+          id="nav-btn-entradas"
+          onclick="changeView('entradas')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-arrow-down-long text-xs w-4 text-center" style="transform: rotate(45deg);"></i>
+            <span>Receitas</span>
+          </span>
+          <span id="nav-badge-entradas" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
+        </button>
 
-    <!-- 1. Barra de Lançamento Rápido por Voz / IA -->
-    <section class="glass rounded-2xl p-5 shadow-xl border-l-4 border-l-emerald-500">
-      <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-        <label class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-microphone-lines"></i> Registro Inteligente por Voz ou Texto (IA) — <span class="current-month-label">Novembro/2026</span>
-        </label>
-        <span id="last-sync-text" class="text-[11px] text-emerald-400">Conectando à Planilha...</span>
-      </div>
+        <button
+          type="button"
+          id="nav-btn-cartoes"
+          onclick="changeView('cartoes')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-regular fa-credit-card text-xs w-4 text-center"></i>
+            <span>Cartões de crédito</span>
+          </span>
+          <span id="nav-badge-cartoes" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-300 border border-violet-800/60">R$ 0</span>
+        </button>
 
-      <div class="flex flex-col sm:flex-row gap-2.5">
-        <div class="relative flex-1">
-          <input
-            id="ai-input"
-            type="text"
-            placeholder='Ex: "Comprei 300 de fraldas em 2x no Nubank" ou "Comprei 150 de mercantil no Cartão Pan"'
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-            onkeydown="if(event.key === 'Enter') processAIInput()"
-          />
+        <button
+          type="button"
+          id="nav-btn-contas"
+          onclick="changeView('contas')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-building-columns text-xs w-4 text-center"></i>
+            <span>Contas, Reservas & VR</span>
+          </span>
+          <span id="nav-badge-contas" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">8</span>
+        </button>
+
+        <button
+          type="button"
+          id="nav-btn-registros"
+          onclick="changeView('registros')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-list-ul text-xs w-4 text-center"></i>
+            <span>Todos os registros</span>
+          </span>
+          <span id="nav-badge-registros" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
+        </button>
+
+        <div class="pt-3 px-3 pb-1 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+          PANORAMA & ANÁLISE
+        </div>
+
+        <button
+          type="button"
+          id="nav-btn-indicadores"
+          onclick="changeView('indicadores')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-chart-Simple fa-chart-column text-xs w-4 text-center"></i>
+            <span>Indicadores e análise</span>
+          </span>
+          <span id="nav-badge-indicadores" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/60">BI</span>
+        </button>
+
+        <button
+          type="button"
+          id="nav-btn-resumo"
+          onclick="changeView('resumo')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-chart-pie text-xs w-4 text-center"></i>
+            <span>Resumo do Mês (KPIs)</span>
+          </span>
+        </button>
+      </nav>
+
+      <!-- Atalhos de Lançamento Rápido na Sidebar -->
+      <div class="space-y-2 pt-2 border-t border-slate-800/80">
+        <div class="px-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+          LANÇAMENTO RÁPIDO
+        </div>
+        <div class="grid grid-cols-2 gap-2">
           <button
             type="button"
-            id="mic-btn"
-            onclick="toggleSpeechRecognition()"
-            class="keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow"
-            title="Clique e fale o lançamento"
+            onclick="openManualModal('saida')"
+            class="text-xs bg-rose-950/80 hover:bg-rose-900 text-rose-300 py-2 px-2.5 rounded-xl border border-rose-800/70 font-semibold transition flex items-center justify-center gap-1.5"
           >
-            <i class="fa-solid fa-microphone"></i>
+            <i class="fa-solid fa-minus"></i> Saída
+          </button>
+          <button
+            type="button"
+            onclick="openManualModal('entrada')"
+            class="text-xs bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 py-2 px-2.5 rounded-xl border border-emerald-800/70 font-semibold transition flex items-center justify-center gap-1.5"
+          >
+            <i class="fa-solid fa-plus"></i> Entrada
           </button>
         </div>
         <button
           type="button"
-          onclick="processAIInput()"
-          class="keep-white-text bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition"
+          onclick="openManualModal('saida', 'credit_card')"
+          class="w-full text-xs bg-violet-950/80 hover:bg-violet-900 text-violet-300 py-2 px-3 rounded-xl border border-violet-800/70 font-semibold transition flex items-center justify-center gap-1.5"
         >
-          <i class="fa-solid fa-bolt"></i> Lançar e Salvar no BD
+          💳 Compra no Cartão
         </button>
       </div>
+    </div>
 
-      <div class="flex flex-wrap items-center gap-2 mt-2.5 text-[11px] text-slate-400">
-        <span class="text-slate-500">Exemplos por Voz/IA:</span>
-        <span class="bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-violet-300">💳 "...em 3x no Nubank / Pan / Santander" (respeita o dia de fechamento!)</span>
-        <span class="bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-emerald-300">🥗 "...no cartão VR" / "...no Flash"</span>
-        <span class="bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-sky-300">⚡ "...com Pix" (Mercado Pago Livre)</span>
+    <!-- Rodapé da Sidebar -->
+    <div class="pt-3 border-t border-slate-800/80 space-y-2">
+      <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+        <span id="last-sync-text" class="truncate text-emerald-400">Conectando à Planilha...</span>
       </div>
-
-      <div id="ai-feedback" class="hidden mt-3 p-3 rounded-xl text-xs border"></div>
-    </section>
-
-    <!-- 2. Cards de Resumo Consolidado (Sem somar benefícios no Saldo Final Livre) -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="glass rounded-2xl p-4">
-        <div class="text-slate-400 text-xs mb-1">Saldo Próprio (Contas + Reservas)</div>
-        <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 153,47</div>
-        <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 153,47 | Reservas: R$ 0,00</div>
+      <div class="grid grid-cols-2 gap-1.5">
+        <button type="button" onclick="syncFromCloud(true)" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-400 py-2 px-2 rounded-lg border border-slate-700 transition font-semibold">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Sincronizar
+        </button>
+        <button type="button" onclick="pushStateToCloud(true)" class="text-[11px] bg-emerald-950 hover:bg-emerald-900 text-emerald-300 py-2 px-2 rounded-lg border border-emerald-700 transition font-semibold">
+          <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Salvar na Planilha
+        </button>
       </div>
+    </div>
+  </aside>
 
-      <div class="glass rounded-2xl p-4">
-        <div class="text-slate-400 text-xs mb-1">Entradas em Conta (<span class="current-month-label">Novembro/2026</span>)</div>
-        <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 6.530,35</div>
-        <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Exclusivo Conta Livre (Sem VR/Flash)</div>
-      </div>
+  <!-- ==========================================
+       CONTEÚDO PRINCIPAL (CLEAN & FOCADO)
+       ========================================== -->
+  <div class="flex-1 flex flex-col min-w-0 pb-16">
 
-      <div class="glass rounded-2xl p-4">
-        <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Novembro/2026</span>)</div>
-        <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 4.788,70</div>
-        <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
-      </div>
+    <!-- Topbar Enxuta -->
+    <header class="border-b border-slate-800 bg-slate-900 sticky top-0 z-30">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            onclick="openMobileSidebar()"
+            class="lg:hidden w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center"
+            title="Abrir menu lateral"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="active-view-title" class="font-bold text-base sm:text-lg leading-tight text-white">Despesas e provisões</h2>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold current-month-label">
+                Novembro/2026
+              </span>
+            </div>
+            <p id="active-view-subtitle" class="text-xs text-slate-400">Acompanhe o orçamento previsto e os gastos lançados no mês</p>
+          </div>
+        </div>
 
-      <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
-        <div class="text-emerald-300 text-xs mb-1">Saldo Final Livre Projetado</div>
-        <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 1.895,12</div>
-        <div id="kpi-projected-patrimony" class="text-[11px] text-slate-400 mt-1">100% Livre em Contas (Sem Benefícios)</div>
-      </div>
-    </section>
-
-    <!-- 3. Saldos por Conta Bancária / Carteira & Cartões de Crédito -->
-    <section class="glass rounded-2xl p-5 space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">
-            🏦 Contas Bancárias, Reservas & Benefícios (VR / Flash)
-          </h2>
-          <p class="text-xs text-slate-400">Clique em qualquer card para ajustar o saldo manualmente</p>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            onclick="toggleTheme()"
+            class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5 font-semibold"
+            title="Alternar entre Tema Claro e Tema Escuro"
+          >
+            <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
+            <span id="theme-toggle-label">Tema Claro</span>
+          </button>
+          <button type="button" onclick="openPayInvoiceModal()" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-2 rounded-lg border border-violet-700/80 transition font-semibold">
+            <i class="fa-regular fa-credit-card mr-1"></i> Pagar Fatura
+          </button>
         </div>
       </div>
-      <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
+    </header>
 
-      <!-- Sub-seção dedicada aos Cartões de Crédito com Fechamento e Vencimento -->
-      <div class="pt-4 border-t border-slate-800/80">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+    <main class="max-w-5xl w-full mx-auto px-4 mt-5 space-y-5">
+
+      <!-- 1. Barra Compacta de Lançamento Rápido por Voz / IA + Seleção de Mês -->
+      <section class="glass rounded-2xl p-4 shadow-lg border-l-4 border-l-emerald-500 space-y-3">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <div class="relative flex-1">
+            <input
+              id="ai-input"
+              type="text"
+              placeholder='🎙️ Fale ou digite: "Comprei 300 de fraldas em 2x no Nubank" ou "Comprei 50 no VR"'
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-12 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              onkeydown="if(event.key === 'Enter') processAIInput()"
+            />
+            <button
+              type="button"
+              id="mic-btn"
+              onclick="toggleSpeechRecognition()"
+              class="keep-white-text absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow"
+              title="Clique e fale o lançamento"
+            >
+              <i class="fa-solid fa-microphone text-xs"></i>
+            </button>
+          </div>
+          <button
+            type="button"
+            onclick="processAIInput()"
+            class="keep-white-text bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow transition shrink-0"
+          >
+            <i class="fa-solid fa-bolt"></i> Lançar e Salvar no BD
+          </button>
+        </div>
+
+        <!-- Seletor de Mês Integrado e Limpo -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-semibold text-slate-400 flex items-center gap-1">
+              <i class="fa-solid fa-calendar-days text-emerald-400"></i> Mês:
+            </span>
+            <select
+              id="past-months-select"
+              onchange="if(this.value) changeMonth(this.value)"
+              class="bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-2.5 py-1 focus:outline-none focus:border-amber-500 cursor-pointer"
+            >
+              <option value="">⏮️ Meses Anteriores...</option>
+            </select>
+            <div id="active-months-buttons" class="flex items-center gap-1.5 flex-wrap"></div>
+          </div>
+
+          <button
+            type="button"
+            id="btn-filter-all-months"
+            onclick="toggleAllMonthsFilter()"
+            class="px-2.5 py-1 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-layer-group"></i> <span id="lbl-filter-all">Ver Todos os Meses</span>
+          </button>
+        </div>
+
+        <div id="ai-feedback" class="hidden mt-2 p-3 rounded-xl text-xs border"></div>
+      </section>
+
+      <!-- Botões ocultos de compatibilidade de visão (para manter atalhos legados funcionando) -->
+      <div class="hidden">
+        <button type="button" id="view-btn-saidas" onclick="changeView('saidas')">Saídas</button>
+        <button type="button" id="view-btn-entradas" onclick="changeView('entradas')">Entradas</button>
+        <button type="button" id="view-btn-registros" onclick="changeView('registros')">Registros Gerais</button>
+      </div>
+
+      <!-- 2. SEÇÃO DE KPIs (Visível no Resumo do Mês e opcionalmente compacta) -->
+      <section id="section-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="glass rounded-2xl p-4">
+          <div class="text-slate-400 text-xs mb-1">Saldo Próprio (Contas + Reservas)</div>
+          <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 153,47</div>
+          <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 153,47 | Reservas: R$ 0,00</div>
+        </div>
+
+        <div class="glass rounded-2xl p-4">
+          <div class="text-slate-400 text-xs mb-1">Entradas em Conta (<span class="current-month-label">Novembro/2026</span>)</div>
+          <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 6.530,35</div>
+          <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Exclusivo Conta Livre (Sem VR/Flash)</div>
+        </div>
+
+        <div class="glass rounded-2xl p-4">
+          <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Novembro/2026</span>)</div>
+          <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 4.788,70</div>
+          <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
+        </div>
+
+        <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
+          <div class="text-emerald-300 text-xs mb-1">Saldo Final Livre Projetado</div>
+          <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 1.895,12</div>
+          <div id="kpi-projected-patrimony" class="text-[11px] text-slate-400 mt-1">100% Livre em Contas (Sem Benefícios)</div>
+        </div>
+      </section>
+
+      <!-- 3. SEÇÃO EXCLUSIVA: CONTAS BANCÁRIAS, RESERVAS & BENEFÍCIOS (Aba 'contas') -->
+      <section id="section-accounts" class="hidden glass rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 class="text-xs font-bold uppercase tracking-wider text-violet-300 flex items-center gap-1.5">
-              <i class="fa-regular fa-credit-card"></i> Cartões de Crédito & Controle de Faturas (Virada Automática)
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">
+              🏦 Posição das Contas Bancárias, Reservas MP & Benefícios (VR / Flash)
+            </h2>
+            <p class="text-xs text-slate-400">Clique em qualquer card para ajustar o saldo disponível manualmente</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
+              + Lançar Entrada
+            </button>
+            <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
+              + Lançar Saída
+            </button>
+          </div>
+        </div>
+        <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+      </section>
+
+      <!-- 4. SEÇÃO EXCLUSIVA: CARTÕES DE CRÉDITO (Aba 'cartoes') -->
+      <section id="section-credit-cards" class="hidden glass rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-violet-300 flex items-center gap-1.5">
+              <i class="fa-regular fa-credit-card"></i> Meus Cartões de Crédito & Controle de Faturas
             </h3>
-            <p class="text-[11px] text-slate-400">
-              Compras feitas a partir do <strong>Dia de Fechamento</strong> caem automaticamente na fatura do mês seguinte. Clique em um cartão para configurar fechamento, limite ou fatura.
+            <p class="text-xs text-slate-400">
+              Compras feitas a partir do <strong>Dia de Fechamento</strong> caem automaticamente na fatura do mês seguinte. Clique em um cartão para editar limite ou fechamento.
             </p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-600 hover:bg-violet-500 text-white keep-white-text px-3 py-1.5 rounded-lg font-semibold transition">
+              💳 Compra no Cartão
+            </button>
             <button type="button" onclick="openNewCardModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-violet-300 px-3 py-1.5 rounded-lg border border-slate-700 transition font-semibold">
               + Novo Cartão
             </button>
@@ -288,271 +584,387 @@
           </div>
         </div>
         <div id="credit-cards-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 4. PAINEL INTEGRADO: ABAS + FILTRO DE MESES + BUSCA, FILTROS E ORDENAÇÃO -->
-    <section class="glass rounded-2xl p-4 space-y-3 border border-slate-800">
-      <!-- Linha 1: Botões de Visão (Saídas | Entradas | Registros Gerais) -->
-      <div class="grid grid-cols-3 gap-2 w-full">
-        <button
-          type="button"
-          id="view-btn-saidas"
-          onclick="changeView('saidas')"
-          class="keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg"
-        >
-          <i class="fa-solid fa-arrow-trend-down"></i> Saídas
-        </button>
-        <button
-          type="button"
-          id="view-btn-entradas"
-          onclick="changeView('entradas')"
-          class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60"
-        >
-          <i class="fa-solid fa-arrow-trend-up"></i> Entradas
-        </button>
-        <button
-          type="button"
-          id="view-btn-registros"
-          onclick="changeView('registros')"
-          class="py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60"
-        >
-          <i class="fa-solid fa-clock-rotate-left"></i> Registros Gerais
-        </button>
-      </div>
+      <!-- 5. BARRA DE BUSCA, FILTROS E ORDENAÇÃO (Recolhível para não poluir!) -->
+      <section id="section-filters" class="glass rounded-2xl p-3.5 border border-slate-800">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-center">
+          <div class="relative lg:col-span-2">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input
+              id="filter-search"
+              type="text"
+              oninput="renderAll()"
+              placeholder="Buscar texto, local, cartão, parcela ou valor..."
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
 
-      <!-- Linha 2: Seleção de Meses (Meses Anteriores + Mês Atual e Futuros + Ver Todos) -->
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-calendar-days text-emerald-400"></i> Mês:
-          </span>
-
-          <div class="relative">
+          <div>
             <select
-              id="past-months-select"
-              onchange="if(this.value) changeMonth(this.value)"
-              class="bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-amber-500 cursor-pointer"
+              id="filter-account"
+              onchange="renderAll()"
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
             >
-              <option value="">⏮️ Meses Anteriores...</option>
+              <option value="">💳 Todas as Contas / Cartões</option>
             </select>
           </div>
 
-          <div id="active-months-buttons" class="flex items-center gap-1.5 flex-wrap"></div>
-        </div>
-
-        <button
-          type="button"
-          id="btn-filter-all-months"
-          onclick="toggleAllMonthsFilter()"
-          class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5"
-        >
-          <i class="fa-solid fa-layer-group"></i> <span id="lbl-filter-all">Ver Todos os Meses</span>
-        </button>
-      </div>
-
-      <!-- Linha 3: Barra de Busca por Texto, Filtros (Conta, Categoria, Data) e Ordenação -->
-      <div class="pt-3 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-center">
-        <!-- Busca por Texto -->
-        <div class="relative lg:col-span-2">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input
-            id="filter-search"
-            type="text"
-            oninput="renderAll()"
-            placeholder="Buscar texto, local, cartão, parcela ou valor..."
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
-        </div>
-
-        <!-- Filtro por Conta -->
-        <div>
-          <select
-            id="filter-account"
-            onchange="renderAll()"
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-          >
-            <option value="">💳 Todas as Contas / Cartões</option>
-          </select>
-        </div>
-
-        <!-- Filtro por Categoria -->
-        <div>
-          <select
-            id="filter-category"
-            onchange="renderAll()"
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-          >
-            <option value="">🏷️ Todas as Categorias</option>
-          </select>
-        </div>
-
-        <!-- Filtro por Data Específica -->
-        <div>
-          <input
-            id="filter-date"
-            type="date"
-            onchange="renderAll()"
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-            title="Filtrar por um dia específico"
-          />
-        </div>
-
-        <!-- Ordenação + Limpar -->
-        <div class="flex items-center gap-1.5">
-          <select
-            id="sort-by"
-            onchange="renderAll()"
-            class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500"
-            title="Ordenar lançamentos"
-          >
-            <option value="date_desc">⬇️ Data (Mais recentes)</option>
-            <option value="date_asc">⬆️ Data (Mais antigos)</option>
-            <option value="amount_desc">💰 Valor (Maior → Menor)</option>
-            <option value="amount_asc">🪙 Valor (Menor → Maior)</option>
-            <option value="account_asc">🏦 Conta (A → Z)</option>
-            <option value="category_asc">🏷️ Categoria (A → Z)</option>
-          </select>
-          <button
-            type="button"
-            onclick="clearAllFilters()"
-            class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 text-xs transition"
-            title="Limpar todos os filtros"
-          >
-            <i class="fa-solid fa-filter-circle-xmark"></i>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- PAINEL 1: VISÃO DE SAÍDAS -->
-    <div id="panel-saidas" class="space-y-6">
-      <section class="glass rounded-2xl p-4 sm:p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div onclick="toggleProvisionsCollapse('saidas')" class="cursor-pointer flex items-center gap-3 flex-1">
-            <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <i id="icon-collapse-saidas" class="fa-solid fa-chevron-right transition-transform duration-200"></i>
-            </div>
-            <div>
-              <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2 flex-wrap">
-                <span>Provisões de Saídas — <span class="current-month-label">Novembro/2026</span></span>
-                <span id="badge-summary-saidas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
-              </h2>
-              <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-saidas" class="text-amber-300 underline">expandir</strong> ou retrair as provisões do mês.</p>
-            </div>
+          <div>
+            <select
+              id="filter-category"
+              onchange="renderAll()"
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="">🏷️ Todas as Categorias</option>
+            </select>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" onclick="toggleProvisionsCollapse('saidas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
-              <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-saidas">Expandir</span>
-            </button>
-            <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700">
-              + Nova Provisão
-            </button>
-            <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-800 font-semibold">
-              💳 Compra no Cartão
-            </button>
-            <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
-              + Lançar Saída
+
+          <div>
+            <input
+              id="filter-date"
+              type="date"
+              onchange="renderAll()"
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+              title="Filtrar por um dia específico"
+            />
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <select
+              id="sort-by"
+              onchange="renderAll()"
+              class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500"
+              title="Ordenar lançamentos"
+            >
+              <option value="date_desc">⬇️ Data (Mais recentes)</option>
+              <option value="date_asc">⬆️ Data (Mais antigos)</option>
+              <option value="amount_desc">💰 Valor (Maior → Menor)</option>
+              <option value="amount_asc">🪙 Valor (Menor → Maior)</option>
+              <option value="account_asc">🏦 Conta (A → Z)</option>
+              <option value="category_asc">🏷️ Categoria (A → Z)</option>
+            </select>
+            <button
+              type="button"
+              onclick="clearAllFilters()"
+              class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 text-xs transition"
+              title="Limpar todos os filtros"
+            >
+              <i class="fa-solid fa-filter-circle-xmark"></i>
             </button>
           </div>
-        </div>
-
-        <div id="provisions-collapse-body" class="hidden mt-4 pt-4 border-t border-slate-800">
-          <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
       </section>
 
-      <section class="glass rounded-2xl p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
-              <i class="fa-solid fa-receipt"></i> Saídas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
-            </h2>
-            <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span id="saidas-credit-total" class="text-xs font-semibold bg-violet-950/80 text-violet-300 border border-violet-800/60 px-3 py-1 rounded-lg">
-              Nos Cartões: R$ 0,00
+      <!-- PAINEL DE INDICADORES E ANÁLISE FINANCEIRA ('indicadores') -->
+      <div id="panel-indicadores" class="hidden space-y-5">
+
+        <!-- Barra de Pílulas de Filtro Rápido de Escopo Analítico -->
+        <section class="glass rounded-2xl p-4 border border-slate-800 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders"></i> Filtros Rápidos de Análise (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h3>
+              <p class="text-[11px] text-slate-400">Combine os botões abaixo com a barra de busca, conta, categoria, data e mês acima para recalcular todos os indicadores.</p>
+            </div>
+            <span id="ind-active-filter-summary" class="text-[11px] font-semibold bg-slate-900 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">
+              Escopo: Todos os lançamentos
             </span>
-            <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="ind-chip-all" onclick="setAnalyticsQuickGroup('')" class="keep-white-text text-xs px-3 py-1.5 rounded-xl font-bold bg-emerald-600 text-white transition">
+              📊 Todos os Meios
+            </button>
+            <button type="button" id="ind-chip-free" onclick="setAnalyticsQuickGroup('__FREE_CASH__')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+              💵 Caixa Livre (MP / Itaú / Espécie)
+            </button>
+            <button type="button" id="ind-chip-credit" onclick="setAnalyticsQuickGroup('__ALL_CREDIT_CARDS__')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+              💳 Apenas Cartões de Crédito
+            </button>
+            <button type="button" id="ind-chip-benefits" onclick="setAnalyticsQuickGroup('__BENEFITS_ONLY__')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+              🥗 Apenas Benefícios (VR / Flash)
+            </button>
+            <button type="button" id="ind-chip-reserves" onclick="setAnalyticsQuickGroup('__RESERVES_ONLY__')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+              🟣 Reservas MP (Life / Oferta)
+            </button>
+          </div>
+        </section>
+
+        <!-- 6 Cards de Indicadores Estratégicos de Saúde Financeira -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <!-- Ind 1: Taxa de Comprometimento da Renda -->
+          <div class="glass rounded-2xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-semibold">1. Comprometimento da Renda</span>
+              <span id="ind-commitment-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Saudável</span>
+            </div>
+            <div id="ind-commitment-val" class="text-2xl font-bold text-white">0%</div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="ind-commitment-bar" class="bg-emerald-500 h-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <p id="ind-commitment-sub" class="text-[11px] text-slate-400">Saídas + Provisões vs. Receitas previstas no mês</p>
+          </div>
+
+          <!-- Ind 2: Taxa de Sobra / Poupança Livre Projetada -->
+          <div class="glass rounded-2xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-semibold">2. Margem de Sobra Livre</span>
+              <i class="fa-solid fa-piggy-bank text-emerald-400 text-sm"></i>
+            </div>
+            <div id="ind-savings-val" class="text-2xl font-bold text-emerald-400">0%</div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="ind-savings-bar" class="bg-emerald-500 h-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <p id="ind-savings-sub" class="text-[11px] text-slate-400">Sobra projetada livre sobre as entradas em conta</p>
+          </div>
+
+          <!-- Ind 3: Execução do Orçamento (Realizado vs Orçado) -->
+          <div class="glass rounded-2xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-semibold">3. Execução do Orçamento</span>
+              <span id="ind-budget-status" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40">No plano</span>
+            </div>
+            <div id="ind-budget-exec-val" class="text-2xl font-bold text-sky-400">0%</div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="ind-budget-exec-bar" class="bg-sky-500 h-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <p id="ind-budget-exec-sub" class="text-[11px] text-slate-400">Executado vs. Total Orçado nas Provisões</p>
+          </div>
+
+          <!-- Ind 4: Peso dos Cartões de Crédito nas Despesas -->
+          <div class="glass rounded-2xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-semibold">4. Uso de Cartão de Crédito</span>
+              <i class="fa-regular fa-credit-card text-violet-300 text-sm"></i>
+            </div>
+            <div id="ind-cc-share-val" class="text-2xl font-bold text-violet-300">0%</div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="ind-cc-share-bar" class="bg-violet-500 h-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <p id="ind-cc-share-sub" class="text-[11px] text-slate-400">Fatia das saídas filtradas paga no crédito</p>
+          </div>
+
+          <!-- Ind 5: Ticket Médio & Maior Despesa do Filtro -->
+          <div class="glass rounded-2xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-semibold">5. Ticket Médio (Filtro Atual)</span>
+              <i class="fa-solid fa-receipt text-amber-400 text-sm"></i>
+            </div>
+            <div id="ind-avg-ticket-val" class="text-2xl font-bold text-amber-400">R$ 0,00</div>
+            <div id="ind-max-expense-sub" class="text-[11px] text-slate-300 truncate">Maior saída: --</div>
+            <p id="ind-tx-frequency-sub" class="text-[11px] text-slate-400">0 saídas registradas no filtro selecionado</p>
+          </div>
+
+          <!-- Ind 6: Cobertura de Mercantil & Combustível por Benefícios -->
+          <div class="glass rounded-2xl p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-semibold">6. Cobertura por VR / Flash</span>
+              <i class="fa-solid fa-utensils text-lime-400 text-sm"></i>
+            </div>
+            <div id="ind-benefit-cov-val" class="text-2xl font-bold text-emerald-300">0%</div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="ind-benefit-cov-bar" class="bg-lime-500 h-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <p id="ind-benefit-cov-sub" class="text-[11px] text-slate-400">Mercantil + Combustível cobertos por VR/Flash</p>
+          </div>
+        </section>
+
+        <!-- Gráficos Visuais: Por Categoria e Por Conta/Meio de Pagamento -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-chart-bar"></i> Despesas por Categoria (Filtro Atual)
+                </h3>
+                <p class="text-[11px] text-slate-400">Top categorias que mais consumiram recursos na seleção</p>
+              </div>
+            </div>
+            <div class="relative h-64">
+              <canvas id="chart-categories-canvas"></canvas>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-chart-doughnut fa-chart-pie"></i> Saídas por Conta / Cartão
+                </h3>
+                <p class="text-[11px] text-slate-400">De onde está saindo o dinheiro no período filtrado</p>
+              </div>
+            </div>
+            <div class="relative h-64">
+              <canvas id="chart-accounts-canvas"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Diagnóstico de Desvios de Orçamento & Ranking Interativo de Categorias -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Ranking Detalhado de Categorias (Clique para filtrar) -->
+          <div class="glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-ranking-star"></i> Ranking de Gastos & Orçado vs. Realizado
+                </h3>
+                <p class="text-[11px] text-slate-400">Clique em uma categoria para filtrar os lançamentos por ela</p>
+              </div>
+            </div>
+            <div id="analytics-category-ranking" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Radar de Alertas + Comparativo Multi-Mês -->
+          <div class="space-y-4">
+            <div class="glass rounded-2xl p-5 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation"></i> Diagnóstico & Alertas do Mês (<span class="current-month-label">Novembro/2026</span>)
+              </h3>
+              <div id="analytics-alerts-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <div class="glass rounded-2xl p-5 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-check"></i> Comparativo Mensal (Entradas x Orçado x Cartão)
+              </h3>
+              <div id="analytics-monthly-comparison" class="space-y-2 text-xs"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- PAINEL 1: VISÃO DE DESPESAS E PROVISÕES ('saidas') -->
+      <div id="panel-saidas" class="space-y-5">
+        <section class="glass rounded-2xl p-4 sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div onclick="toggleProvisionsCollapse('saidas')" class="cursor-pointer flex items-center gap-3 flex-1">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <i id="icon-collapse-saidas" class="fa-solid fa-chevron-right transition-transform duration-200" style="transform: rotate(90deg);"></i>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2 flex-wrap">
+                  <span>Provisões de Saídas — <span class="current-month-label">Novembro/2026</span></span>
+                  <span id="badge-summary-saidas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+                </h2>
+                <p class="text-xs text-slate-400">Clique em qualquer categoria para ajustar o orçamento ou <strong id="lbl-toggle-saidas" class="text-amber-300 underline">retrair</strong> a lista.</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="toggleProvisionsCollapse('saidas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
+                <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-saidas">Expandir</span>
+              </button>
+              <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700">
+                + Nova Provisão
+              </button>
+              <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-800 font-semibold">
+                💳 Compra no Cartão
+              </button>
+              <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
+                + Lançar Saída
+              </button>
+            </div>
+          </div>
+
+          <div id="provisions-collapse-body" class="mt-4 pt-4 border-t border-slate-800">
+            <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+        </section>
+
+        <section class="glass rounded-2xl p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+                <i class="fa-solid fa-receipt"></i> Despesas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h2>
+              <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="saidas-credit-total" class="text-xs font-semibold bg-violet-950/80 text-violet-300 border border-violet-800/60 px-3 py-1 rounded-lg">
+                Nos Cartões: R$ 0,00
+              </span>
+              <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
+                Total: R$ 0,00
+              </span>
+            </div>
+          </div>
+          <div id="saidas-transactions-list" class="space-y-2.5"></div>
+        </section>
+      </div>
+
+      <!-- PAINEL 2: VISÃO DE RECEITAS ('entradas') -->
+      <div id="panel-entradas" class="hidden space-y-5">
+        <section class="glass rounded-2xl p-4 sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div onclick="toggleProvisionsCollapse('entradas')" class="cursor-pointer flex items-center gap-3 flex-1">
+              <div class="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                <i id="icon-collapse-entradas" class="fa-solid fa-chevron-right transition-transform duration-200" style="transform: rotate(90deg);"></i>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2 flex-wrap">
+                  <span>Previsões de Receitas — <span class="current-month-label">Novembro/2026</span></span>
+                  <span id="badge-summary-entradas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+                </h2>
+                <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-entradas" class="text-sky-300 underline">retrair</strong> ou editar as previsões de entrada.</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="toggleProvisionsCollapse('entradas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
+                <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-entradas">Expandir</span>
+              </button>
+              <button type="button" onclick="openPlanItemModal('income', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3 py-1.5 rounded-lg border border-slate-700">
+                + Nova Previsão
+              </button>
+              <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
+                + Lançar Entrada
+              </button>
+            </div>
+          </div>
+
+          <div id="incomes-collapse-body" class="mt-4 pt-4 border-t border-slate-800">
+            <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+        </section>
+
+        <section class="glass rounded-2xl p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-sack-dollar"></i> Receitas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h2>
+              <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
+            </div>
+            <span id="entradas-month-total" class="text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-3 py-1 rounded-lg">
               Total: R$ 0,00
             </span>
           </div>
-        </div>
-        <div id="saidas-transactions-list" class="space-y-2.5"></div>
-      </section>
-    </div>
+          <div id="entradas-transactions-list" class="space-y-2.5"></div>
+        </section>
+      </div>
 
-    <!-- PAINEL 2: VISÃO DE ENTRADAS -->
-    <div id="panel-entradas" class="hidden space-y-6">
-      <section class="glass rounded-2xl p-4 sm:p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div onclick="toggleProvisionsCollapse('entradas')" class="cursor-pointer flex items-center gap-3 flex-1">
-            <div class="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
-              <i id="icon-collapse-entradas" class="fa-solid fa-chevron-right transition-transform duration-200"></i>
-            </div>
+      <!-- PAINEL 3: VISÃO DE TODOS OS REGISTROS / EXTRATO FILTRADO ('registros', 'cartoes', 'contas', 'resumo') -->
+      <div id="panel-registros" class="hidden space-y-5">
+        <section class="glass rounded-2xl p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div>
-              <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2 flex-wrap">
-                <span>Previsões de Entradas — <span class="current-month-label">Novembro/2026</span></span>
-                <span id="badge-summary-entradas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+              <h2 id="registros-panel-heading" class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> Lançamentos (<span class="tx-filter-scope-label">Novembro/2026</span>)
               </h2>
-              <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-entradas" class="text-sky-300 underline">expandir</strong> ou retrair as previsões de entrada.</p>
+              <p class="text-xs text-slate-400">Clique em ✏️ para editar ou 🗑️ para excluir qualquer registro.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="geral-filtered-net" class="text-xs font-bold bg-slate-800 px-3 py-1 rounded-lg text-slate-200 border border-slate-700">Saldo Filtro: R$ 0,00</span>
+              <span id="tx-count" class="text-xs bg-purple-950/70 px-3 py-1 rounded-lg text-purple-300 border border-purple-800/60">0 registros</span>
             </div>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" onclick="toggleProvisionsCollapse('entradas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
-              <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-entradas">Expandir</span>
-            </button>
-            <button type="button" onclick="openPlanItemModal('income', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3 py-1.5 rounded-lg border border-slate-700">
-              + Nova Previsão
-            </button>
-            <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
-              + Lançar Entrada
-            </button>
-          </div>
-        </div>
+          <div id="transactions-list" class="space-y-2.5"></div>
+        </section>
+      </div>
 
-        <div id="incomes-collapse-body" class="hidden mt-4 pt-4 border-t border-slate-800">
-          <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-        </div>
-      </section>
-
-      <section class="glass rounded-2xl p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-              <i class="fa-solid fa-sack-dollar"></i> Entradas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
-            </h2>
-            <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
-          </div>
-          <span id="entradas-month-total" class="text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-3 py-1 rounded-lg">
-            Total: R$ 0,00
-          </span>
-        </div>
-        <div id="entradas-transactions-list" class="space-y-2.5"></div>
-      </section>
-    </div>
-
-    <!-- PAINEL 3: VISÃO DE REGISTROS GERAIS -->
-    <div id="panel-registros" class="hidden space-y-6">
-      <section class="glass rounded-2xl p-5">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-              <i class="fa-solid fa-clock-rotate-left"></i> Todos os Lançamentos (<span class="tx-filter-scope-label">Novembro/2026</span>)
-            </h2>
-            <p class="text-xs text-slate-400">Visão consolidada com busca, filtro e ordenação. Clique em ✏️ para editar ou 🗑️ para excluir.</p>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span id="geral-filtered-net" class="text-xs font-bold bg-slate-800 px-3 py-1 rounded-lg text-slate-200 border border-slate-700">Saldo Filtro: R$ 0,00</span>
-            <span id="tx-count" class="text-xs bg-purple-950/70 px-3 py-1 rounded-lg text-purple-300 border border-purple-800/60">0 registros</span>
-          </div>
-        </div>
-        <div id="transactions-list" class="space-y-2.5"></div>
-      </section>
-    </div>
-
-  </main>
+    </main>
+  </div>
 
   <!-- Modal Lançamento Manual / Edição de Transação -->
   <div id="manual-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
@@ -877,6 +1289,19 @@
     };
 
     // ==========================================
+    // CONTROLE DE MENU LATERAL MOBILE
+    // ==========================================
+    function openMobileSidebar() {
+      document.getElementById('app-sidebar').classList.remove('-translate-x-full');
+      document.getElementById('sidebar-backdrop').classList.remove('hidden');
+    }
+
+    function closeMobileSidebar() {
+      document.getElementById('app-sidebar').classList.add('-translate-x-full');
+      document.getElementById('sidebar-backdrop').classList.add('hidden');
+    }
+
+    // ==========================================
     // CONTROLE DE TEMA (CLARO / ESCURO)
     // ==========================================
     let currentTheme = 'dark';
@@ -897,6 +1322,7 @@
         localStorage.setItem('spark_theme_mode', currentTheme);
       } catch (e) {}
       applyThemeUI();
+      renderAll();
     }
 
     function applyThemeUI() {
@@ -915,7 +1341,7 @@
         }
       }
       if (metaTheme) {
-        metaTheme.setAttribute('content', isLight ? '#f1f5f9' : '#0f172a');
+        metaTheme.setAttribute('content', isLight ? '#f1f5f9' : '#0b131e');
       }
     }
 
@@ -1100,7 +1526,7 @@
 
     let currentView = 'saidas';
     let showAllMonthsTx = false;
-    let isProvisionsExpanded = { saidas: false, entradas: false };
+    let isProvisionsExpanded = { saidas: true, entradas: true };
     let isCloudLoaded = !!safeGetCache();
     let pendingConfirmAction = null;
 
@@ -1111,7 +1537,7 @@
     }
 
     function getCreditCardEntries() {
-      return Object.entries(state.accounts || {}).filter(([k, acc]) => isCreditCardAccount(k));
+      return Object.entries(state.accounts || {}).filter(([k]) => isCreditCardAccount(k));
     }
 
     function formatBRL(val) {
@@ -1184,7 +1610,6 @@
       return 1;
     }
 
-    // Calcula em qual mês-fatura a 1ª parcela deve cair com base no Dia de Fechamento do cartão
     function resolveFirstInvoiceMonth(brDate, cardKey, rolloverMode) {
       const purchaseMonth = monthFromBRDate(brDate) || state.currentMonth;
       if (!isCreditCardAccount(cardKey)) return purchaseMonth;
@@ -1255,6 +1680,10 @@
       const currentAcc = accSelect.value;
       let accOpts = '<option value="">💳 Todas as Contas / Cartões</option>';
       accOpts += '<option value="__ALL_CREDIT_CARDS__" ' + (currentAcc === '__ALL_CREDIT_CARDS__' ? 'selected' : '') + '>💳 Todos os Cartões de Crédito</option>';
+      accOpts += '<option value="__FREE_CASH__" ' + (currentAcc === '__FREE_CASH__' ? 'selected' : '') + '>💵 Apenas Caixa Livre (MP / Itaú / Espécie)</option>';
+      accOpts += '<option value="__BENEFITS_ONLY__" ' + (currentAcc === '__BENEFITS_ONLY__' ? 'selected' : '') + '>🥗 Apenas Benefícios (VR / Flash)</option>';
+      accOpts += '<option value="__RESERVES_ONLY__" ' + (currentAcc === '__RESERVES_ONLY__' ? 'selected' : '') + '>🟣 Apenas Reservas MP (Life / Oferta)</option>';
+      accOpts += '<option value="__NON_CREDIT_ACCOUNTS__" ' + (currentAcc === '__NON_CREDIT_ACCOUNTS__' ? 'selected' : '') + '>🏦 Contas, Reservas e Benefícios (Sem Cartão)</option>';
       Object.entries(state.accounts).forEach(([key, acc]) => {
         const sel = (key === currentAcc || acc.name === currentAcc) ? 'selected' : '';
         const prefix = isCreditCardAccount(key) ? '💳 ' : '';
@@ -1293,8 +1722,24 @@
       const sortBy = document.getElementById('sort-by')?.value || 'date_desc';
 
       let result = txList.filter(tx => {
+        // Escopo automático quando está na aba Cartões ou Contas sem filtro manual específico
+        if (currentView === 'cartoes' && !accFilter) {
+          if (!isCreditCardAccount(tx.accountKey) && !tx.isInvoicePayment) return false;
+        }
+        if (currentView === 'contas' && !accFilter) {
+          if (isCreditCardAccount(tx.accountKey)) return false;
+        }
+
         if (accFilter === '__ALL_CREDIT_CARDS__') {
           if (!isCreditCardAccount(tx.accountKey)) return false;
+        } else if (accFilter === '__FREE_CASH__') {
+          if (!['mp_livre', 'itau', 'especie'].includes(tx.accountKey)) return false;
+        } else if (accFilter === '__BENEFITS_ONLY__') {
+          if (!['vr', 'flash'].includes(tx.accountKey)) return false;
+        } else if (accFilter === '__RESERVES_ONLY__') {
+          if (!['res_lifegroup', 'res_oferta', 'leandra'].includes(tx.accountKey)) return false;
+        } else if (accFilter === '__NON_CREDIT_ACCOUNTS__') {
+          if (isCreditCardAccount(tx.accountKey)) return false;
         } else if (accFilter) {
           const accName = state.accounts[accFilter]?.name || '';
           if (tx.accountKey !== accFilter && tx.account !== accName) return false;
@@ -1360,21 +1805,95 @@
       renderAll();
     }
 
+    // ==========================================
+    // NAVEGAÇÃO POR ABAS LATERAIS (DESPOLUIÇÃO VISUAL)
+    // ==========================================
+    const VIEW_METADATA = {
+      saidas: {
+        title: 'Despesas e provisões',
+        subtitle: 'Controle seu orçamento de gastos do mês e acompanhe as saídas registradas',
+        registrosHeading: 'Despesas Registradas'
+      },
+      entradas: {
+        title: 'Receitas e previsões',
+        subtitle: 'Acompanhe os recebimentos previstos (Salário, 13º, Aluguel e Benefícios)',
+        registrosHeading: 'Receitas Registradas'
+      },
+      cartoes: {
+        title: 'Cartões de crédito',
+        subtitle: 'Gerencie limites, dias de fechamento para virada automática e faturas de cada cartão',
+        registrosHeading: 'Compras e Pagamentos de Fatura nos Cartões'
+      },
+      contas: {
+        title: 'Contas, Reservas & VR',
+        subtitle: 'Saldos atuais das suas contas livres, reservas no Mercado Pago e cartões de benefício',
+        registrosHeading: 'Movimentações nas Contas e Benefícios'
+      },
+      registros: {
+        title: 'Todos os registros',
+        subtitle: 'Histórico completo de movimentações com busca avançada, filtros e ordenação',
+        registrosHeading: 'Todos os Lançamentos Consolidados'
+      },
+      indicadores: {
+        title: 'Indicadores e análise financeira',
+        subtitle: 'Analise comprometimento de renda, execução do orçamento, peso dos cartões e ranking por categoria com filtros dinâmicos',
+        registrosHeading: 'Lançamentos Considerados na Análise Filtrada'
+      },
+      resumo: {
+        title: 'Resumo do Mês (KPIs)',
+        subtitle: 'Visão executiva do caixa livre, provisões pendentes e projeção de fechamento do mês',
+        registrosHeading: 'Últimos Lançamentos do Mês'
+      }
+    };
+
     function changeView(viewName) {
       currentView = viewName;
-      ['saidas', 'entradas', 'registros'].forEach(v => {
-        const panel = document.getElementById('panel-' + v);
-        const btn = document.getElementById('view-btn-' + v);
-        if (v === viewName) {
-          panel.classList.remove('hidden');
-          if (v === 'saidas') btn.className = 'keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-lg';
-          if (v === 'entradas') btn.className = 'keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-sky-600 text-white shadow-lg';
-          if (v === 'registros') btn.className = 'keep-white-text py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-purple-600 text-white shadow-lg';
-        } else {
-          panel.classList.add('hidden');
-          btn.className = 'py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition text-slate-400 hover:text-white bg-slate-800/60';
+      closeMobileSidebar();
+
+      // Atualiza botões da Sidebar
+      ['saidas', 'entradas', 'cartoes', 'contas', 'registros', 'indicadores', 'resumo'].forEach(v => {
+        const navBtn = document.getElementById('nav-btn-' + v);
+        if (navBtn) {
+          navBtn.classList.toggle('active', v === viewName);
         }
       });
+
+      // Atualiza cabeçalho da visão ativa
+      const meta = VIEW_METADATA[viewName] || VIEW_METADATA.saidas;
+      const titleEl = document.getElementById('active-view-title');
+      const subEl = document.getElementById('active-view-subtitle');
+      const regHeading = document.getElementById('registros-panel-heading');
+      if (titleEl) titleEl.textContent = meta.title;
+      if (subEl) subEl.textContent = meta.subtitle;
+      if (regHeading) {
+        regHeading.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${meta.registrosHeading} (<span class="tx-filter-scope-label"></span>)`;
+      }
+
+      // Mostra apenas os blocos pertinentes à aba selecionada
+      const secKpis = document.getElementById('section-kpis');
+      const secAccounts = document.getElementById('section-accounts');
+      const secCards = document.getElementById('section-credit-cards');
+      const panelSaidas = document.getElementById('panel-saidas');
+      const panelEntradas = document.getElementById('panel-entradas');
+      const panelRegistros = document.getElementById('panel-registros');
+
+      // Reset filtro de conta ao trocar para abas gerais
+      const filterAccEl = document.getElementById('filter-account');
+      if (filterAccEl && (filterAccEl.value === '__ALL_CREDIT_CARDS__' || filterAccEl.value === '__NON_CREDIT_ACCOUNTS__')) {
+        filterAccEl.value = '';
+      }
+
+      const panelIndicadores = document.getElementById('panel-indicadores');
+
+      secKpis.classList.toggle('hidden', !(viewName === 'resumo' || viewName === 'saidas' || viewName === 'contas'));
+      secAccounts.classList.toggle('hidden', !(viewName === 'contas' || viewName === 'resumo'));
+      secCards.classList.toggle('hidden', !(viewName === 'cartoes' || viewName === 'resumo'));
+
+      if (panelIndicadores) panelIndicadores.classList.toggle('hidden', viewName !== 'indicadores');
+      panelSaidas.classList.toggle('hidden', viewName !== 'saidas');
+      panelEntradas.classList.toggle('hidden', viewName !== 'entradas');
+      panelRegistros.classList.toggle('hidden', !(viewName === 'registros' || viewName === 'cartoes' || viewName === 'contas' || viewName === 'resumo' || viewName === 'indicadores'));
+
       renderAll();
     }
 
@@ -1387,7 +1906,6 @@
         state.accounts.flash.name = 'Cartão Flash (VT)';
       }
 
-      // Garante os cartões de crédito padrão (mantendo saldo de credit_card vindo da planilha)
       if (!state.accounts.credit_card) {
         state.accounts.credit_card = { name: 'Cartão Nubank', balance: 0.00, type: 'credit', closingDay: 5, dueDay: 12, limit: 2000.00 };
       } else {
@@ -1541,8 +2059,8 @@
         });
         pastSelect.innerHTML = opts;
         pastSelect.className = (!showAllMonthsTx && pastKeys.includes(activeMonth))
-          ? 'keep-white-text bg-amber-600 text-white border border-amber-500 text-xs font-bold rounded-xl px-3 py-1.5 cursor-pointer shadow'
-          : 'bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-3 py-1.5 cursor-pointer';
+          ? 'keep-white-text bg-amber-600 text-white border border-amber-500 text-xs font-bold rounded-xl px-2.5 py-1 cursor-pointer shadow'
+          : 'bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl px-2.5 py-1 cursor-pointer';
       } else {
         pastSelect.classList.add('hidden');
       }
@@ -1554,8 +2072,8 @@
         const isCurrentSys = (k === sysMonth);
         const isSelected = (!showAllMonthsTx && activeMonth === k);
         const cls = isSelected
-          ? 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow transition'
-          : 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition';
+          ? 'keep-white-text px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow transition'
+          : 'px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition';
         btnsHtml += `
           <button type="button" onclick="changeMonth('${k}')" class="${cls}">
             ${meta.short} ${isCurrentSys ? '<span class="text-[10px] opacity-90">(Atual)</span>' : ''}
@@ -1566,10 +2084,10 @@
       const btnAll = document.getElementById('btn-filter-all-months');
       const lblAll = document.getElementById('lbl-filter-all');
       if (showAllMonthsTx) {
-        btnAll.className = 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white border border-purple-500 shadow transition flex items-center gap-1.5';
+        btnAll.className = 'keep-white-text px-2.5 py-1 rounded-xl text-xs font-bold bg-purple-600 text-white border border-purple-500 shadow transition flex items-center gap-1.5';
         lblAll.textContent = 'Mostrando Todos os Meses';
       } else {
-        btnAll.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5';
+        btnAll.className = 'px-2.5 py-1 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:text-white transition flex items-center gap-1.5';
         lblAll.textContent = 'Ver Todos os Meses';
       }
     }
@@ -2210,6 +2728,27 @@
         ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves - unpaidCCInMonth)
         : (pendingInCash - pendingOutFreeCash - pendingOutReserves - monthCreditCardSpend);
 
+      // Atualiza mini-resumo da Sidebar e Badges
+      const sbFree = document.getElementById('sidebar-free-balance');
+      const sbProj = document.getElementById('sidebar-projected-balance');
+      if (sbFree) sbFree.textContent = formatBRL(freeBalance);
+      if (sbProj) sbProj.textContent = formatBRL(projectedCloseCash);
+
+      const pendingProvCount = monthData.provisions.filter(p => p.remaining > 0.009).length;
+      const pendingIncCount = monthData.incomes.filter(i => i.remaining > 0.009).length;
+      const monthScopedTxs = showAllMonthsTx
+        ? state.transactions
+        : state.transactions.filter(tx => (tx.month || '2026-10') === m);
+
+      const navBadgeSaidas = document.getElementById('nav-badge-saidas');
+      const navBadgeEntradas = document.getElementById('nav-badge-entradas');
+      const navBadgeCartoes = document.getElementById('nav-badge-cartoes');
+      const navBadgeRegistros = document.getElementById('nav-badge-registros');
+      if (navBadgeSaidas) navBadgeSaidas.textContent = `${pendingProvCount} pend.`;
+      if (navBadgeEntradas) navBadgeEntradas.textContent = `${pendingIncCount} pend.`;
+      if (navBadgeCartoes) navBadgeCartoes.textContent = formatBRL(totalCreditCardInvoice);
+      if (navBadgeRegistros) navBadgeRegistros.textContent = `${monthScopedTxs.length}`;
+
       document.getElementById('kpi-own-balance').textContent = formatBRL(ownTotal);
       document.getElementById('kpi-free-vs-reserves').textContent = `Livre: ${formatBRL(freeBalance)} | Reservas: ${formatBRL(reservesBalance)}`;
       document.getElementById('kpi-pending-in').textContent = '+' + formatBRL(pendingInCash);
@@ -2223,9 +2762,7 @@
         ? `Já descontando ${formatBRL(unpaidCCInMonth)} das faturas do mês`
         : 'Saldo 100% Livre em Conta (Benefícios não incluídos)';
 
-      const pendingProvCount = monthData.provisions.filter(p => p.remaining > 0.009).length;
       document.getElementById('badge-summary-saidas').textContent = `${pendingProvCount} pendentes • Resta ${formatBRL(pendingOutFreeCash)}`;
-      const pendingIncCount = monthData.incomes.filter(i => i.remaining > 0.009).length;
       document.getElementById('badge-summary-entradas').textContent = `${pendingIncCount} pendentes • Em Conta: ${formatBRL(pendingInCash)}`;
 
       // 1. Contas Regulares (Bancos, Reservas, Benefícios)
@@ -2235,14 +2772,14 @@
         const isBenefit = key === 'vr' || key === 'flash';
         const borderClass = key === 'vr' ? 'border-lime-500/40' : (key === 'flash' ? 'border-pink-500/40' : 'border-slate-800');
         accHtml += `
-          <div onclick="editAccountBalance('${key}')" class="cursor-pointer bg-slate-900 hover:bg-slate-800 border ${borderClass} rounded-xl p-3 flex flex-col justify-between transition">
-            <div class="text-xs ${isBenefit ? 'text-emerald-300 font-semibold' : 'text-slate-400'} mb-1 truncate">${acc.name}</div>
+          <div onclick="editAccountBalance('${key}')" class="cursor-pointer bg-slate-900 hover:bg-slate-800 border ${borderClass} rounded-xl p-3.5 flex flex-col justify-between transition">
+            <div class="text-xs ${isBenefit ? 'text-emerald-300 font-semibold' : 'text-slate-400'} mb-1 truncate">${acc.name} ✏️</div>
             <div class="text-base font-bold text-white">${formatBRL(acc.balance)}</div>
           </div>`;
       });
       document.getElementById('accounts-grid').innerHTML = accHtml;
 
-      // 2. Grid Dedicado aos Cartões de Crédito (Múltiplos Cartões + Fechamento e Vencimento)
+      // 2. Grid Dedicado aos Cartões de Crédito
       let ccHtml = '';
       const todayDay = new Date().getDate();
       getCreditCardEntries().forEach(([key, acc]) => {
@@ -2386,10 +2923,6 @@
       document.getElementById('incomes-list').innerHTML = incHtml || '<p class="text-xs text-slate-500">Nenhuma previsão de entrada para este mês.</p>';
 
       // Escopo de Mês + Aplicação de Filtros e Ordenação
-      const monthScopedTxs = showAllMonthsTx
-        ? state.transactions
-        : state.transactions.filter(tx => (tx.month || '2026-10') === m);
-
       const filteredAllTxs = filterAndSortTransactions(monthScopedTxs);
       const saidasTxs = filteredAllTxs.filter(tx => tx.type === 'saida');
       const entradasTxs = filteredAllTxs.filter(tx => tx.type === 'entrada');
@@ -2416,6 +2949,408 @@
       document.getElementById('transactions-list').innerHTML = filteredAllTxs.length
         ? filteredAllTxs.map(buildTransactionCardHTML).join('')
         : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento encontrado para os filtros selecionados.</p>';
+
+      renderAnalyticsIndicators(m, monthData, filteredAllTxs, saidasTxs, entradasTxs, freeBalance, projectedCloseCash);
+    }
+
+    let chartCategoriesInstance = null;
+    let chartAccountsInstance = null;
+
+    function setAnalyticsQuickGroup(groupVal) {
+      const accSelect = document.getElementById('filter-account');
+      if (accSelect) {
+        accSelect.value = groupVal;
+      }
+      renderAll();
+    }
+
+    function filterByCategoryFromAnalytics(catName) {
+      const catSelect = document.getElementById('filter-category');
+      if (!catSelect) return;
+      catSelect.value = (catSelect.value === catName) ? '' : catName;
+      renderAll();
+    }
+
+    function renderAnalyticsIndicators(activeMonthKey, monthData, filteredAllTxs, saidasTxs, entradasTxs, freeBalance, projectedCloseCash) {
+      const accFilter = document.getElementById('filter-account')?.value || '';
+      const catFilter = document.getElementById('filter-category')?.value || '';
+      const dateFilter = document.getElementById('filter-date')?.value || '';
+      const searchVal = document.getElementById('filter-search')?.value || '';
+
+      // Destaca a pílula rápida ativa
+      const chipMap = {
+        '': 'ind-chip-all',
+        '__FREE_CASH__': 'ind-chip-free',
+        '__ALL_CREDIT_CARDS__': 'ind-chip-credit',
+        '__BENEFITS_ONLY__': 'ind-chip-benefits',
+        '__RESERVES_ONLY__': 'ind-chip-reserves'
+      };
+      ['ind-chip-all', 'ind-chip-free', 'ind-chip-credit', 'ind-chip-benefits', 'ind-chip-reserves'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const isActive = (chipMap[accFilter] === id);
+        btn.className = isActive
+          ? 'keep-white-text text-xs px-3 py-1.5 rounded-xl font-bold bg-emerald-600 text-white shadow transition'
+          : 'text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition';
+      });
+
+      // Resumo de filtros ativos
+      const filterParts = [];
+      filterParts.push(showAllMonthsTx ? 'Todos os Meses' : monthData.label);
+      if (accFilter) {
+        const accLabel = document.querySelector(`#filter-account option[value="${accFilter}"]`)?.textContent || accFilter;
+        filterParts.push(accLabel);
+      }
+      if (catFilter) filterParts.push(`Cat: ${catFilter}`);
+      if (dateFilter) filterParts.push(`Dia: ${isoDateToBR(dateFilter)}`);
+      if (searchVal) filterParts.push(`Busca: "${searchVal}"`);
+      const filterSummaryEl = document.getElementById('ind-active-filter-summary');
+      if (filterSummaryEl) {
+        filterSummaryEl.textContent = 'Filtro Ativo: ' + filterParts.join(' • ');
+      }
+
+      // 1. Cálculos base de Orçamento e Renda do Mês Ativo (ou todos os meses)
+      const monthsToAnalyze = showAllMonthsTx ? Object.values(state.months) : [monthData];
+      let totalBudgetedIncomesCash = 0;
+      let totalBudgetedProvisions = 0;
+      let totalRemainingProvisions = 0;
+      let totalOverbudgetMonth = 0;
+
+      monthsToAnalyze.forEach(mObj => {
+        if (!mObj) return;
+        mObj.incomes.forEach(inc => {
+          if (inc.target !== 'vr' && inc.target !== 'flash') {
+            totalBudgetedIncomesCash += Number(inc.budgeted || 0);
+          }
+        });
+        mObj.provisions.forEach(prov => {
+          if (catFilter && prov.name !== catFilter) return;
+          totalBudgetedProvisions += Number(prov.budgeted || 0);
+          totalRemainingProvisions += Math.max(0, Number(prov.remaining || 0));
+          if (prov.remaining < 0) totalOverbudgetMonth += Math.abs(prov.remaining);
+        });
+      });
+
+      // Saídas filtradas (excluindo pagamentos de fatura para não duplicar com as compras do cartão, a menos que filtrado)
+      const effectiveSaidas = saidasTxs.filter(t => !t.isInvoicePayment);
+      const totalFilteredSaidas = effectiveSaidas.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+      const totalFilteredCC = effectiveSaidas.filter(t => isCreditCardAccount(t.accountKey)).reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+      // Indicador 1: Comprometimento da Renda
+      const totalCommitted = totalBudgetedProvisions + totalOverbudgetMonth;
+      const commitmentPct = totalBudgetedIncomesCash > 0
+        ? Math.round((totalCommitted / totalBudgetedIncomesCash) * 100)
+        : 0;
+      const indCommVal = document.getElementById('ind-commitment-val');
+      const indCommBar = document.getElementById('ind-commitment-bar');
+      const indCommBadge = document.getElementById('ind-commitment-badge');
+      const indCommSub = document.getElementById('ind-commitment-sub');
+      if (indCommVal) {
+        indCommVal.textContent = `${commitmentPct}%`;
+        indCommBar.style.width = `${Math.min(100, commitmentPct)}%`;
+        if (commitmentPct <= 75) {
+          indCommBadge.textContent = 'Saudável';
+          indCommBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          indCommBar.className = 'bg-emerald-500 h-full transition-all duration-300';
+        } else if (commitmentPct <= 92) {
+          indCommBadge.textContent = 'Atenção';
+          indCommBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          indCommBar.className = 'bg-amber-500 h-full transition-all duration-300';
+        } else {
+          indCommBadge.textContent = 'Alerta Alto';
+          indCommBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          indCommBar.className = 'bg-rose-500 h-full transition-all duration-300';
+        }
+        indCommSub.textContent = `Comprometido: ${formatBRL(totalCommitted)} de ${formatBRL(totalBudgetedIncomesCash)} previstos`;
+      }
+
+      // Indicador 2: Margem de Sobra Livre Projetada
+      const savingsPct = totalBudgetedIncomesCash > 0
+        ? Math.max(0, Math.round((projectedCloseCash / totalBudgetedIncomesCash) * 100))
+        : 0;
+      const indSavVal = document.getElementById('ind-savings-val');
+      const indSavBar = document.getElementById('ind-savings-bar');
+      const indSavSub = document.getElementById('ind-savings-sub');
+      if (indSavVal) {
+        indSavVal.textContent = `${savingsPct}% (${formatBRL(projectedCloseCash)})`;
+        indSavBar.style.width = `${Math.min(100, savingsPct)}%`;
+        indSavSub.textContent = projectedCloseCash >= 0
+          ? `Sobra projetada livre após quitar todas as provisões e faturas do mês`
+          : `⚠️ Déficit projetado de ${formatBRL(Math.abs(projectedCloseCash))} no mês`;
+      }
+
+      // Indicador 3: Execução do Orçamento (Realizado vs Orçado)
+      const totalExecutedProv = Math.max(0, +(totalBudgetedProvisions - totalRemainingProvisions + totalOverbudgetMonth).toFixed(2));
+      const execPct = totalBudgetedProvisions > 0
+        ? Math.round((totalExecutedProv / totalBudgetedProvisions) * 100)
+        : 0;
+      const indBudVal = document.getElementById('ind-budget-exec-val');
+      const indBudBar = document.getElementById('ind-budget-exec-bar');
+      const indBudStatus = document.getElementById('ind-budget-status');
+      const indBudSub = document.getElementById('ind-budget-exec-sub');
+      if (indBudVal) {
+        indBudVal.textContent = `${execPct}% (${formatBRL(totalExecutedProv)})`;
+        indBudBar.style.width = `${Math.min(100, execPct)}%`;
+        if (totalOverbudgetMonth > 0) {
+          indBudStatus.textContent = `Excedido +${formatBRL(totalOverbudgetMonth)}`;
+          indBudStatus.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
+        } else {
+          indBudStatus.textContent = 'Dentro do Orçamento';
+          indBudStatus.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40';
+        }
+        indBudSub.textContent = `Orçado: ${formatBRL(totalBudgetedProvisions)} | Falta Pagar: ${formatBRL(totalRemainingProvisions)}`;
+      }
+
+      // Indicador 4: Uso de Cartão de Crédito nas Saídas Filtradas
+      const ccSharePct = totalFilteredSaidas > 0
+        ? Math.round((totalFilteredCC / totalFilteredSaidas) * 100)
+        : 0;
+      const indCCVal = document.getElementById('ind-cc-share-val');
+      const indCCBar = document.getElementById('ind-cc-share-bar');
+      const indCCSub = document.getElementById('ind-cc-share-sub');
+      if (indCCVal) {
+        indCCVal.textContent = `${ccSharePct}% (${formatBRL(totalFilteredCC)})`;
+        indCCBar.style.width = `${Math.min(100, ccSharePct)}%`;
+        indCCSub.textContent = `À vista/Outros: ${formatBRL(Math.max(0, totalFilteredSaidas - totalFilteredCC))} (${100 - ccSharePct}%)`;
+      }
+
+      // Indicador 5: Ticket Médio e Maior Despesa Filtrada
+      const avgTicket = effectiveSaidas.length > 0 ? (totalFilteredSaidas / effectiveSaidas.length) : 0;
+      let maxTx = null;
+      effectiveSaidas.forEach(t => {
+        if (!maxTx || Number(t.amount || 0) > Number(maxTx.amount || 0)) maxTx = t;
+      });
+      const indAvgVal = document.getElementById('ind-avg-ticket-val');
+      const indMaxSub = document.getElementById('ind-max-expense-sub');
+      const indFreqSub = document.getElementById('ind-tx-frequency-sub');
+      if (indAvgVal) {
+        indAvgVal.textContent = formatBRL(avgTicket);
+        indMaxSub.textContent = maxTx
+          ? `Maior saída: ${formatBRL(maxTx.amount)} (${maxTx.desc})`
+          : 'Maior saída: Nenhuma registrada no filtro';
+        indFreqSub.textContent = `${effectiveSaidas.length} saídas somando ${formatBRL(totalFilteredSaidas)} no filtro`;
+      }
+
+      // Indicador 6: Cobertura de Mercantil e Combustível por Benefícios (VR / Flash)
+      const mercCombTxs = effectiveSaidas.filter(t => {
+        const c = normalizeStr(t.category || '');
+        const d = normalizeStr(t.desc || '');
+        return c.includes('mercantil') || c.includes('combustivel') || d.includes('mercantil') || d.includes('combustivel');
+      });
+      const totalMercComb = mercCombTxs.reduce((a, t) => a + Number(t.amount || 0), 0);
+      const benefitMercComb = mercCombTxs.filter(t => t.accountKey === 'vr' || t.accountKey === 'flash').reduce((a, t) => a + Number(t.amount || 0), 0);
+      const covPct = totalMercComb > 0 ? Math.round((benefitMercComb / totalMercComb) * 100) : 0;
+      const indCovVal = document.getElementById('ind-benefit-cov-val');
+      const indCovBar = document.getElementById('ind-benefit-cov-bar');
+      const indCovSub = document.getElementById('ind-benefit-cov-sub');
+      if (indCovVal) {
+        indCovVal.textContent = `${covPct}% (${formatBRL(benefitMercComb)})`;
+        indCovBar.style.width = `${Math.min(100, covPct)}%`;
+        indCovSub.textContent = `Total Mercantil+Combustível: ${formatBRL(totalMercComb)} (Caixa/Cartão: ${formatBRL(Math.max(0, totalMercComb - benefitMercComb))})`;
+      }
+
+      // ==========================================
+      // AGRUPAMENTO POR CATEGORIA E POR CONTA
+      // ==========================================
+      const catTotals = {};
+      effectiveSaidas.forEach(t => {
+        const cat = t.category || 'Avulso';
+        catTotals[cat] = (catTotals[cat] || 0) + Number(t.amount || 0);
+      });
+
+      // Inclui também o executado das provisões do mês quando não há filtro restritivo de data/busca/conta
+      if (!accFilter && !dateFilter && !searchVal && !showAllMonthsTx) {
+        monthData.provisions.forEach(p => {
+          if (catFilter && p.name !== catFilter) return;
+          const execVal = Math.max(0, +(p.budgeted - p.remaining).toFixed(2));
+          if (execVal > (catTotals[p.name] || 0)) {
+            catTotals[p.name] = execVal;
+          }
+        });
+      }
+
+      const sortedCategories = Object.entries(catTotals)
+        .filter(([, val]) => val > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+      const totalCatSpend = sortedCategories.reduce((a, [, v]) => a + v, 0);
+
+      // Renderiza Ranking de Categorias
+      const rankContainer = document.getElementById('analytics-category-ranking');
+      if (rankContainer) {
+        if (sortedCategories.length === 0) {
+          rankContainer.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma despesa para exibir neste filtro.</p>';
+        } else {
+          let rankHtml = '';
+          sortedCategories.forEach(([catName, spentVal], idx) => {
+            const share = totalCatSpend > 0 ? Math.round((spentVal / totalCatSpend) * 100) : 0;
+            const provMatch = monthData.provisions.find(p => p.name === catName);
+            const budgetedVal = provMatch ? Number(provMatch.budgeted || 0) : 0;
+            const budgetPct = budgetedVal > 0 ? Math.round((spentVal / budgetedVal) * 100) : null;
+            const isSelectedCat = (catFilter === catName);
+
+            let statusBadge = '';
+            let barColor = 'bg-emerald-500';
+            if (budgetPct !== null) {
+              if (spentVal > budgetedVal + 0.01) {
+                statusBadge = `<span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">Excedeu +${formatBRL(spentVal - budgetedVal)}</span>`;
+                barColor = 'bg-rose-500';
+              } else if (budgetPct >= 80) {
+                statusBadge = `<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">${budgetPct}% do orçado</span>`;
+                barColor = 'bg-amber-500';
+              } else {
+                statusBadge = `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">${budgetPct}% de ${formatBRL(budgetedVal)}</span>`;
+              }
+            }
+
+            rankHtml += `
+              <div onclick="filterByCategoryFromAnalytics('${catName.replace(/'/g, "\'")}')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800/80 border ${isSelectedCat ? 'border-emerald-500' : 'border-slate-800'} rounded-xl p-3 transition">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-[10px] font-bold w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center shrink-0">${idx + 1}</span>
+                    <span class="text-xs font-semibold text-white truncate">${catName}</span>
+                    ${statusBadge}
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xs font-bold text-white">${formatBRL(spentVal)}</span>
+                    <span class="text-[10px] text-slate-400 ml-1">(${share}%)</span>
+                  </div>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div class="${barColor} h-full" style="width:${Math.min(100, budgetPct !== null ? budgetPct : share)}%"></div>
+                </div>
+              </div>`;
+          });
+          rankContainer.innerHTML = rankHtml;
+        }
+      }
+
+      // Agrupamento por Conta / Cartão
+      const accTotals = {};
+      effectiveSaidas.forEach(t => {
+        const accLabel = t.account || 'Outros';
+        accTotals[accLabel] = (accTotals[accLabel] || 0) + Number(t.amount || 0);
+      });
+      const sortedAccounts = Object.entries(accTotals).sort((a, b) => b[1] - a[1]);
+
+      // Renderiza Diagnóstico e Alertas do Mês
+      const alertsEl = document.getElementById('analytics-alerts-list');
+      if (alertsEl) {
+        const alerts = [];
+        const overProvs = monthData.provisions.filter(p => p.remaining < -0.01);
+        const nearLimitProvs = monthData.provisions.filter(p => p.remaining >= 0 && p.budgeted > 0 && ((p.budgeted - p.remaining) / p.budgeted) >= 0.85);
+
+        if (overProvs.length > 0) {
+          overProvs.forEach(p => {
+            alerts.push(`<div class="p-2.5 rounded-xl bg-rose-950/40 border border-rose-700/50 text-rose-200 flex items-center justify-between"><span>🚨 <strong>${p.name}</strong> ultrapassou o orçamento</span><strong>+${formatBRL(Math.abs(p.remaining))}</strong></div>`);
+          });
+        }
+        if (nearLimitProvs.length > 0) {
+          nearLimitProvs.forEach(p => {
+            const pct = Math.round(((p.budgeted - p.remaining) / p.budgeted) * 100);
+            alerts.push(`<div class="p-2.5 rounded-xl bg-amber-950/30 border border-amber-700/40 text-amber-300 flex items-center justify-between"><span>⚠️ <strong>${p.name}</strong> já consumiu ${pct}% do orçamento</span><span>Resta ${formatBRL(p.remaining)}</span></div>`);
+          });
+        }
+        if (ccSharePct >= 50 && totalFilteredSaidas > 0) {
+          alerts.push(`<div class="p-2.5 rounded-xl bg-violet-950/40 border border-violet-700/50 text-violet-200">💳 <strong>Atenção aos Cartões:</strong> ${ccSharePct}% das saídas filtradas (${formatBRL(totalFilteredCC)}) foram feitas no cartão de crédito.</div>`);
+        }
+        if (alerts.length === 0) {
+          alerts.push(`<div class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-700/40 text-emerald-300">✅ <strong>Orçamento sob controle!</strong> Nenhuma categoria ultrapassou o limite previsto neste mês.</div>`);
+        }
+        alertsEl.innerHTML = alerts.join('');
+      }
+
+      // Renderiza Comparativo Mensal (Out/26 a Jan/27+)
+      const compEl = document.getElementById('analytics-monthly-comparison');
+      if (compEl) {
+        let compHtml = '';
+        Object.keys(state.months).sort().forEach(ym => {
+          const mObj = state.months[ym];
+          const meta = getMonthMeta(ym);
+          const incCash = mObj.incomes.filter(i => i.target !== 'vr' && i.target !== 'flash').reduce((a, i) => a + Number(i.budgeted || 0), 0);
+          const provTotal = mObj.provisions.reduce((a, p) => a + Number(p.budgeted || 0), 0);
+          const ccMonth = getMonthCreditCardSpend(ym);
+          const netMonth = incCash - provTotal;
+          const isCur = (ym === activeMonthKey);
+
+          compHtml += `
+            <div onclick="changeMonth('${ym}')" class="cursor-pointer p-2.5 rounded-xl border ${isCur ? 'border-emerald-500/60 bg-emerald-950/20' : 'border-slate-800 bg-slate-900/70'} hover:bg-slate-800/70 flex flex-wrap items-center justify-between gap-2 transition">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-white">${meta.short}</span>
+                ${isCur ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Ativo</span>' : ''}
+              </div>
+              <div class="flex items-center gap-3 text-[11px]">
+                <span class="text-sky-400">Entradas: <strong>${formatBRL(incCash)}</strong></span>
+                <span class="text-amber-400">Orçado: <strong>${formatBRL(provTotal)}</strong></span>
+                <span class="text-violet-300">Cartão: <strong>${formatBRL(ccMonth)}</strong></span>
+                <span class="${netMonth >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">Saldo: ${formatBRL(netMonth)}</span>
+              </div>
+            </div>`;
+        });
+        compEl.innerHTML = compHtml;
+      }
+
+      // Atualiza Gráficos Chart.js (se carregado)
+      if (typeof Chart !== 'undefined') {
+        const textColor = currentTheme === 'light' ? '#334155' : '#cbd5e1';
+        const gridColor = currentTheme === 'light' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.1)';
+
+        const topCats = sortedCategories.slice(0, 7);
+        const catCtx = document.getElementById('chart-categories-canvas');
+        if (catCtx) {
+          if (chartCategoriesInstance) chartCategoriesInstance.destroy();
+          chartCategoriesInstance = new Chart(catCtx, {
+            type: 'bar',
+            data: {
+              labels: topCats.length ? topCats.map(c => c[0].slice(0, 22)) : ['Sem dados'],
+              datasets: [{
+                label: 'Gasto (R$)',
+                data: topCats.length ? topCats.map(c => c[1]) : [0],
+                backgroundColor: ['#10b981', '#0ea5e9', '#8b5cf6', '#f59e0b', '#f43f5e', '#14b8a6', '#ec4899'],
+                borderRadius: 6
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                y: { ticks: { color: textColor }, grid: { display: false } }
+              }
+            }
+          });
+        }
+
+        const accCtx = document.getElementById('chart-accounts-canvas');
+        if (accCtx) {
+          if (chartAccountsInstance) chartAccountsInstance.destroy();
+          chartAccountsInstance = new Chart(accCtx, {
+            type: 'doughnut',
+            data: {
+              labels: sortedAccounts.length ? sortedAccounts.map(a => a[0]) : ['Sem saídas'],
+              datasets: [{
+                data: sortedAccounts.length ? sortedAccounts.map(a => a[1]) : [1],
+                backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#a855f7', '#64748b'],
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: { color: textColor, boxWidth: 12, font: { size: 11 } }
+                }
+              }
+            }
+          });
+        }
+      }
     }
 
     function findMatchingProvisionInMonth(monthObj, sourceProv, cleanDesc) {
@@ -2623,7 +3558,7 @@
 
     function showFeedback(msg, status) {
       const box = document.getElementById('ai-feedback');
-      box.className = 'mt-3 p-3 rounded-xl text-xs border ' + (status === 'success'
+      box.className = 'mt-2 p-3 rounded-xl text-xs border ' + (status === 'success'
         ? 'bg-emerald-950/80 border-emerald-700 text-emerald-200'
         : 'bg-rose-950/80 border-rose-700 text-rose-200');
       box.textContent = msg;
@@ -2768,7 +3703,6 @@
       if (/(santander)/.test(lowerText) && state.accounts.cc_santander) return 'cc_santander';
       if (/(nubank|roxinho)/.test(lowerText) && state.accounts.credit_card) return 'credit_card';
 
-      // Verifica cartões personalizados criados pelo usuário
       for (const [key, acc] of getCreditCardEntries()) {
         const cleanCardName = normalizeStr(acc.name).replace(/cartao|de|credito|fatura/g, '').trim();
         if (cleanCardName && cleanCardName.length >= 3 && normalizeStr(lowerText).includes(cleanCardName)) {
@@ -2795,7 +3729,6 @@
         return;
       }
 
-      // Verifica se é pagamento de fatura do cartão por comando de voz
       if (/(paguei a fatura|pagar fatura|pagamento da fatura|quitei a fatura)/.test(lower)) {
         const cardKey = detectCreditCardFromText(lower) || 'credit_card';
         let sourceKey = 'mp_livre';
@@ -2891,7 +3824,7 @@
 
       recognition.onstart = () => {
         isListening = true;
-        btn.className = 'keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center pulse-mic';
+        btn.className = 'keep-white-text absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center pulse-mic';
         inputEl.placeholder = '🎙️ Ouvindo você... Fale agora!';
         showFeedback('🎙️ Microfone aberto! Fale o lançamento (ex: "Comprei 100 de mercantil em 2x no Nubank")...', 'success');
       };
@@ -2909,22 +3842,22 @@
 
       recognition.onerror = (e) => {
         isListening = false;
-        btn.className = 'keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
-        inputEl.placeholder = 'Ex: "Comprei 300 de fraldas em 2x no Nubank"';
+        btn.className = 'keep-white-text absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
+        inputEl.placeholder = '🎙️ Fale ou digite: "Comprei 300 de fraldas em 2x no Nubank"';
         showFeedback('⚠️ Microfone: ' + e.error + '. Permita o uso do microfone quando o navegador perguntar.', 'error');
       };
 
       recognition.onend = () => {
         isListening = false;
-        btn.className = 'keep-white-text absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
-        inputEl.placeholder = 'Ex: "Comprei 300 de fraldas em 2x no Nubank"';
+        btn.className = 'keep-white-text absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition shadow';
+        inputEl.placeholder = '🎙️ Fale ou digite: "Comprei 300 de fraldas em 2x no Nubank"';
       };
 
       recognition.start();
     }
 
     loadThemePreference();
-    renderAll();
+    changeView('saidas');
     syncFromCloud(false);
   </script>
 </body>
