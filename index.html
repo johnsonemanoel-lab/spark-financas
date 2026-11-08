@@ -1937,6 +1937,8 @@
       if (!state.months) state.months = {};
       Object.keys(state.months).forEach(ym => getMonthMeta(ym));
       if (!state.transactions) state.transactions = [];
+      const seenInvoicePayments = new Set();
+      const cleanedTxs = [];
       state.transactions.forEach((tx, idx) => {
         if (!tx.id) tx.id = 'tx_' + Date.now() + '_' + idx;
         if (!tx.month) {
@@ -1945,7 +1947,25 @@
         } else {
           ensureMonthExists(tx.month);
         }
+        // Identifica pagamentos de fatura antigos salvos como 'saida' comum e converte para 'pagamento_fatura'
+        const descLower = String(tx.desc || '').toLowerCase();
+        const catLower = String(tx.category || '').toLowerCase();
+        if (tx.isInvoicePayment || tx.type === 'pagamento_fatura' || descLower.startsWith('pagamento de fatura') || descLower.startsWith('pagamento fatura') || catLower.startsWith('pagamento fatura')) {
+          tx.isInvoicePayment = true;
+          tx.type = 'pagamento_fatura';
+          const sig = `${tx.date}_${tx.amount}_${tx.accountKey}_${tx.paidCardKey || 'credit_card'}`;
+          if (seenInvoicePayments.has(sig)) {
+            // Reverte eventual duplicata acidental gerada no mesmo dia/valor/conta
+            if (state.accounts[tx.accountKey]) {
+              state.accounts[tx.accountKey].balance = +(state.accounts[tx.accountKey].balance + Number(tx.amount || 0)).toFixed(2);
+            }
+            return;
+          }
+          seenInvoicePayments.add(sig);
+        }
+        cleanedTxs.push(tx);
       });
+      state.transactions = cleanedTxs;
     }
 
     async function pushStateToCloud(showMsg) {
@@ -2214,11 +2234,28 @@
     function getMonthCreditCardSpend(monthKey, specificCardKey) {
       return state.transactions
         .filter(tx => {
-          if ((tx.month || '2026-10') !== monthKey || tx.type !== 'saida') return false;
+          if ((tx.month || '2026-10') !== monthKey || tx.type !== 'saida' || tx.isInvoicePayment) return false;
           if (specificCardKey) return tx.accountKey === specificCardKey;
           return isCreditCardAccount(tx.accountKey);
         })
         .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+    }
+
+    function getMonthCreditCardPaid(monthKey, specificCardKey) {
+      return state.transactions
+        .filter(tx => {
+          if ((tx.month || '2026-10') !== monthKey) return false;
+          if (!tx.isInvoicePayment && tx.type !== 'pagamento_fatura') return false;
+          if (specificCardKey) return (tx.paidCardKey || 'credit_card') === specificCardKey;
+          return true;
+        })
+        .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+    }
+
+    function getMonthUnpaidCreditCardSpend(monthKey, specificCardKey) {
+      const spent = getMonthCreditCardSpend(monthKey, specificCardKey);
+      const paid = getMonthCreditCardPaid(monthKey, specificCardKey);
+      return Math.max(0, +(spent - paid).toFixed(2));
     }
 
     function getTotalCreditCardsBalance() {
@@ -2243,14 +2280,19 @@
       document.getElementById('pay-invoice-modal').classList.add('flex');
     }
 
+    let isSubmittingInvoice = false;
+
     function onPayInvoiceCardChange() {
       const cardKey = document.getElementById('pay-invoice-card').value || 'credit_card';
       const activeMonth = state.currentMonth || getSystemDefaultMonth();
       const totalInvoice = Number(state.accounts[cardKey]?.balance || 0);
-      const monthInvoice = getMonthCreditCardSpend(activeMonth, cardKey);
+      const monthSpend = getMonthCreditCardSpend(activeMonth, cardKey);
+      const monthUnpaid = getMonthUnpaidCreditCardSpend(activeMonth, cardKey);
       document.getElementById('pay-invoice-total-label').textContent = formatBRL(totalInvoice);
-      document.getElementById('pay-invoice-month-label').textContent = formatBRL(monthInvoice);
-      document.getElementById('pay-invoice-amount').value = (monthInvoice > 0 ? monthInvoice : totalInvoice).toFixed(2);
+      document.getElementById('pay-invoice-month-label').textContent = monthSpend > monthUnpaid
+        ? `${formatBRL(monthUnpaid)} pendente (de ${formatBRL(monthSpend)})`
+        : formatBRL(monthSpend);
+      document.getElementById('pay-invoice-amount').value = (monthUnpaid > 0 ? monthUnpaid : totalInvoice).toFixed(2);
     }
 
     function closePayInvoiceModal() {
@@ -2259,11 +2301,15 @@
     }
 
     function submitPayInvoice() {
+      if (isSubmittingInvoice) return;
       const cardKey = document.getElementById('pay-invoice-card').value || 'credit_card';
       const amount = parseFloat(document.getElementById('pay-invoice-amount').value);
       const isoDate = document.getElementById('pay-invoice-date').value;
       const sourceKey = document.getElementById('pay-invoice-source').value || 'mp_livre';
       if (!amount || amount <= 0 || !state.accounts[sourceKey] || !state.accounts[cardKey]) return;
+
+      isSubmittingInvoice = true;
+      setTimeout(() => { isSubmittingInvoice = false; }, 600);
 
       const brDate = isoDateToBR(isoDate);
       const targetMonthKey = monthFromBRDate(brDate) || state.currentMonth;
@@ -2274,17 +2320,18 @@
       cardObj.balance = Math.max(0, +(beforeCC - amount).toFixed(2));
       const ccDelta = +(beforeCC - cardObj.balance).toFixed(2);
 
+      // Importante: usa type 'pagamento_fatura' para NÃO gerar uma segunda saída duplicada em Despesas!
       const payTx = {
         id: 'tx_paycc_' + Date.now(),
         month: targetMonthKey,
         date: brDate,
-        desc: `Pagamento Fatura ${cardObj.name}`,
+        desc: `Quitação Fatura ${cardObj.name}`,
         amount: +amount.toFixed(2),
-        type: 'saida',
+        type: 'pagamento_fatura',
         accountKey: sourceKey,
-        account: state.accounts[sourceKey].name,
+        account: `${state.accounts[sourceKey].name} ➔ ${cardObj.name}`,
         targetId: null,
-        category: `Fatura ${cardObj.name}`,
+        category: `Quitação Fatura`,
         provisionDelta: 0,
         incomeDelta: 0,
         leandraDelta: 0,
@@ -2296,7 +2343,7 @@
       state.transactions.unshift(payTx);
       closePayInvoiceModal();
       pushStateToCloud(false);
-      showFeedback(`✅ Fatura do ${cardObj.name} paga (${formatBRL(amount)}) via ${state.accounts[sourceKey].name}. Saldo restante da fatura: ${formatBRL(cardObj.balance)}!`, 'success');
+      showFeedback(`✅ Fatura do ${cardObj.name} baixada (${formatBRL(amount)}) via ${state.accounts[sourceKey].name} (sem duplicar nas suas despesas!). Saldo devedor do cartão: ${formatBRL(cardObj.balance)}.`, 'success');
     }
 
     function openPlanItemModal(kind, itemId) {
@@ -2475,6 +2522,18 @@
       const txMonth = state.months[tx.month] || state.months[state.currentMonth];
       const accKey = tx.accountKey || 'mp_livre';
 
+      if (tx.type === 'pagamento_fatura' || tx.isInvoicePayment) {
+        if (state.accounts[accKey]) {
+          state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+        }
+        const targetCard = tx.paidCardKey || 'credit_card';
+        const restoreCC = tx.creditCardPayDelta !== undefined ? tx.creditCardPayDelta : tx.amount;
+        if (state.accounts[targetCard]) {
+          state.accounts[targetCard].balance = +(state.accounts[targetCard].balance + restoreCC).toFixed(2);
+        }
+        return;
+      }
+
       if (tx.type === 'saida') {
         if (isCreditCardAccount(accKey)) {
           if (state.accounts[accKey]) {
@@ -2482,13 +2541,6 @@
           }
         } else if (state.accounts[accKey]) {
           state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
-        }
-
-        if (tx.isInvoicePayment && tx.creditCardPayDelta) {
-          const targetCard = tx.paidCardKey || 'credit_card';
-          if (state.accounts[targetCard]) {
-            state.accounts[targetCard].balance = +(state.accounts[targetCard].balance + tx.creditCardPayDelta).toFixed(2);
-          }
         }
 
         if (accKey === 'leandra' && txMonth) {
@@ -2661,14 +2713,21 @@
     }
 
     function buildTransactionCardHTML(tx) {
-      const sign = tx.type === 'entrada' ? '+' : '-';
+      const isPayCC = tx.type === 'pagamento_fatura' || tx.isInvoicePayment;
+      const sign = tx.type === 'entrada' ? '+' : (isPayCC ? '⇄ ' : '-');
       const isCC = isCreditCardAccount(tx.accountKey);
-      const color = tx.type === 'entrada' ? 'text-emerald-400' : (isCC ? 'text-violet-300' : 'text-rose-400');
+      const color = tx.type === 'entrada'
+        ? 'text-emerald-400'
+        : (isPayCC ? 'text-sky-300' : (isCC ? 'text-violet-300' : 'text-rose-400'));
       const badgeBg = tx.type === 'entrada'
         ? 'bg-emerald-950/60 border-emerald-800/50 text-emerald-300'
-        : (isCC ? 'bg-violet-950/70 border-violet-700/60 text-violet-300' : 'bg-rose-950/60 border-rose-800/50 text-rose-300');
+        : (isPayCC
+          ? 'bg-sky-950/70 border-sky-700/60 text-sky-300'
+          : (isCC ? 'bg-violet-950/70 border-violet-700/60 text-violet-300' : 'bg-rose-950/60 border-rose-800/50 text-rose-300'));
       const mShort = getMonthMeta(tx.month).short;
-      const labelType = tx.type === 'entrada' ? 'Entrada' : (isCC ? '💳 Fatura ' + mShort : 'Saída');
+      const labelType = tx.type === 'entrada'
+        ? 'Entrada'
+        : (isPayCC ? '🔄 Baixa de Fatura' : (isCC ? '💳 Fatura ' + mShort : 'Saída'));
       return `
         <div class="bg-slate-900/90 hover:bg-slate-900 border ${isCC ? 'border-violet-800/40' : 'border-slate-800'} rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
           <div class="min-w-0 flex-1">
@@ -2719,14 +2778,15 @@
         .reduce((a, p) => a + Math.max(0, p.remaining), 0);
 
       const monthCreditCardSpend = getMonthCreditCardSpend(m);
+      const monthCreditCardUnpaid = getMonthUnpaidCreditCardSpend(m);
       const totalCreditCardInvoice = getTotalCreditCardsBalance();
       const totalOverbudget = monthData.provisions.reduce((a, p) => a + (p.remaining < 0 ? Math.abs(p.remaining) : 0), 0);
 
       const sysMonth = getSystemDefaultMonth();
-      const unpaidCCInMonth = Math.min(totalCreditCardInvoice, monthCreditCardSpend);
+      const unpaidCCInMonth = Math.min(totalCreditCardInvoice, monthCreditCardUnpaid);
       const projectedCloseCash = (m === sysMonth || m === '2026-10')
         ? (ownTotal + pendingInCash - pendingOutFreeCash - pendingOutReserves - unpaidCCInMonth)
-        : (pendingInCash - pendingOutFreeCash - pendingOutReserves - monthCreditCardSpend);
+        : (pendingInCash - pendingOutFreeCash - pendingOutReserves - monthCreditCardUnpaid);
 
       // Atualiza mini-resumo da Sidebar e Badges
       const sbFree = document.getElementById('sidebar-free-balance');
@@ -2784,6 +2844,7 @@
       const todayDay = new Date().getDate();
       getCreditCardEntries().forEach(([key, acc]) => {
         const cardMonthSpend = getMonthCreditCardSpend(m, key);
+        const cardMonthUnpaid = getMonthUnpaidCreditCardSpend(m, key);
         const limit = Number(acc.limit || 0);
         const used = Number(acc.balance || 0);
         const avail = Math.max(0, +(limit - used).toFixed(2));
@@ -2807,8 +2868,8 @@
                   <div class="text-lg font-bold text-white">${formatBRL(used)}</div>
                 </div>
                 <div class="text-right">
-                  <div class="text-[10px] text-slate-400">Em ${getMonthMeta(m).short}</div>
-                  <div class="text-sm font-bold text-violet-300">${formatBRL(cardMonthSpend)}</div>
+                  <div class="text-[10px] text-slate-400">Fatura ${getMonthMeta(m).short}</div>
+                  <div class="text-sm font-bold text-violet-300">${cardMonthSpend > 0 && cardMonthUnpaid === 0 ? 'Quitada ✅' : formatBRL(cardMonthUnpaid)}</div>
                 </div>
               </div>
             </div>
@@ -2924,7 +2985,7 @@
 
       // Escopo de Mês + Aplicação de Filtros e Ordenação
       const filteredAllTxs = filterAndSortTransactions(monthScopedTxs);
-      const saidasTxs = filteredAllTxs.filter(tx => tx.type === 'saida');
+      const saidasTxs = filteredAllTxs.filter(tx => tx.type === 'saida' && !tx.isInvoicePayment);
       const entradasTxs = filteredAllTxs.filter(tx => tx.type === 'entrada');
 
       const totalSaidas = saidasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
@@ -3729,7 +3790,7 @@
         return;
       }
 
-      if (/(paguei a fatura|pagar fatura|pagamento da fatura|quitei a fatura)/.test(lower)) {
+      if (/(paguei.*fatura|pagar.*fatura|pagamento.*fatura|quitei.*fatura|baixa.*fatura)/.test(lower)) {
         const cardKey = detectCreditCardFromText(lower) || 'credit_card';
         let sourceKey = 'mp_livre';
         if (/(itaú|itau)/.test(lower)) sourceKey = 'itau';
