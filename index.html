@@ -1963,6 +1963,18 @@
           }
           seenInvoicePayments.add(sig);
         }
+        // Limpa automaticamente descrições antigas que ficaram com a frase inteira do microfone
+        if (!tx.isInvoicePayment && tx.desc && /^(?:eu\s+)?(?:paguei|comprei|gastei|abasteci|recebi|entrou|caiu|transferi)\b/i.test(tx.desc)) {
+          tx.desc = extractSmartDescription(tx.desc, tx.category !== 'Avulso' ? tx.category : null);
+        }
+        // Se uma compra antiga estava como 'Avulso', tenta identificar a categoria correta
+        if (!tx.isInvoicePayment && (!tx.category || tx.category === 'Avulso' || tx.category.startsWith('Comprei ') || tx.category.startsWith('comprei '))) {
+          const mObj = state.months[tx.month] || state.months[state.currentMonth];
+          if (mObj) {
+            const matched = findBestMatchingPlanItem(tx.desc, tx.type === 'entrada' ? mObj.incomes : mObj.provisions, tx.type === 'entrada');
+            if (matched) tx.category = matched.name;
+          }
+        }
         cleanedTxs.push(tx);
       });
       state.transactions = cleanedTxs;
@@ -2728,18 +2740,22 @@
       const labelType = tx.type === 'entrada'
         ? 'Entrada'
         : (isPayCC ? '🔄 Baixa de Fatura' : (isCC ? '💳 Fatura ' + mShort : 'Saída'));
+      const formattedValNoSpace = 'R$' + Number(tx.amount || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
       return `
         <div class="bg-slate-900/90 hover:bg-slate-900 border ${isCC ? 'border-violet-800/40' : 'border-slate-800'} rounded-xl p-3 flex items-center justify-between gap-3 text-xs transition">
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-sm font-bold ${color}">${sign}${formattedValNoSpace}</span>
+              <span class="text-slate-500 font-bold">|</span>
+              <span class="text-sm font-bold text-white truncate">${tx.desc}</span>
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeBg}">${labelType}</span>
-              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">Compra: ${tx.date}</span>
-              <span class="font-semibold text-slate-100 truncate">${tx.desc}</span>
+              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">${tx.date} (${mShort})</span>
             </div>
-            <div class="text-[11px] text-slate-400 truncate">Conta/Cartão: <strong class="text-slate-300">${tx.account}</strong> • Categoria: <strong class="text-slate-300">${tx.category}</strong></div>
+            <div class="text-[11px] text-slate-400 truncate">
+              Categoria: <strong class="text-emerald-300">${tx.category}</strong> • Conta: <strong class="text-slate-200">${tx.account}</strong>
+            </div>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="text-sm font-bold ${color}">${sign}${formatBRL(tx.amount)}</span>
+          <div class="flex items-center gap-1.5 shrink-0">
             <button type="button" onclick="openEditTransactionModal('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-900 text-slate-300 transition" title="Editar data, valor ou categoria">✏️</button>
             <button type="button" onclick="deleteTransaction('${tx.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900 text-slate-300 transition" title="Excluir">🗑️</button>
           </div>
@@ -3573,21 +3589,25 @@
         if (targetId) {
           const prov = monthData.provisions.find(p => p.id === targetId);
           if (prov) {
-            prov.remaining = +(prov.remaining - amount).toFixed(2);
-            newTx.provisionDelta = amount;
             newTx.category = prov.name;
-            if (prov.remaining < 0) {
-              provMsg = `⚠️ Orçamento de "${prov.name}" excedido! (${formatBRL(prov.budgeted)} + ${formatBRL(Math.abs(prov.remaining))})`;
+            if (accountKey !== 'vr' && accountKey !== 'flash') {
+              prov.remaining = +(prov.remaining - amount).toFixed(2);
+              newTx.provisionDelta = amount;
+              if (prov.remaining < 0) {
+                provMsg = `⚠️ Orçamento de "${prov.name}" excedido! (${formatBRL(prov.budgeted)} + ${formatBRL(Math.abs(prov.remaining))})`;
+              } else {
+                const conc = +(prov.budgeted - prov.remaining).toFixed(2);
+                provMsg = `Categoria "${prov.name}": Concluído ${formatBRL(conc)} | Pendente ${formatBRL(prov.remaining)}`;
+              }
             } else {
-              const conc = +(prov.budgeted - prov.remaining).toFixed(2);
-              provMsg = `"${prov.name}": Concluído ${formatBRL(conc)} | Pendente ${formatBRL(prov.remaining)}`;
+              newTx.provisionDelta = 0;
+              provMsg = `Classificado em "${prov.name}" (Pago via benefício ${state.accounts[accountKey].name})`;
             }
           }
         }
         state.transactions.unshift(newTx);
         pushStateToCloud(false);
-        const actionVerb = isCC ? 'lançada na fatura de ' : 'debitada de ';
-        showFeedback('✅ Saída de ' + formatBRL(amount) + ' (' + newTx.date + ') ' + actionVerb + state.accounts[accountKey].name + '. ' + provMsg, 'success');
+        showFeedback(`✅ Registrado: "-${formatBRL(amount)} | ${newTx.desc}" • Conta: ${state.accounts[accountKey].name} • ${provMsg}`, 'success');
       } else {
         if (isCC) {
           state.accounts[accountKey].balance = Math.max(0, +(state.accounts[accountKey].balance - amount).toFixed(2));
@@ -3733,13 +3753,41 @@
       return 1;
     }
 
+    function parsePtNumberStr(numStr) {
+      if (!numStr) return null;
+      let s = String(numStr).trim();
+      if (s.includes(',') && s.includes('.')) {
+        s = s.replace(/\./g, '').replace(',', '.');
+      } else if (s.includes(',')) {
+        s = s.replace(',', '.');
+      }
+      const val = parseFloat(s);
+      return isNaN(val) ? null : val;
+    }
+
     function extractAmountFromText(text) {
       const lower = text.toLowerCase();
       const cleanForDigits = lower
         .replace(/13º|13o|décimo terceiro|decimo terceiro/g, '')
+        .replace(/\(\d{1,2}\/\d{1,2}\)/g, '')
         .replace(/(?:parcelado\s+em\s+|em\s+)?\d{1,2}\s*(?:x|vezes|parcelas)\b/g, '');
-      const digitMatch = cleanForDigits.match(/(?:r\$\s*)?(\d+(?:[.,]\d{1,2})?)/);
-      if (digitMatch) return parseFloat(digitMatch[1].replace(',', '.'));
+
+      // 1. Prioriza valores explícitos com R$, "reais" ou casas decimais (ex: "Comprei 3 medicamentos no valor de R$91,96")
+      const explicitCurrency = cleanForDigits.match(/r\$\s*(\d+(?:\.\d{3})*(?:[.,]\d{1,2})?)/i)
+        || cleanForDigits.match(/(?:valor\s+de\s+|por\s+)r?\$?\s*(\d+(?:\.\d{3})*(?:[.,]\d{1,2})?)/i)
+        || cleanForDigits.match(/(\d+(?:\.\d{3})*(?:[.,]\d{1,2}))\s*(?:reais|real|conto)\b/i)
+        || cleanForDigits.match(/\b(\d+[.,]\d{1,2})\b/);
+      if (explicitCurrency) {
+        const parsed = parsePtNumberStr(explicitCurrency[1]);
+        if (parsed !== null && parsed > 0) return parsed;
+      }
+
+      // 2. Caso seja número inteiro simples (ex: "Comprei 50 de mercantil")
+      const digitMatch = cleanForDigits.match(/(\d+(?:[.,]\d{1,2})?)/);
+      if (digitMatch) {
+        const parsed = parsePtNumberStr(digitMatch[1]);
+        if (parsed !== null && parsed > 0) return parsed;
+      }
 
       const wordsMap = {
         'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3, 'quatro': 4, 'cinco': 5,
@@ -3757,6 +3805,153 @@
         if (wordsMap[w] !== undefined) { total += wordsMap[w]; foundAny = true; }
       });
       return foundAny ? total : null;
+    }
+
+    function smartTitleCase(str) {
+      if (!str) return '';
+      const lowerConnectors = new Set(['de', 'do', 'da', 'dos', 'das', 'no', 'na', 'nos', 'nas', 'em', 'com', 'para', 'pro', 'pra', 'por', 'pelo', 'pela', 'e', 'o', 'a', 'os', 'as']);
+      const specialUpper = {
+        'iep': 'IEP', 'vr': 'VR', 'va': 'VA', 'vt': 'VT', 'mp': 'MP', 'enel': 'Enel',
+        'cagece': 'Cagece', 'google': 'Google', 'one': 'One', 'luke': 'Luke',
+        'emanuel': 'Emanuel', 'emilly': 'Emilly', 'leandra': 'Leandra', 'johnson': 'Johnson',
+        'nubank': 'Nubank', 'pan': 'Pan', 'santander': 'Santander', 'pix': 'Pix', 'uber': 'Uber'
+      };
+      return str
+        .split(/\s+/)
+        .map((word, idx) => {
+          const cleanW = word.toLowerCase();
+          if (specialUpper[cleanW]) return specialUpper[cleanW];
+          if (idx > 0 && lowerConnectors.has(cleanW)) return cleanW;
+          return cleanW.charAt(0).toUpperCase() + cleanW.slice(1);
+        })
+        .join(' ');
+    }
+
+    // Transforma frases faladas como "paguei R$35,99 do Google One com pix" em "Google One"
+    function extractSmartDescription(rawText, fallbackCategoryName) {
+      if (!rawText) return fallbackCategoryName || 'Lançamento';
+      let s = String(rawText).trim();
+
+      // Preserva marcador de parcela no final, ex: (1/2)
+      let installmentSuffix = '';
+      const instMatch = s.match(/(\(\d{1,2}\/\d{1,2}\))\s*$/);
+      if (instMatch) {
+        installmentSuffix = ' ' + instMatch[1];
+        s = s.slice(0, instMatch.index).trim();
+      }
+
+      // 1. Remove verbos de ação no início da frase
+      s = s.replace(/^(?:eu\s+)?(?:paguei|comprei|gastei|abasteci|recebi|entrou|caiu|ganhei|transferi|transferiu|repassou|creditou|me\s+pagou|devolveu|passei|fiz\s+um\s+pix\s+de|fiz\s+pix\s+de|lancei|registrei|dei|foi\s+pago|tirei)\b\s*/i, '');
+
+      // 2. Remove expressões de valor monetário (ex: "no valor de R$ 300,00", "R$35,99", "50 reais", ou número logo no início)
+      s = s.replace(/\b(?:no\s+valor\s+de|valor\s+de|por)\s*r?\$?\s*\d+(?:\.\d{3})*(?:[.,]\d{1,2})?\s*(?:reais|real|conto)?\b/gi, ' ');
+      s = s.replace(/r\$\s*\d+(?:\.\d{3})*(?:[.,]\d{1,2})?\s*(?:reais|real|conto)?/gi, ' ');
+      s = s.replace(/\b\d+(?:\.\d{3})*(?:[.,]\d{1,2})?\s*(?:reais|real|conto)\b/gi, ' ');
+      // Remove número no começo se seguido de preposição ("50 de mercantil" -> "mercantil")
+      s = s.replace(/^\s*\d+(?:[.,]\d{1,2})?\s+(?=de\b|do\b|da\b|dos\b|das\b|no\b|na\b|em\b|para\b|pro\b|pra\b)/i, '');
+
+      // 3. Remove expressões de parcelamento e meios de pagamento / contas
+      s = s.replace(/\b(?:parcelado\s+em|dividido\s+em|em)\s+\d{1,2}\s*(?:x|vezes|parcelas)\b/gi, ' ');
+      s = s.replace(/\b(?:parcelado\s+em|em)\s+(?:duas|três|tres|quatro|cinco|seis|dez|doze)\s+vezes\b/gi, ' ');
+      s = s.replace(/\b\d{1,2}\s*(?:x|vezes|parcelas)\b/gi, ' ');
+      s = s.replace(/\bparcelado\b/gi, ' ');
+
+      const paymentPatterns = [
+        /\b(?:com|no|pelo|via|por|de)\s+pix\b/gi,
+        /\bpix\b$/gi,
+        /\b(?:no|pelo|via|do|da|em)\s+mercado\s+pago(?:\s+livre)?\b/gi,
+        /\b(?:no|pelo|via|do|da|em)\s+ita[uú]\b/gi,
+        /\b(?:em|no|com)\s+(?:dinheiro(?:\s+f[ií]sico)?|esp[eé]cie|m[aã]os)\b/gi,
+        /\b(?:no|pelo|com\s+o|com|do)\s+(?:cart[aã]o\s+)?(?:vr|va|vale\s+alimenta[cç][aã]o|vale\s+refei[cç][aã]o)\b/gi,
+        /\b(?:no|pelo|com\s+o|com|do)\s+(?:cart[aã]o\s+)?(?:flash|vt|vale\s+transporte|vale\s+combust[ií]vel)\b/gi,
+        /\b(?:no|pelo|com\s+o|com|do)\s+(?:cart[aã]o\s+de\s+cr[eé]dito|cart[aã]o\s+nubank|nubank|roxinho|cart[aã]o\s+pan|pan|meliuz|cart[aã]o\s+santander|santander|cart[aã]o|cr[eé]dito|d[eé]bito)\b/gi,
+        /\b(?:na|da|pela)\s+reserva\s+(?:oferta|life\s*group|life|mp)\b/gi,
+        /\b(?:da\s+conta\s+da\s+leandra|pela\s+leandra)\b/gi
+      ];
+      paymentPatterns.forEach(rx => { s = s.replace(rx, ' '); });
+
+      // 4. Remove preposições soltas no início e no fim da descrição
+      s = s.replace(/\s+/g, ' ').trim();
+      for (let i = 0; i < 3; i++) {
+        s = s.replace(/^(?:de|do|da|dos|das|no|na|nos|nas|em|com|por|pelo|pela|para|pro|pra|referente\s+a|sobre|o|a|um|uma)\b\s*/i, '').trim();
+        s = s.replace(/\s+\b(?:de|do|da|dos|das|no|na|nos|nas|em|com|por|pelo|pela|para|pro|pra|o|a)$/i, '').trim();
+      }
+
+      if (!s || /^\d+(?:[.,]\d+)?$/.test(s)) {
+        const cleanFallback = fallbackCategoryName
+          ? fallbackCategoryName.replace(/\s*\([^)]*\)/g, '').trim()
+          : 'Lançamento';
+        return cleanFallback + installmentSuffix;
+      }
+
+      return smartTitleCase(s) + installmentSuffix;
+    }
+
+    function findBestMatchingPlanItem(text, list, isIncome) {
+      if (!list || !list.length) return null;
+      const normText = normalizeStr(text);
+
+      // 1. Verifica palavras-chave cadastradas na provisão/previsão (normalizando acentos)
+      for (const item of list) {
+        const kws = item.keywords || [];
+        for (const k of kws) {
+          const nk = normalizeStr(k);
+          if (nk && normText.includes(nk)) return item;
+        }
+      }
+
+      // 2. Dicionário de sinônimos inteligentes para o dia a dia do Johnson
+      if (!isIncome) {
+        const smartSynonyms = [
+          { rx: /google|youtube|armazenamento|nuvem/, matchName: 'google one' },
+          { rx: /mercantil|mercado|supermercado|padaria|pao|acougue|feira|hortifruti|merenda|lanche|assai|atakarejo|cometa|frangolandia|sao luiz/, matchName: 'mercantil' },
+          { rx: /combustivel|gasolina|etanol|abasteci|posto|uber|99pop|moto taxi/, matchName: 'combustivel' },
+          { rx: /emanuel|emilly|filho|filha|fralda|farmacia|remedio|medicamento|pediatra|leite|pague menos|drogasil/, matchName: 'filho' },
+          { rx: /luke|racao|pet|veterinario|cachorro/, matchName: 'luke' },
+          { rx: /energia|enel|conta de luz|luz/, matchName: 'energia' },
+          { rx: /cagece|agua encanada|esgoto/, matchName: 'cagece' },
+          { rx: /agua mineral|garrafao|bebedouro|agua/, matchName: 'agua mineral' },
+          { rx: /internet|wi-fi|wifi|fibra|brisanet/, matchName: 'internet' },
+          { rx: /recarga|celular|tim|vivo|claro/, matchName: 'recarga' },
+          { rx: /corte|cabelo|barbearia|barbeiro/, matchName: 'corte' },
+          { rx: /dizimo/, matchName: 'dizimo' },
+          { rx: /oferta|igreja/, matchName: 'oferta' },
+          { rx: /life group|lifegroup|celula|maranata/, matchName: 'life group' },
+          { rx: /caixa|financiamento|prestacao da casa/, matchName: 'caixa' },
+          { rx: /consignado/, matchName: 'consignado' },
+          { rx: /banco inter|inter/, matchName: 'inter' },
+          { rx: /licenciamento|detran|ipva/, matchName: 'licenciamento' },
+          { rx: /lazer|cinema|passeio|restaurante|pizza|hamburguer|sorvete|diversao/, matchName: 'lazer' }
+        ];
+        for (const rule of smartSynonyms) {
+          if (rule.rx.test(normText)) {
+            const found = list.find(p => normalizeStr(p.name).includes(rule.matchName));
+            if (found) return found;
+          }
+        }
+      } else {
+        const incSynonyms = [
+          { rx: /salario|iep|pagamento/, matchName: 'salario' },
+          { rx: /13|decimo/, matchName: '13' },
+          { rx: /aluguel|inquilino/, matchName: 'aluguel' },
+          { rx: /oculos|pai|reembolso/, matchName: 'oculos' },
+          { rx: /vr|va|alimentacao/, matchName: 'vr' },
+          { rx: /flash|vt|transporte/, matchName: 'flash' }
+        ];
+        for (const rule of incSynonyms) {
+          if (rule.rx.test(normText)) {
+            const found = list.find(i => normalizeStr(i.name).includes(rule.matchName));
+            if (found) return found;
+          }
+        }
+      }
+
+      // 3. Fallback: verifica se o primeiro termo do nome da provisão está contido no texto
+      for (const item of list) {
+        const baseName = normalizeStr(item.name.split(/[(\/-]/)[0]).trim();
+        if (baseName.length >= 4 && normText.includes(baseName)) return item;
+      }
+      return null;
     }
 
     function detectCreditCardFromText(lowerText) {
@@ -3839,22 +4034,22 @@
       ensureMonthExists(firstMonthKey);
       const monthData = state.months[firstMonthKey] || state.months[state.currentMonth];
       let targetId = null;
+      let matchedItemObj = null;
+
       if (type === 'saida') {
-        const matchedProv = monthData.provisions.find(p => p.keywords && p.keywords.some(k => lower.includes(k)));
-        if (matchedProv) targetId = matchedProv.id;
+        matchedItemObj = findBestMatchingPlanItem(text, monthData.provisions, false);
+        if (matchedItemObj) targetId = matchedItemObj.id;
       } else {
-        const matchedInc = monthData.incomes.find(i => i.keywords && i.keywords.some(k => lower.includes(k)));
-        if (matchedInc) targetId = matchedInc.id;
+        matchedItemObj = findBestMatchingPlanItem(text, monthData.incomes, true);
+        if (matchedItemObj) targetId = matchedItemObj.id;
       }
 
-      const cleanDesc = text
-        .replace(/\s+(?:parcelado\s+)?(?:em\s+)?\d{1,2}\s*(?:x|vezes|parcelas)\b/gi, '')
-        .trim();
+      const smartDesc = extractSmartDescription(text, matchedItemObj ? matchedItemObj.name : null);
 
       if (type === 'saida' && isCC) {
-        applyCreditCardInstallments(accountKey, amount, 'total', installments, targetId, cleanDesc || text, todayBR, firstMonthKey);
+        applyCreditCardInstallments(accountKey, amount, 'total', installments, targetId, smartDesc, todayBR, firstMonthKey);
       } else {
-        applyTransaction(type, amount, accountKey, targetId, text, null, todayBR, state.currentMonth);
+        applyTransaction(type, amount, accountKey, targetId, smartDesc, null, todayBR, state.currentMonth);
       }
       inputEl.value = '';
     }
