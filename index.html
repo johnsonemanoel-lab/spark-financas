@@ -193,6 +193,24 @@
     body.light-mode .bg-amber-600 {
       color: #ffffff !important;
     }
+
+    /* Multi-select dropdown & filter chips */
+    .ms-popover {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.6);
+    }
+    body.light-mode .ms-popover {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: 0 18px 32px -8px rgba(15, 23, 42, 0.16);
+    }
+    .ms-option-row:hover {
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+    body.light-mode .ms-option-row:hover {
+      background-color: #f1f5f9 !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col lg:flex-row">
@@ -255,7 +273,7 @@
         </div>
       </div>
 
-      <!-- GRUPO: SEU DINHEIRO (Inspirado na imagem enviada) -->
+      <!-- GRUPO: SEU DINHEIRO -->
       <nav class="space-y-1.5" aria-label="Navegação Principal">
         <div class="px-3 pb-1 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
           SEU DINHEIRO
@@ -263,28 +281,41 @@
 
         <button
           type="button"
-          id="nav-btn-saidas"
-          onclick="changeView('saidas')"
+          id="nav-btn-inicio"
+          onclick="changeView('inicio')"
           class="nav-pill active"
         >
           <span class="flex items-center gap-3">
-            <i class="nav-icon fa-solid fa-arrow-up-right-from-square text-xs w-4 text-center"></i>
-            <span>Despesas e provisões</span>
+            <i class="nav-icon fa-solid fa-house text-xs w-4 text-center"></i>
+            <span>Painel Inicial</span>
           </span>
-          <span id="nav-badge-saidas" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
+          <span id="nav-badge-inicio" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Geral</span>
         </button>
 
         <button
           type="button"
-          id="nav-btn-entradas"
-          onclick="changeView('entradas')"
+          id="nav-btn-movimentacoes"
+          onclick="changeView('movimentacoes')"
           class="nav-pill"
         >
           <span class="flex items-center gap-3">
-            <i class="nav-icon fa-solid fa-arrow-down-long text-xs w-4 text-center" style="transform: rotate(45deg);"></i>
-            <span>Receitas</span>
+            <i class="nav-icon fa-solid fa-arrow-right-arrow-left text-xs w-4 text-center"></i>
+            <span>Movimentações</span>
           </span>
-          <span id="nav-badge-entradas" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
+          <span id="nav-badge-movimentacoes" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
+        </button>
+
+        <button
+          type="button"
+          id="nav-btn-provisoes"
+          onclick="changeView('provisoes')"
+          class="nav-pill"
+        >
+          <span class="flex items-center gap-3">
+            <i class="nav-icon fa-solid fa-list-check text-xs w-4 text-center"></i>
+            <span>Provisões & Previsões</span>
+          </span>
+          <span id="nav-badge-provisoes" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60">0 pend.</span>
         </button>
 
         <button
@@ -295,35 +326,9 @@
         >
           <span class="flex items-center gap-3">
             <i class="nav-icon fa-regular fa-credit-card text-xs w-4 text-center"></i>
-            <span>Cartões de crédito</span>
+            <span>Cartões de Crédito</span>
           </span>
           <span id="nav-badge-cartoes" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-violet-950/80 text-violet-300 border border-violet-800/60">R$ 0</span>
-        </button>
-
-        <button
-          type="button"
-          id="nav-btn-contas"
-          onclick="changeView('contas')"
-          class="nav-pill"
-        >
-          <span class="flex items-center gap-3">
-            <i class="nav-icon fa-solid fa-building-columns text-xs w-4 text-center"></i>
-            <span>Contas, Reservas & VR</span>
-          </span>
-          <span id="nav-badge-contas" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">8</span>
-        </button>
-
-        <button
-          type="button"
-          id="nav-btn-registros"
-          onclick="changeView('registros')"
-          class="nav-pill"
-        >
-          <span class="flex items-center gap-3">
-            <i class="nav-icon fa-solid fa-list-ul text-xs w-4 text-center"></i>
-            <span>Todos os registros</span>
-          </span>
-          <span id="nav-badge-registros" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0</span>
         </button>
 
         <div class="pt-3 px-3 pb-1 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
@@ -337,22 +342,10 @@
           class="nav-pill"
         >
           <span class="flex items-center gap-3">
-            <i class="nav-icon fa-solid fa-chart-Simple fa-chart-column text-xs w-4 text-center"></i>
-            <span>Indicadores e análise</span>
+            <i class="nav-icon fa-solid fa-chart-column text-xs w-4 text-center"></i>
+            <span>Indicadores e Análise</span>
           </span>
           <span id="nav-badge-indicadores" class="nav-badge text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-700/60">BI</span>
-        </button>
-
-        <button
-          type="button"
-          id="nav-btn-resumo"
-          onclick="changeView('resumo')"
-          class="nav-pill"
-        >
-          <span class="flex items-center gap-3">
-            <i class="nav-icon fa-solid fa-chart-pie text-xs w-4 text-center"></i>
-            <span>Resumo do Mês (KPIs)</span>
-          </span>
         </button>
       </nav>
 
@@ -422,12 +415,12 @@
           </button>
           <div>
             <div class="flex items-center gap-2">
-              <h2 id="active-view-title" class="font-bold text-base sm:text-lg leading-tight text-white">Despesas e provisões</h2>
+              <h2 id="active-view-title" class="font-bold text-base sm:text-lg leading-tight text-white">Painel Inicial</h2>
               <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold current-month-label">
                 Novembro/2026
               </span>
             </div>
-            <p id="active-view-subtitle" class="text-xs text-slate-400">Acompanhe o orçamento previsto e os gastos lançados no mês</p>
+            <p id="active-view-subtitle" class="text-xs text-slate-400">Visão geral com suas contas e todas as entradas e saídas</p>
           </div>
         </div>
 
@@ -520,158 +513,477 @@
         <div id="ai-feedback" class="hidden mt-2 p-3 rounded-xl text-xs border"></div>
       </section>
 
-      <!-- Botões ocultos de compatibilidade de visão (para manter atalhos legados funcionando) -->
-      <div class="hidden">
-        <button type="button" id="view-btn-saidas" onclick="changeView('saidas')">Saídas</button>
-        <button type="button" id="view-btn-entradas" onclick="changeView('entradas')">Entradas</button>
-        <button type="button" id="view-btn-registros" onclick="changeView('registros')">Registros Gerais</button>
+      <!-- ==========================================
+           PAINEL 1: PAINEL INICIAL ('inicio')
+           Contas + KPIs + Registros Gerais (Entradas e Saídas apenas)
+           ========================================== -->
+      <div id="panel-inicio" class="space-y-5">
+        <!-- KPIs Executivos -->
+        <section id="section-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div class="glass rounded-2xl p-4">
+            <div class="text-slate-400 text-xs mb-1">Saldo Próprio (Contas + Reservas)</div>
+            <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 153,47</div>
+            <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 153,47 | Reservas: R$ 0,00</div>
+          </div>
+
+          <div class="glass rounded-2xl p-4">
+            <div class="text-slate-400 text-xs mb-1">Entradas Previstas (<span class="current-month-label">Novembro/2026</span>)</div>
+            <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 6.530,35</div>
+            <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Exclusivo Conta Livre (Sem VR/Flash)</div>
+          </div>
+
+          <div class="glass rounded-2xl p-4">
+            <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Novembro/2026</span>)</div>
+            <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 4.788,70</div>
+            <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
+          </div>
+
+          <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
+            <div class="text-emerald-300 text-xs mb-1">Saldo Final Livre Projetado</div>
+            <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 1.895,12</div>
+            <div id="kpi-projected-patrimony" class="text-[11px] text-slate-400 mt-1">100% Livre em Contas (Sem Benefícios)</div>
+          </div>
+        </section>
+
+        <!-- Contas Bancárias, Reservas & Benefícios -->
+        <section id="section-accounts" class="glass rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                <i class="fa-solid fa-building-columns text-emerald-400"></i>
+                Contas Bancárias, Reservas & Benefícios
+              </h2>
+              <p class="text-xs text-slate-400">Clique em qualquer conta para ajustar o saldo manualmente</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="changeView('cartoes')" class="text-xs bg-violet-950/80 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-700/60 transition font-semibold">
+                💳 Faturas: <span id="home-cards-summary-val">R$ 0,00</span>
+              </button>
+              <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800 font-semibold">
+                + Entrada
+              </button>
+              <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800 font-semibold">
+                + Saída
+              </button>
+            </div>
+          </div>
+          <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+        </section>
+
+        <!-- Registros Gerais: Apenas Todas as Entradas e Saídas -->
+        <section id="home-transactions-section" class="glass rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                <i class="fa-solid fa-list-ul text-emerald-400"></i>
+                Registros Gerais — Entradas e Saídas (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h2>
+              <p class="text-xs text-slate-400">Acompanhe todas as entradas e saídas lançadas no período selecionado</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="home-entradas-total" class="text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-2.5 py-1 rounded-lg">
+                Entradas: +R$ 0,00
+              </span>
+              <span id="home-saidas-total" class="text-xs font-semibold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-2.5 py-1 rounded-lg">
+                Saídas: -R$ 0,00
+              </span>
+              <span id="home-net-total" class="text-xs font-bold bg-slate-800 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg">
+                Líquido: R$ 0,00
+              </span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-800/80">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" id="home-tab-all" onclick="setHomeTypeFilter('all')" class="keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white transition">
+                Todas
+              </button>
+              <button type="button" id="home-tab-entrada" onclick="setHomeTypeFilter('entrada')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+                Entradas (+)
+              </button>
+              <button type="button" id="home-tab-saida" onclick="setHomeTypeFilter('saida')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+                Saídas (-)
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 flex-1 sm:flex-initial">
+              <div class="relative flex-1 sm:w-56">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input
+                  id="home-quick-search"
+                  type="text"
+                  oninput="renderAll()"
+                  placeholder="Busca rápida..."
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <button
+                type="button"
+                onclick="changeView('movimentacoes')"
+                class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-300 px-3 py-1.5 rounded-xl border border-slate-700 font-semibold transition whitespace-nowrap"
+                title="Abrir página completa de Movimentações com filtros de múltipla seleção"
+              >
+                <i class="fa-solid fa-sliders mr-1"></i> Filtros Avançados
+              </button>
+            </div>
+          </div>
+
+          <div id="home-transactions-list" class="space-y-2.5"></div>
+        </section>
       </div>
 
-      <!-- 2. SEÇÃO DE KPIs (Visível no Resumo do Mês e opcionalmente compacta) -->
-      <section id="section-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div class="glass rounded-2xl p-4">
-          <div class="text-slate-400 text-xs mb-1">Saldo Próprio (Contas + Reservas)</div>
-          <div id="kpi-own-balance" class="text-2xl font-bold text-white">R$ 153,47</div>
-          <div id="kpi-free-vs-reserves" class="text-[11px] text-slate-400 mt-1">Livre: R$ 153,47 | Reservas: R$ 0,00</div>
-        </div>
-
-        <div class="glass rounded-2xl p-4">
-          <div class="text-slate-400 text-xs mb-1">Entradas em Conta (<span class="current-month-label">Novembro/2026</span>)</div>
-          <div id="kpi-pending-in" class="text-2xl font-bold text-sky-400">+R$ 6.530,35</div>
-          <div id="kpi-leandra-status" class="text-[11px] text-slate-400 mt-1">Exclusivo Conta Livre (Sem VR/Flash)</div>
-        </div>
-
-        <div class="glass rounded-2xl p-4">
-          <div class="text-slate-400 text-xs mb-1">Provisões a Pagar (<span class="current-month-label">Novembro/2026</span>)</div>
-          <div id="kpi-pending-out" class="text-2xl font-bold text-amber-400">-R$ 4.788,70</div>
-          <div id="kpi-overbudget-summary" class="text-[11px] text-slate-400 mt-1">Abatimento automático por categoria</div>
-        </div>
-
-        <div class="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-950/20">
-          <div class="text-emerald-300 text-xs mb-1">Saldo Final Livre Projetado</div>
-          <div id="kpi-projected-close" class="text-2xl font-bold text-emerald-400">R$ 1.895,12</div>
-          <div id="kpi-projected-patrimony" class="text-[11px] text-slate-400 mt-1">100% Livre em Contas (Sem Benefícios)</div>
-        </div>
-      </section>
-
-      <!-- 3. SEÇÃO EXCLUSIVA: CONTAS BANCÁRIAS, RESERVAS & BENEFÍCIOS (Aba 'contas') -->
-      <section id="section-accounts" class="hidden glass rounded-2xl p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">
-              🏦 Posição das Contas Bancárias, Reservas MP & Benefícios (VR / Flash)
-            </h2>
-            <p class="text-xs text-slate-400">Clique em qualquer card para ajustar o saldo disponível manualmente</p>
-          </div>
-          <div class="flex gap-2">
-            <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
-              + Lançar Entrada
-            </button>
-            <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
-              + Lançar Saída
-            </button>
-          </div>
-        </div>
-        <div id="accounts-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
-      </section>
-
-      <!-- 4. SEÇÃO EXCLUSIVA: CARTÕES DE CRÉDITO (Aba 'cartoes') -->
-      <section id="section-credit-cards" class="hidden glass rounded-2xl p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-violet-300 flex items-center gap-1.5">
-              <i class="fa-regular fa-credit-card"></i> Meus Cartões de Crédito & Controle de Faturas
-            </h3>
-            <p class="text-xs text-slate-400">
-              Compras feitas a partir do <strong>Dia de Fechamento</strong> caem automaticamente na fatura do mês seguinte. Clique em um cartão para editar limite ou fechamento.
-            </p>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-600 hover:bg-violet-500 text-white keep-white-text px-3 py-1.5 rounded-lg font-semibold transition">
-              💳 Compra no Cartão
-            </button>
-            <button type="button" onclick="openNewCardModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-violet-300 px-3 py-1.5 rounded-lg border border-slate-700 transition font-semibold">
-              + Novo Cartão
-            </button>
-            <button type="button" onclick="openPayInvoiceModal()" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-700/80 transition font-semibold">
-              Baixar / Pagar Fatura
-            </button>
-          </div>
-        </div>
-        <div id="credit-cards-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
-      </section>
-
-      <!-- 5. BARRA DE BUSCA, FILTROS E ORDENAÇÃO (Recolhível para não poluir!) -->
-      <section id="section-filters" class="glass rounded-2xl p-3.5 border border-slate-800">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-center">
-          <div class="relative lg:col-span-2">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input
-              id="filter-search"
-              type="text"
-              oninput="renderAll()"
-              placeholder="Buscar texto, local, cartão, parcela ou valor..."
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-            />
-          </div>
-
-          <div>
-            <select
-              id="filter-account"
-              onchange="renderAll()"
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-            >
-              <option value="">💳 Todas as Contas / Cartões</option>
-            </select>
-          </div>
-
-          <div>
-            <select
-              id="filter-category"
-              onchange="renderAll()"
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-            >
-              <option value="">🏷️ Todas as Categorias</option>
-            </select>
-          </div>
-
-          <div>
-            <input
-              id="filter-date"
-              type="date"
-              onchange="renderAll()"
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-              title="Filtrar por um dia específico"
-            />
-          </div>
-
-          <div class="flex items-center gap-1.5">
-            <select
-              id="sort-by"
-              onchange="renderAll()"
-              class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500"
-              title="Ordenar lançamentos"
-            >
-              <option value="date_desc">⬇️ Data (Mais recentes)</option>
-              <option value="date_asc">⬆️ Data (Mais antigos)</option>
-              <option value="amount_desc">💰 Valor (Maior → Menor)</option>
-              <option value="amount_asc">🪙 Valor (Menor → Maior)</option>
-              <option value="account_asc">🏦 Conta (A → Z)</option>
-              <option value="category_asc">🏷️ Categoria (A → Z)</option>
-            </select>
+      <!-- ==========================================
+           PAINEL 2: MOVIMENTAÇÕES UNIFICADAS ('movimentacoes')
+           Despesas + Receitas em página única com filtros de múltipla seleção
+           ========================================== -->
+      <div id="panel-movimentacoes" class="hidden space-y-5">
+        <!-- Painel de Filtros Avançados com Múltipla Seleção -->
+        <section class="glass rounded-2xl p-4 sm:p-5 border border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-filter"></i> Filtros de Múltipla Seleção (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h3>
+              <p class="text-[11px] text-slate-400">Combine vários tipos, contas, cartões, categorias e datas ao mesmo tempo</p>
+            </div>
             <button
               type="button"
               onclick="clearAllFilters()"
-              class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 text-xs transition"
-              title="Limpar todos os filtros"
+              class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5"
             >
-              <i class="fa-solid fa-filter-circle-xmark"></i>
+              <i class="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
             </button>
           </div>
-        </div>
-      </section>
 
-      <!-- PAINEL DE INDICADORES E ANÁLISE FINANCEIRA ('indicadores') -->
+          <!-- Linha 1: Filtro Multi-Seleção por Tipo de Lançamento -->
+          <div class="space-y-1.5">
+            <div class="text-[11px] font-semibold text-slate-400">
+              Tipo de Lançamento <span class="text-slate-500 font-normal">(clique para marcar/desmarcar vários)</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" id="ms-type-saida_cash" onclick="toggleMultiTypeFilter('saida_cash')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-up text-rose-400"></i> Saídas (Conta / VR / Reserva)
+              </button>
+              <button type="button" id="ms-type-saida_cc" onclick="toggleMultiTypeFilter('saida_cc')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-regular fa-credit-card text-violet-400"></i> Compras no Cartão
+              </button>
+              <button type="button" id="ms-type-entrada" onclick="toggleMultiTypeFilter('entrada')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-down text-emerald-400"></i> Entradas (Receitas)
+              </button>
+              <button type="button" id="ms-type-pagamento_fatura" onclick="toggleMultiTypeFilter('pagamento_fatura')" class="text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5">
+                <i class="fa-solid fa-rotate text-sky-400"></i> Baixas de Fatura
+              </button>
+            </div>
+          </div>
+
+          <!-- Linha 2: Dropdowns Multi-Seleção (Contas & Categorias) + Busca + Período + Ordenação -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 items-start">
+            <!-- Busca Texto -->
+            <div class="relative lg:col-span-3">
+              <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Busca</label>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input
+                  id="filter-search"
+                  type="text"
+                  oninput="onMovSearchInput()"
+                  placeholder="Descrição, local ou valor..."
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </div>
+
+            <!-- Multi-Select Contas e Cartões -->
+            <div id="ms-accounts-wrapper" class="relative lg:col-span-3">
+              <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Contas & Cartões (Várias)</label>
+              <button
+                type="button"
+                id="ms-accounts-btn"
+                onclick="toggleMultiDropdown('accounts', event)"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 flex items-center justify-between gap-2 hover:border-emerald-500 transition"
+              >
+                <span id="ms-accounts-label" class="truncate">💳 Todas as Contas / Cartões</span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0"></i>
+              </button>
+              <div id="ms-accounts-panel" class="ms-popover hidden absolute left-0 right-0 mt-1.5 rounded-2xl p-3 z-40 space-y-2.5 max-h-80 overflow-y-auto">
+                <div class="flex flex-wrap gap-1 pb-2 border-b border-slate-800">
+                  <button type="button" onclick="selectAccountGroupPreset('free')" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 font-semibold">+ Caixa Livre</button>
+                  <button type="button" onclick="selectAccountGroupPreset('credit')" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-violet-300 border border-slate-700 font-semibold">+ Cartões</button>
+                  <button type="button" onclick="selectAccountGroupPreset('benefit')" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-lime-300 border border-slate-700 font-semibold">+ VR/Flash</button>
+                  <button type="button" onclick="selectAccountGroupPreset('reserve')" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 font-semibold">+ Reservas</button>
+                  <button type="button" onclick="clearMultiAccounts()" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">Limpar</button>
+                </div>
+                <div id="ms-accounts-list" class="space-y-1"></div>
+              </div>
+            </div>
+
+            <!-- Multi-Select Categorias -->
+            <div id="ms-categories-wrapper" class="relative lg:col-span-3">
+              <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Categorias (Várias)</label>
+              <button
+                type="button"
+                id="ms-categories-btn"
+                onclick="toggleMultiDropdown('categories', event)"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 flex items-center justify-between gap-2 hover:border-emerald-500 transition"
+              >
+                <span id="ms-categories-label" class="truncate">🏷️ Todas as Categorias</span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0"></i>
+              </button>
+              <div id="ms-categories-panel" class="ms-popover hidden absolute left-0 right-0 mt-1.5 rounded-2xl p-3 z-40 space-y-2 max-h-80 overflow-y-auto">
+                <div class="flex items-center gap-1.5">
+                  <input
+                    id="ms-categories-search"
+                    type="text"
+                    oninput="renderCategoryDropdownOptions()"
+                    placeholder="Filtrar categorias..."
+                    class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-[11px] text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                  <button type="button" onclick="clearMultiCategories()" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 shrink-0">Limpar</button>
+                </div>
+                <div id="ms-categories-list" class="space-y-1"></div>
+              </div>
+            </div>
+
+            <!-- Data Inicial / Final -->
+            <div class="grid grid-cols-2 gap-1.5 lg:col-span-3">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">De</label>
+                <input
+                  id="filter-date-from"
+                  type="date"
+                  onchange="onMovDateRangeChange()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  title="Data inicial"
+                />
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Até</label>
+                <input
+                  id="filter-date-to"
+                  type="date"
+                  onchange="onMovDateRangeChange()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  title="Data final"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Linha 3: Ordenação + Chips de Filtros Ativos -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+            <div id="mov-active-chips" class="flex flex-wrap items-center gap-1.5 flex-1"></div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-[11px] text-slate-400">Ordenar:</span>
+              <select
+                id="sort-by"
+                onchange="onMovSortChange()"
+                class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500"
+              >
+                <option value="date_desc">⬇️ Data (Mais recentes)</option>
+                <option value="date_asc">⬆️ Data (Mais antigos)</option>
+                <option value="amount_desc">💰 Valor (Maior → Menor)</option>
+                <option value="amount_asc">🪙 Valor (Menor → Maior)</option>
+                <option value="account_asc">🏦 Conta (A → Z)</option>
+                <option value="category_asc">🏷️ Categoria (A → Z)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Lista Consolidada de Movimentações Filtradas -->
+        <section class="glass rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i>
+                Entradas e Saídas (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h2>
+              <p class="text-xs text-slate-400">Clique em ✏️ para editar ou 🗑️ para excluir qualquer registro.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-800 font-semibold">
+                + Entrada
+              </button>
+              <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-2.5 py-1 rounded-lg border border-rose-800 font-semibold">
+                + Saída
+              </button>
+              <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-2.5 py-1 rounded-lg border border-violet-800 font-semibold">
+                💳 Cartão
+              </button>
+            </div>
+          </div>
+
+          <!-- Resumo Numérico do Filtro Atual -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Entradas Filtradas</div>
+              <div id="mov-entradas-total" class="text-sm font-bold text-emerald-400">+R$ 0,00</div>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Saídas Filtradas</div>
+              <div id="mov-saidas-total" class="text-sm font-bold text-rose-400">-R$ 0,00</div>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Nos Cartões (Filtro)</div>
+              <div id="mov-credit-total" class="text-sm font-bold text-violet-300">R$ 0,00</div>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase">Saldo do Filtro</div>
+                <div id="geral-filtered-net" class="text-sm font-bold text-white">R$ 0,00</div>
+              </div>
+              <span id="tx-count" class="text-[11px] bg-purple-950/70 px-2 py-0.5 rounded-lg text-purple-300 border border-purple-800/60">0</span>
+            </div>
+          </div>
+
+          <div id="transactions-list" class="space-y-2.5"></div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           PAINEL 3: PROVISÕES & PREVISÕES ISOLADAS ('provisoes')
+           ========================================== -->
+      <div id="panel-provisoes" class="hidden space-y-5">
+        <!-- Barra Superior Isolada de Controle das Provisões -->
+        <section class="glass rounded-2xl p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" id="prov-subtab-saidas" onclick="setProvisionsSubTab('saidas')" class="keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 text-white transition">
+                Provisões de Saídas
+              </button>
+              <button type="button" id="prov-subtab-entradas" onclick="setProvisionsSubTab('entradas')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+                Previsões de Receitas
+              </button>
+              <button type="button" id="prov-subtab-ambos" onclick="setProvisionsSubTab('ambos')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition">
+                Visão Completa
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[11px]"></i>
+                <input
+                  id="prov-search"
+                  type="text"
+                  oninput="renderAll()"
+                  placeholder="Filtrar provisão..."
+                  class="bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-44"
+                />
+              </div>
+              <div id="prov-status-pills" class="flex items-center gap-1 flex-wrap">
+                <button type="button" id="prov-st-all" onclick="setProvisionsStatusFilter('all')" class="keep-white-text px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 text-white">Todas</button>
+                <button type="button" id="prov-st-pending" onclick="setProvisionsStatusFilter('pending')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">Pendentes</button>
+                <button type="button" id="prov-st-done" onclick="setProvisionsStatusFilter('done')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">Liquidadas</button>
+                <button type="button" id="prov-st-over" onclick="setProvisionsStatusFilter('over')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">Excedidas</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Provisões de Saídas -->
+        <section id="prov-section-saidas" class="glass rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2 flex-wrap">
+                <span>Provisões de Saídas — <span class="current-month-label">Novembro/2026</span></span>
+                <span id="badge-summary-saidas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+              </h2>
+              <p class="text-xs text-slate-400">Clique em qualquer card para editar orçamento, valor pendente ou palavras-chave</p>
+            </div>
+            <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-amber-600 hover:bg-amber-500 text-white keep-white-text px-3 py-1.5 rounded-lg font-semibold transition">
+              + Nova Provisão
+            </button>
+          </div>
+
+          <div id="provisions-summary-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Total Orçado</div>
+              <div id="prov-kpi-budgeted" class="text-sm font-bold text-white">R$ 0,00</div>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Já Executado</div>
+              <div id="prov-kpi-executed" class="text-sm font-bold text-emerald-400">R$ 0,00</div>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Pendente a Pagar</div>
+              <div id="prov-kpi-pending" class="text-sm font-bold text-amber-400">R$ 0,00</div>
+            </div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2">
+              <div class="text-[10px] text-slate-400 uppercase">Excedente</div>
+              <div id="prov-kpi-over" class="text-sm font-bold text-rose-400">R$ 0,00</div>
+            </div>
+          </div>
+
+          <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </section>
+
+        <!-- Previsões de Receitas -->
+        <section id="prov-section-entradas" class="hidden glass rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2 flex-wrap">
+                <span>Previsões de Receitas — <span class="current-month-label">Novembro/2026</span></span>
+                <span id="badge-summary-entradas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
+              </h2>
+              <p class="text-xs text-slate-400">Acompanhe salário, 13º, aluguel, reembolsos e créditos de benefícios esperados no mês</p>
+            </div>
+            <button type="button" onclick="openPlanItemModal('income', null)" class="text-xs bg-sky-600 hover:bg-sky-500 text-white keep-white-text px-3 py-1.5 rounded-lg font-semibold transition">
+              + Nova Previsão
+            </button>
+          </div>
+          <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           PAINEL 4: CARTÕES DE CRÉDITO ('cartoes')
+           ========================================== -->
+      <div id="panel-cartoes" class="hidden space-y-5">
+        <section id="section-credit-cards" class="glass rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold uppercase tracking-wider text-violet-300 flex items-center gap-1.5">
+                <i class="fa-regular fa-credit-card"></i> Meus Cartões de Crédito & Controle de Faturas
+              </h3>
+              <p class="text-xs text-slate-400">
+                Compras feitas a partir do <strong>Dia de Fechamento</strong> caem automaticamente na fatura do mês seguinte. Clique em um cartão para editar limite ou fechamento.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-600 hover:bg-violet-500 text-white keep-white-text px-3 py-1.5 rounded-lg font-semibold transition">
+                💳 Compra no Cartão
+              </button>
+              <button type="button" onclick="openNewCardModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-violet-300 px-3 py-1.5 rounded-lg border border-slate-700 transition font-semibold">
+                + Novo Cartão
+              </button>
+              <button type="button" onclick="openPayInvoiceModal()" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-700/80 transition font-semibold">
+                Baixar / Pagar Fatura
+              </button>
+            </div>
+          </div>
+          <div id="credit-cards-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+        </section>
+
+        <section class="glass rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-violet-300 flex items-center gap-2">
+                <i class="fa-solid fa-receipt"></i> Lançamentos e Faturas dos Cartões (<span class="tx-filter-scope-label">Novembro/2026</span>)
+              </h2>
+              <p class="text-xs text-slate-400">Compras parceladas, à vista e pagamentos de fatura vinculados aos seus cartões</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="cards-tx-total" class="text-xs font-bold bg-violet-950/80 text-violet-300 border border-violet-800/60 px-3 py-1 rounded-lg">Total Compras: R$ 0,00</span>
+              <span id="cards-tx-count" class="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg">0 lançamentos</span>
+            </div>
+          </div>
+          <div id="cards-transactions-list" class="space-y-2.5"></div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           PAINEL 5: INDICADORES E ANÁLISE FINANCEIRA ('indicadores')
+           ========================================== -->
       <div id="panel-indicadores" class="hidden space-y-5">
 
         <!-- Barra de Pílulas de Filtro Rápido de Escopo Analítico -->
@@ -679,13 +991,18 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                <i class="fa-solid fa-sliders"></i> Filtros Rápidos de Análise (<span class="tx-filter-scope-label">Novembro/2026</span>)
+                <i class="fa-solid fa-sliders"></i> Filtros de Análise (<span class="tx-filter-scope-label">Novembro/2026</span>)
               </h3>
-              <p class="text-[11px] text-slate-400">Combine os botões abaixo com a barra de busca, conta, categoria, data e mês acima para recalcular todos os indicadores.</p>
+              <p class="text-[11px] text-slate-400">Escolha o grupo de contas ou clique em uma categoria do ranking para recalcular os indicadores.</p>
             </div>
-            <span id="ind-active-filter-summary" class="text-[11px] font-semibold bg-slate-900 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">
-              Escopo: Todos os lançamentos
-            </span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="ind-active-filter-summary" class="text-[11px] font-semibold bg-slate-900 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">
+                Escopo: Todos os lançamentos
+              </span>
+              <button type="button" id="ind-clear-cat-btn" onclick="clearAnalyticsCategoryFilter()" class="hidden text-[11px] bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-700/60 px-2.5 py-1 rounded-lg font-semibold">
+                ✕ Limpar categoria
+              </button>
+            </div>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
@@ -806,7 +1123,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-                  <i class="fa-solid fa-chart-doughnut fa-chart-pie"></i> Saídas por Conta / Cartão
+                  <i class="fa-solid fa-chart-pie"></i> Saídas por Conta / Cartão
                 </h3>
                 <p class="text-[11px] text-slate-400">De onde está saindo o dinheiro no período filtrado</p>
               </div>
@@ -826,7 +1143,7 @@
                 <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                   <i class="fa-solid fa-ranking-star"></i> Ranking de Gastos & Orçado vs. Realizado
                 </h3>
-                <p class="text-[11px] text-slate-400">Clique em uma categoria para filtrar os lançamentos por ela</p>
+                <p class="text-[11px] text-slate-400">Clique em uma categoria para filtrar os indicadores por ela</p>
               </div>
             </div>
             <div id="analytics-category-ranking" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
@@ -848,133 +1165,6 @@
               <div id="analytics-monthly-comparison" class="space-y-2 text-xs"></div>
             </div>
           </div>
-        </section>
-      </div>
-
-      <!-- PAINEL 1: VISÃO DE DESPESAS E PROVISÕES ('saidas') -->
-      <div id="panel-saidas" class="space-y-5">
-        <section class="glass rounded-2xl p-4 sm:p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div onclick="toggleProvisionsCollapse('saidas')" class="cursor-pointer flex items-center gap-3 flex-1">
-              <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <i id="icon-collapse-saidas" class="fa-solid fa-chevron-right transition-transform duration-200" style="transform: rotate(90deg);"></i>
-              </div>
-              <div>
-                <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2 flex-wrap">
-                  <span>Provisões de Saídas — <span class="current-month-label">Novembro/2026</span></span>
-                  <span id="badge-summary-saidas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
-                </h2>
-                <p class="text-xs text-slate-400">Clique em qualquer categoria para ajustar o orçamento ou <strong id="lbl-toggle-saidas" class="text-amber-300 underline">retrair</strong> a lista.</p>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" onclick="toggleProvisionsCollapse('saidas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
-                <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-saidas">Expandir</span>
-              </button>
-              <button type="button" onclick="openPlanItemModal('provision', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700">
-                + Nova Provisão
-              </button>
-              <button type="button" onclick="openManualModal('saida', 'credit_card')" class="text-xs bg-violet-950 hover:bg-violet-900 text-violet-300 px-3 py-1.5 rounded-lg border border-violet-800 font-semibold">
-                💳 Compra no Cartão
-              </button>
-              <button type="button" onclick="openManualModal('saida')" class="text-xs bg-rose-950 hover:bg-rose-900 text-rose-300 px-3 py-1.5 rounded-lg border border-rose-800">
-                + Lançar Saída
-              </button>
-            </div>
-          </div>
-
-          <div id="provisions-collapse-body" class="mt-4 pt-4 border-t border-slate-800">
-            <div id="provisions-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-          </div>
-        </section>
-
-        <section class="glass rounded-2xl p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div>
-              <h2 class="text-sm font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
-                <i class="fa-solid fa-receipt"></i> Despesas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
-              </h2>
-              <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span id="saidas-credit-total" class="text-xs font-semibold bg-violet-950/80 text-violet-300 border border-violet-800/60 px-3 py-1 rounded-lg">
-                Nos Cartões: R$ 0,00
-              </span>
-              <span id="saidas-month-total" class="text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-800/60 px-3 py-1 rounded-lg">
-                Total: R$ 0,00
-              </span>
-            </div>
-          </div>
-          <div id="saidas-transactions-list" class="space-y-2.5"></div>
-        </section>
-      </div>
-
-      <!-- PAINEL 2: VISÃO DE RECEITAS ('entradas') -->
-      <div id="panel-entradas" class="hidden space-y-5">
-        <section class="glass rounded-2xl p-4 sm:p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div onclick="toggleProvisionsCollapse('entradas')" class="cursor-pointer flex items-center gap-3 flex-1">
-              <div class="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
-                <i id="icon-collapse-entradas" class="fa-solid fa-chevron-right transition-transform duration-200" style="transform: rotate(90deg);"></i>
-              </div>
-              <div>
-                <h2 class="text-sm font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2 flex-wrap">
-                  <span>Previsões de Receitas — <span class="current-month-label">Novembro/2026</span></span>
-                  <span id="badge-summary-entradas" class="text-[11px] font-normal bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700"></span>
-                </h2>
-                <p class="text-xs text-slate-400">Clique aqui para <strong id="lbl-toggle-entradas" class="text-sky-300 underline">retrair</strong> ou editar as previsões de entrada.</p>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" onclick="toggleProvisionsCollapse('entradas')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700">
-                <i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i> <span id="btn-txt-collapse-entradas">Expandir</span>
-              </button>
-              <button type="button" onclick="openPlanItemModal('income', null)" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-400 px-3 py-1.5 rounded-lg border border-slate-700">
-                + Nova Previsão
-              </button>
-              <button type="button" onclick="openManualModal('entrada')" class="text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800">
-                + Lançar Entrada
-              </button>
-            </div>
-          </div>
-
-          <div id="incomes-collapse-body" class="mt-4 pt-4 border-t border-slate-800">
-            <div id="incomes-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-          </div>
-        </section>
-
-        <section class="glass rounded-2xl p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div>
-              <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-                <i class="fa-solid fa-sack-dollar"></i> Receitas Registradas (<span class="tx-filter-scope-label">Novembro/2026</span>)
-              </h2>
-              <p class="text-xs text-slate-400">Clique em ✏️ para alterar a data, valor, conta ou categoria</p>
-            </div>
-            <span id="entradas-month-total" class="text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 px-3 py-1 rounded-lg">
-              Total: R$ 0,00
-            </span>
-          </div>
-          <div id="entradas-transactions-list" class="space-y-2.5"></div>
-        </section>
-      </div>
-
-      <!-- PAINEL 3: VISÃO DE TODOS OS REGISTROS / EXTRATO FILTRADO ('registros', 'cartoes', 'contas', 'resumo') -->
-      <div id="panel-registros" class="hidden space-y-5">
-        <section class="glass rounded-2xl p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div>
-              <h2 id="registros-panel-heading" class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-                <i class="fa-solid fa-clock-rotate-left"></i> Lançamentos (<span class="tx-filter-scope-label">Novembro/2026</span>)
-              </h2>
-              <p class="text-xs text-slate-400">Clique em ✏️ para editar ou 🗑️ para excluir qualquer registro.</p>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span id="geral-filtered-net" class="text-xs font-bold bg-slate-800 px-3 py-1 rounded-lg text-slate-200 border border-slate-700">Saldo Filtro: R$ 0,00</span>
-              <span id="tx-count" class="text-xs bg-purple-950/70 px-3 py-1 rounded-lg text-purple-300 border border-purple-800/60">0 registros</span>
-            </div>
-          </div>
-          <div id="transactions-list" class="space-y-2.5"></div>
         </section>
       </div>
 
@@ -1539,11 +1729,27 @@
     let state = safeGetCache() || JSON.parse(JSON.stringify(INITIAL_STATE));
     state.currentMonth = getSystemDefaultMonth();
 
-    let currentView = 'saidas';
+    let currentView = 'inicio';
     let showAllMonthsTx = false;
-    let isProvisionsExpanded = { saidas: true, entradas: true };
     let isCloudLoaded = !!safeGetCache();
     let pendingConfirmAction = null;
+
+    // Estados locais das novas páginas organizadas
+    let homeTypeFilter = 'all'; // 'all' | 'entrada' | 'saida'
+    let provisionsSubTab = 'saidas'; // 'saidas' | 'entradas' | 'ambos'
+    let provisionsStatusFilter = 'all'; // 'all' | 'pending' | 'done' | 'over'
+    let analyticsFilter = { group: '', category: '' };
+
+    // Estado de Filtros Múltipla Seleção na página Movimentações
+    const movFilterState = {
+      search: '',
+      types: [],       // ['saida_cash', 'saida_cc', 'entrada', 'pagamento_fatura']
+      accounts: [],    // array de accountKeys
+      categories: [],  // array de nomes de categorias
+      dateFrom: '',
+      dateTo: '',
+      sortBy: 'date_desc'
+    };
 
     function isCreditCardAccount(accKey) {
       if (!accKey) return false;
@@ -1643,13 +1849,143 @@
     }
 
     function clearAllFilters() {
-      document.getElementById('filter-search').value = '';
-      document.getElementById('filter-account').value = '';
-      document.getElementById('filter-category').value = '';
-      document.getElementById('filter-date').value = '';
-      document.getElementById('sort-by').value = 'date_desc';
+      movFilterState.search = '';
+      movFilterState.types = [];
+      movFilterState.accounts = [];
+      movFilterState.categories = [];
+      movFilterState.dateFrom = '';
+      movFilterState.dateTo = '';
+      movFilterState.sortBy = 'date_desc';
+
+      const sEl = document.getElementById('filter-search');
+      const dfEl = document.getElementById('filter-date-from');
+      const dtEl = document.getElementById('filter-date-to');
+      const sortEl = document.getElementById('sort-by');
+      const catSearchEl = document.getElementById('ms-categories-search');
+      if (sEl) sEl.value = '';
+      if (dfEl) dfEl.value = '';
+      if (dtEl) dtEl.value = '';
+      if (sortEl) sortEl.value = 'date_desc';
+      if (catSearchEl) catSearchEl.value = '';
+
       renderAll();
     }
+
+    function setHomeTypeFilter(t) {
+      homeTypeFilter = t;
+      renderAll();
+    }
+
+    function setProvisionsSubTab(tab) {
+      provisionsSubTab = tab;
+      renderAll();
+    }
+
+    function setProvisionsStatusFilter(st) {
+      provisionsStatusFilter = st;
+      renderAll();
+    }
+
+    function toggleMultiTypeFilter(typeKey) {
+      const idx = movFilterState.types.indexOf(typeKey);
+      if (idx === -1) {
+        movFilterState.types.push(typeKey);
+      } else {
+        movFilterState.types.splice(idx, 1);
+      }
+      renderAll();
+    }
+
+    function toggleMultiAccount(accKey) {
+      const idx = movFilterState.accounts.indexOf(accKey);
+      if (idx === -1) {
+        movFilterState.accounts.push(accKey);
+      } else {
+        movFilterState.accounts.splice(idx, 1);
+      }
+      renderAll();
+    }
+
+    function selectAccountGroupPreset(group) {
+      const keysToAdd = Object.entries(state.accounts || {})
+        .filter(([k, acc]) => {
+          if (group === 'free') return ['mp_livre', 'itau', 'especie'].includes(k);
+          if (group === 'credit') return isCreditCardAccount(k);
+          if (group === 'benefit') return k === 'vr' || k === 'flash';
+          if (group === 'reserve') return ['res_lifegroup', 'res_oferta', 'leandra'].includes(k);
+          return false;
+        })
+        .map(([k]) => k);
+
+      keysToAdd.forEach(k => {
+        if (!movFilterState.accounts.includes(k)) {
+          movFilterState.accounts.push(k);
+        }
+      });
+      renderAll();
+    }
+
+    function clearMultiAccounts() {
+      movFilterState.accounts = [];
+      renderAll();
+    }
+
+    function toggleMultiCategory(catName) {
+      const idx = movFilterState.categories.indexOf(catName);
+      if (idx === -1) {
+        movFilterState.categories.push(catName);
+      } else {
+        movFilterState.categories.splice(idx, 1);
+      }
+      renderAll();
+    }
+
+    function clearMultiCategories() {
+      movFilterState.categories = [];
+      renderAll();
+    }
+
+    function onMovSearchInput() {
+      movFilterState.search = document.getElementById('filter-search')?.value || '';
+      renderAll();
+    }
+
+    function onMovDateRangeChange() {
+      movFilterState.dateFrom = document.getElementById('filter-date-from')?.value || '';
+      movFilterState.dateTo = document.getElementById('filter-date-to')?.value || '';
+      renderAll();
+    }
+
+    function onMovSortChange() {
+      movFilterState.sortBy = document.getElementById('sort-by')?.value || 'date_desc';
+      renderAll();
+    }
+
+    function toggleMultiDropdown(kind, event) {
+      if (event) event.stopPropagation();
+      const accPanel = document.getElementById('ms-accounts-panel');
+      const catPanel = document.getElementById('ms-categories-panel');
+      if (kind === 'accounts') {
+        if (catPanel) catPanel.classList.add('hidden');
+        if (accPanel) accPanel.classList.toggle('hidden');
+      } else if (kind === 'categories') {
+        if (accPanel) accPanel.classList.add('hidden');
+        if (catPanel) catPanel.classList.toggle('hidden');
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      const accWrap = document.getElementById('ms-accounts-wrapper');
+      const catWrap = document.getElementById('ms-categories-wrapper');
+      const accPanel = document.getElementById('ms-accounts-panel');
+      const catPanel = document.getElementById('ms-categories-panel');
+      if (accPanel && accWrap && !accWrap.contains(e.target)) {
+        accPanel.classList.add('hidden');
+      }
+      if (catPanel && catWrap && !catWrap.contains(e.target)) {
+        catPanel.classList.add('hidden');
+      }
+    });
 
     function populateAccountSelects() {
       const manualAcc = document.getElementById('manual-account');
@@ -1688,28 +2024,8 @@
       }
     }
 
-    function populateFilterDropdowns() {
-      populateAccountSelects();
-
-      const accSelect = document.getElementById('filter-account');
-      const currentAcc = accSelect.value;
-      let accOpts = '<option value="">💳 Todas as Contas / Cartões</option>';
-      accOpts += '<option value="__ALL_CREDIT_CARDS__" ' + (currentAcc === '__ALL_CREDIT_CARDS__' ? 'selected' : '') + '>💳 Todos os Cartões de Crédito</option>';
-      accOpts += '<option value="__FREE_CASH__" ' + (currentAcc === '__FREE_CASH__' ? 'selected' : '') + '>💵 Apenas Caixa Livre (MP / Itaú / Espécie)</option>';
-      accOpts += '<option value="__BENEFITS_ONLY__" ' + (currentAcc === '__BENEFITS_ONLY__' ? 'selected' : '') + '>🥗 Apenas Benefícios (VR / Flash)</option>';
-      accOpts += '<option value="__RESERVES_ONLY__" ' + (currentAcc === '__RESERVES_ONLY__' ? 'selected' : '') + '>🟣 Apenas Reservas MP (Life / Oferta)</option>';
-      accOpts += '<option value="__NON_CREDIT_ACCOUNTS__" ' + (currentAcc === '__NON_CREDIT_ACCOUNTS__' ? 'selected' : '') + '>🏦 Contas, Reservas e Benefícios (Sem Cartão)</option>';
-      Object.entries(state.accounts).forEach(([key, acc]) => {
-        const sel = (key === currentAcc || acc.name === currentAcc) ? 'selected' : '';
-        const prefix = isCreditCardAccount(key) ? '💳 ' : '';
-        accOpts += `<option value="${key}" ${sel}>${prefix}${acc.name}</option>`;
-      });
-      accSelect.innerHTML = accOpts;
-
-      const catSelect = document.getElementById('filter-category');
-      const currentCat = catSelect.value;
+    function getAllKnownCategories() {
       const catSet = new Set();
-
       const mData = state.months[state.currentMonth];
       if (mData) {
         mData.provisions.forEach(p => catSet.add(p.name));
@@ -1718,58 +2034,204 @@
       state.transactions.forEach(tx => {
         if (tx.category) catSet.add(tx.category);
       });
+      return Array.from(catSet).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    }
 
-      const sortedCats = Array.from(catSet).sort((a, b) => a.localeCompare(b, 'pt-BR'));
-      let catOpts = '<option value="">🏷️ Todas as Categorias</option>';
-      sortedCats.forEach(c => {
-        const sel = (c === currentCat) ? 'selected' : '';
-        catOpts += `<option value="${c}" ${sel}>${c}</option>`;
+    function renderAccountDropdownOptions() {
+      const container = document.getElementById('ms-accounts-list');
+      const labelEl = document.getElementById('ms-accounts-label');
+      if (!container || !labelEl) return;
+
+      const selected = movFilterState.accounts;
+      if (selected.length === 0) {
+        labelEl.textContent = '💳 Todas as Contas / Cartões';
+      } else if (selected.length === 1) {
+        const name = state.accounts[selected[0]]?.name || selected[0];
+        labelEl.textContent = name;
+      } else {
+        labelEl.textContent = `${selected.length} contas/cartões selecionados`;
+      }
+
+      const regular = [];
+      const cards = [];
+      Object.entries(state.accounts || {}).forEach(([k, acc]) => {
+        if (isCreditCardAccount(k)) cards.push([k, acc]);
+        else regular.push([k, acc]);
       });
-      catSelect.innerHTML = catOpts;
+
+      const buildRow = ([key, acc], isCard) => {
+        const checked = selected.includes(key) ? 'checked' : '';
+        const safeKey = key.replace(/'/g, "\\'");
+        return `
+          <label class="ms-option-row flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs text-slate-200 transition">
+            <input type="checkbox" ${checked} onchange="toggleMultiAccount('${safeKey}')" class="rounded border-slate-600 accent-emerald-500" />
+            <span class="truncate">${isCard ? '💳 ' : ''}${acc.name}</span>
+          </label>`;
+      };
+
+      let html = '<div class="text-[10px] uppercase tracking-wider text-slate-400 px-2 pt-1 font-semibold">Contas, Reservas e Benefícios</div>';
+      html += regular.map(e => buildRow(e, false)).join('');
+      if (cards.length) {
+        html += '<div class="text-[10px] uppercase tracking-wider text-violet-300 px-2 pt-2 font-semibold">Cartões de Crédito</div>';
+        html += cards.map(e => buildRow(e, true)).join('');
+      }
+      container.innerHTML = html;
+    }
+
+    function renderCategoryDropdownOptions() {
+      const container = document.getElementById('ms-categories-list');
+      const labelEl = document.getElementById('ms-categories-label');
+      if (!container || !labelEl) return;
+
+      const selected = movFilterState.categories;
+      if (selected.length === 0) {
+        labelEl.textContent = '🏷️ Todas as Categorias';
+      } else if (selected.length === 1) {
+        labelEl.textContent = selected[0];
+      } else {
+        labelEl.textContent = `${selected.length} categorias selecionadas`;
+      }
+
+      const searchTxt = normalizeStr(document.getElementById('ms-categories-search')?.value || '');
+      const allCats = getAllKnownCategories();
+      const filteredCats = searchTxt
+        ? allCats.filter(c => normalizeStr(c).includes(searchTxt))
+        : allCats;
+
+      if (!filteredCats.length) {
+        container.innerHTML = '<p class="text-[11px] text-slate-500 px-2 py-2">Nenhuma categoria encontrada.</p>';
+        return;
+      }
+
+      container.innerHTML = filteredCats.map(cat => {
+        const checked = selected.includes(cat) ? 'checked' : '';
+        const safeCat = cat.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        return `
+          <label class="ms-option-row flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-xs text-slate-200 transition">
+            <input type="checkbox" ${checked} onchange="toggleMultiCategory('${safeCat}')" class="rounded border-slate-600 accent-emerald-500" />
+            <span class="truncate">${cat}</span>
+          </label>`;
+      }).join('');
+    }
+
+    function renderMultiTypeChipsAndSummary() {
+      const typeConfigs = {
+        saida_cash: {
+          activeCls: 'keep-white-text text-xs px-3 py-1.5 rounded-xl font-bold bg-rose-600 text-white shadow transition flex items-center gap-1.5',
+          idleCls: 'text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5'
+        },
+        saida_cc: {
+          activeCls: 'keep-white-text text-xs px-3 py-1.5 rounded-xl font-bold bg-violet-600 text-white shadow transition flex items-center gap-1.5',
+          idleCls: 'text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5'
+        },
+        entrada: {
+          activeCls: 'keep-white-text text-xs px-3 py-1.5 rounded-xl font-bold bg-emerald-600 text-white shadow transition flex items-center gap-1.5',
+          idleCls: 'text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5'
+        },
+        pagamento_fatura: {
+          activeCls: 'keep-white-text text-xs px-3 py-1.5 rounded-xl font-bold bg-sky-600 text-white shadow transition flex items-center gap-1.5',
+          idleCls: 'text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:text-white transition flex items-center gap-1.5'
+        }
+      };
+
+      Object.entries(typeConfigs).forEach(([tKey, cfg]) => {
+        const btn = document.getElementById('ms-type-' + tKey);
+        if (!btn) return;
+        const isActive = movFilterState.types.includes(tKey);
+        btn.className = isActive ? cfg.activeCls : cfg.idleCls;
+      });
+
+      const chipsEl = document.getElementById('mov-active-chips');
+      if (!chipsEl) return;
+
+      const typeNames = {
+        saida_cash: 'Saídas (Conta/VR)',
+        saida_cc: 'Compras no Cartão',
+        entrada: 'Entradas',
+        pagamento_fatura: 'Baixas de Fatura'
+      };
+
+      const chips = [];
+      movFilterState.types.forEach(t => {
+        chips.push(`<button type="button" onclick="toggleMultiTypeFilter('${t}')" class="text-[11px] px-2 py-0.5 rounded-lg bg-emerald-950/70 text-emerald-300 border border-emerald-700/60 hover:bg-rose-950/70 hover:text-rose-200 transition">Tipo: ${typeNames[t] || t} ✕</button>`);
+      });
+      movFilterState.accounts.forEach(k => {
+        const name = state.accounts[k]?.name || k;
+        const safeK = k.replace(/'/g, "\\'");
+        chips.push(`<button type="button" onclick="toggleMultiAccount('${safeK}')" class="text-[11px] px-2 py-0.5 rounded-lg bg-violet-950/70 text-violet-200 border border-violet-700/60 hover:bg-rose-950/70 hover:text-rose-200 transition">Conta: ${name} ✕</button>`);
+      });
+      movFilterState.categories.forEach(c => {
+        const safeC = c.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        chips.push(`<button type="button" onclick="toggleMultiCategory('${safeC}')" class="text-[11px] px-2 py-0.5 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-700/60 hover:bg-rose-950/70 hover:text-rose-200 transition">Cat: ${c} ✕</button>`);
+      });
+      if (movFilterState.dateFrom || movFilterState.dateTo) {
+        const fromTxt = movFilterState.dateFrom ? isoDateToBR(movFilterState.dateFrom) : '...';
+        const toTxt = movFilterState.dateTo ? isoDateToBR(movFilterState.dateTo) : '...';
+        chips.push(`<button type="button" onclick="movFilterState.dateFrom='';movFilterState.dateTo='';document.getElementById('filter-date-from').value='';document.getElementById('filter-date-to').value='';renderAll();" class="text-[11px] px-2 py-0.5 rounded-lg bg-sky-950/70 text-sky-300 border border-sky-700/60 hover:bg-rose-950/70 hover:text-rose-200 transition">Data: ${fromTxt} → ${toTxt} ✕</button>`);
+      }
+      if (movFilterState.search) {
+        chips.push(`<button type="button" onclick="movFilterState.search='';document.getElementById('filter-search').value='';renderAll();" class="text-[11px] px-2 py-0.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-rose-950/70 hover:text-rose-200 transition">Busca: "${movFilterState.search}" ✕</button>`);
+      }
+
+      chipsEl.innerHTML = chips.length
+        ? chips.join('')
+        : '<span class="text-[11px] text-slate-500">Nenhum filtro ativo — exibindo todas as movimentações do período.</span>';
+    }
+
+    function populateFilterDropdowns() {
+      populateAccountSelects();
+      renderAccountDropdownOptions();
+      renderCategoryDropdownOptions();
+      renderMultiTypeChipsAndSummary();
+    }
+
+    function getTxFilterTypeBucket(tx) {
+      if (tx.isInvoicePayment || tx.type === 'pagamento_fatura') return 'pagamento_fatura';
+      if (tx.type === 'entrada') return 'entrada';
+      if (isCreditCardAccount(tx.accountKey)) return 'saida_cc';
+      return 'saida_cash';
     }
 
     function filterAndSortTransactions(txList) {
-      const searchVal = normalizeStr(document.getElementById('filter-search')?.value || '');
-      const accFilter = document.getElementById('filter-account')?.value || '';
-      const catFilter = document.getElementById('filter-category')?.value || '';
-      const dateFilterISO = document.getElementById('filter-date')?.value || '';
-      const dateFilterBR = dateFilterISO ? isoDateToBR(dateFilterISO) : '';
-      const sortBy = document.getElementById('sort-by')?.value || 'date_desc';
+      const searchVal = normalizeStr(movFilterState.search || '');
+      const selectedTypes = movFilterState.types || [];
+      const selectedAccounts = movFilterState.accounts || [];
+      const selectedCategories = movFilterState.categories || [];
+      const fromNum = movFilterState.dateFrom ? Number(movFilterState.dateFrom.replace(/-/g, '')) : 0;
+      const toNum = movFilterState.dateTo ? Number(movFilterState.dateTo.replace(/-/g, '')) : 0;
+      const sortBy = movFilterState.sortBy || 'date_desc';
+
+      const selectedAccountNames = new Set(selectedAccounts.map(k => state.accounts[k]?.name || ''));
 
       let result = txList.filter(tx => {
-        // Escopo automático quando está na aba Cartões ou Contas sem filtro manual específico
-        if (currentView === 'cartoes' && !accFilter) {
-          if (!isCreditCardAccount(tx.accountKey) && !tx.isInvoicePayment) return false;
-        }
-        if (currentView === 'contas' && !accFilter) {
-          if (isCreditCardAccount(tx.accountKey)) return false;
+        if (selectedTypes.length > 0) {
+          const bucket = getTxFilterTypeBucket(tx);
+          if (!selectedTypes.includes(bucket)) return false;
         }
 
-        if (accFilter === '__ALL_CREDIT_CARDS__') {
-          if (!isCreditCardAccount(tx.accountKey)) return false;
-        } else if (accFilter === '__FREE_CASH__') {
-          if (!['mp_livre', 'itau', 'especie'].includes(tx.accountKey)) return false;
-        } else if (accFilter === '__BENEFITS_ONLY__') {
-          if (!['vr', 'flash'].includes(tx.accountKey)) return false;
-        } else if (accFilter === '__RESERVES_ONLY__') {
-          if (!['res_lifegroup', 'res_oferta', 'leandra'].includes(tx.accountKey)) return false;
-        } else if (accFilter === '__NON_CREDIT_ACCOUNTS__') {
-          if (isCreditCardAccount(tx.accountKey)) return false;
-        } else if (accFilter) {
-          const accName = state.accounts[accFilter]?.name || '';
-          if (tx.accountKey !== accFilter && tx.account !== accName) return false;
+        if (selectedAccounts.length > 0) {
+          const matchesKey = selectedAccounts.includes(tx.accountKey);
+          const matchesName = selectedAccountNames.has(tx.account);
+          const matchesPaidCard = tx.paidCardKey && selectedAccounts.includes(tx.paidCardKey);
+          if (!matchesKey && !matchesName && !matchesPaidCard) return false;
         }
-        if (catFilter && tx.category !== catFilter) {
-          return false;
+
+        if (selectedCategories.length > 0) {
+          if (!selectedCategories.includes(tx.category || 'Avulso')) return false;
         }
-        if (dateFilterBR && tx.date !== dateFilterBR) {
-          return false;
+
+        if (fromNum || toNum) {
+          const txDateNum = brDateToSortableNumber(tx.date);
+          if (fromNum && txDateNum < fromNum) return false;
+          if (toNum && txDateNum > toNum) return false;
         }
+
         if (searchVal) {
           const valStr = Number(tx.amount || 0).toFixed(2).replace('.', ',');
           const haystack = normalizeStr(`${tx.desc} ${tx.category} ${tx.account} ${tx.date} ${valStr}`);
           if (!haystack.includes(searchVal)) return false;
         }
+
         return true;
       });
 
@@ -1798,116 +2260,79 @@
       return result;
     }
 
-    function toggleProvisionsCollapse(panel) {
-      isProvisionsExpanded[panel] = !isProvisionsExpanded[panel];
-      const isExp = isProvisionsExpanded[panel];
-
-      if (panel === 'saidas') {
-        document.getElementById('provisions-collapse-body').classList.toggle('hidden', !isExp);
-        document.getElementById('icon-collapse-saidas').style.transform = isExp ? 'rotate(90deg)' : 'rotate(0deg)';
-        document.getElementById('btn-txt-collapse-saidas').textContent = isExp ? 'Retrair' : 'Expandir';
-        document.getElementById('lbl-toggle-saidas').textContent = isExp ? 'retrair' : 'expandir';
-      } else {
-        document.getElementById('incomes-collapse-body').classList.toggle('hidden', !isExp);
-        document.getElementById('icon-collapse-entradas').style.transform = isExp ? 'rotate(90deg)' : 'rotate(0deg)';
-        document.getElementById('btn-txt-collapse-entradas').textContent = isExp ? 'Retrair' : 'Expandir';
-        document.getElementById('lbl-toggle-entradas').textContent = isExp ? 'retrair' : 'expandir';
-      }
-    }
-
     function toggleAllMonthsFilter() {
       showAllMonthsTx = !showAllMonthsTx;
       renderAll();
     }
 
     // ==========================================
-    // NAVEGAÇÃO POR ABAS LATERAIS (DESPOLUIÇÃO VISUAL)
+    // NAVEGAÇÃO POR ABAS LATERAIS (ESTRUTURA ORGANIZADA)
     // ==========================================
     const VIEW_METADATA = {
-      saidas: {
-        title: 'Despesas e provisões',
-        subtitle: 'Controle seu orçamento de gastos do mês e acompanhe as saídas registradas',
-        registrosHeading: 'Despesas Registradas'
+      inicio: {
+        title: 'Painel Inicial',
+        subtitle: 'Visão geral com suas contas e todas as entradas e saídas'
       },
-      entradas: {
-        title: 'Receitas e previsões',
-        subtitle: 'Acompanhe os recebimentos previstos (Salário, 13º, Aluguel e Benefícios)',
-        registrosHeading: 'Receitas Registradas'
+      movimentacoes: {
+        title: 'Movimentações',
+        subtitle: 'Entradas e saídas unificadas com filtros avançados de múltipla seleção'
+      },
+      provisoes: {
+        title: 'Provisões & Previsões',
+        subtitle: 'Orçamento de despesas e previsões de receitas isolados do extrato'
       },
       cartoes: {
-        title: 'Cartões de crédito',
-        subtitle: 'Gerencie limites, dias de fechamento para virada automática e faturas de cada cartão',
-        registrosHeading: 'Compras e Pagamentos de Fatura nos Cartões'
-      },
-      contas: {
-        title: 'Contas, Reservas & VR',
-        subtitle: 'Saldos atuais das suas contas livres, reservas no Mercado Pago e cartões de benefício',
-        registrosHeading: 'Movimentações nas Contas e Benefícios'
-      },
-      registros: {
-        title: 'Todos os registros',
-        subtitle: 'Histórico completo de movimentações com busca avançada, filtros e ordenação',
-        registrosHeading: 'Todos os Lançamentos Consolidados'
+        title: 'Cartões de Crédito',
+        subtitle: 'Gerencie limites, dias de fechamento para virada automática e faturas de cada cartão'
       },
       indicadores: {
-        title: 'Indicadores e análise financeira',
-        subtitle: 'Analise comprometimento de renda, execução do orçamento, peso dos cartões e ranking por categoria com filtros dinâmicos',
-        registrosHeading: 'Lançamentos Considerados na Análise Filtrada'
-      },
-      resumo: {
-        title: 'Resumo do Mês (KPIs)',
-        subtitle: 'Visão executiva do caixa livre, provisões pendentes e projeção de fechamento do mês',
-        registrosHeading: 'Últimos Lançamentos do Mês'
+        title: 'Indicadores e Análise Financeira',
+        subtitle: 'Comprometimento de renda, execução do orçamento, uso de cartões e ranking por categoria'
       }
     };
 
     function changeView(viewName) {
+      // Compatibilidade com eventuais chamadas antigas
+      if (viewName === 'saidas') {
+        movFilterState.types = ['saida_cash', 'saida_cc'];
+        viewName = 'movimentacoes';
+      } else if (viewName === 'entradas') {
+        movFilterState.types = ['entrada'];
+        viewName = 'movimentacoes';
+      } else if (viewName === 'registros') {
+        viewName = 'movimentacoes';
+      } else if (viewName === 'contas' || viewName === 'resumo') {
+        viewName = 'inicio';
+      }
+
+      if (!VIEW_METADATA[viewName]) viewName = 'inicio';
       currentView = viewName;
       closeMobileSidebar();
 
-      // Atualiza botões da Sidebar
-      ['saidas', 'entradas', 'cartoes', 'contas', 'registros', 'indicadores', 'resumo'].forEach(v => {
+      ['inicio', 'movimentacoes', 'provisoes', 'cartoes', 'indicadores'].forEach(v => {
         const navBtn = document.getElementById('nav-btn-' + v);
         if (navBtn) {
           navBtn.classList.toggle('active', v === viewName);
         }
       });
 
-      // Atualiza cabeçalho da visão ativa
-      const meta = VIEW_METADATA[viewName] || VIEW_METADATA.saidas;
+      const meta = VIEW_METADATA[viewName] || VIEW_METADATA.inicio;
       const titleEl = document.getElementById('active-view-title');
       const subEl = document.getElementById('active-view-subtitle');
-      const regHeading = document.getElementById('registros-panel-heading');
       if (titleEl) titleEl.textContent = meta.title;
       if (subEl) subEl.textContent = meta.subtitle;
-      if (regHeading) {
-        regHeading.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${meta.registrosHeading} (<span class="tx-filter-scope-label"></span>)`;
-      }
 
-      // Mostra apenas os blocos pertinentes à aba selecionada
-      const secKpis = document.getElementById('section-kpis');
-      const secAccounts = document.getElementById('section-accounts');
-      const secCards = document.getElementById('section-credit-cards');
-      const panelSaidas = document.getElementById('panel-saidas');
-      const panelEntradas = document.getElementById('panel-entradas');
-      const panelRegistros = document.getElementById('panel-registros');
+      const panels = {
+        inicio: document.getElementById('panel-inicio'),
+        movimentacoes: document.getElementById('panel-movimentacoes'),
+        provisoes: document.getElementById('panel-provisoes'),
+        cartoes: document.getElementById('panel-cartoes'),
+        indicadores: document.getElementById('panel-indicadores')
+      };
 
-      // Reset filtro de conta ao trocar para abas gerais
-      const filterAccEl = document.getElementById('filter-account');
-      if (filterAccEl && (filterAccEl.value === '__ALL_CREDIT_CARDS__' || filterAccEl.value === '__NON_CREDIT_ACCOUNTS__')) {
-        filterAccEl.value = '';
-      }
-
-      const panelIndicadores = document.getElementById('panel-indicadores');
-
-      secKpis.classList.toggle('hidden', !(viewName === 'resumo' || viewName === 'saidas' || viewName === 'contas'));
-      secAccounts.classList.toggle('hidden', !(viewName === 'contas' || viewName === 'resumo'));
-      secCards.classList.toggle('hidden', !(viewName === 'cartoes' || viewName === 'resumo'));
-
-      if (panelIndicadores) panelIndicadores.classList.toggle('hidden', viewName !== 'indicadores');
-      panelSaidas.classList.toggle('hidden', viewName !== 'saidas');
-      panelEntradas.classList.toggle('hidden', viewName !== 'entradas');
-      panelRegistros.classList.toggle('hidden', !(viewName === 'registros' || viewName === 'cartoes' || viewName === 'contas' || viewName === 'resumo' || viewName === 'indicadores'));
+      Object.entries(panels).forEach(([key, el]) => {
+        if (el) el.classList.toggle('hidden', key !== viewName);
+      });
 
       renderAll();
     }
@@ -2831,14 +3256,17 @@
         ? state.transactions
         : state.transactions.filter(tx => (tx.month || '2026-10') === m);
 
-      const navBadgeSaidas = document.getElementById('nav-badge-saidas');
-      const navBadgeEntradas = document.getElementById('nav-badge-entradas');
+      const navBadgeInicio = document.getElementById('nav-badge-inicio');
+      const navBadgeMov = document.getElementById('nav-badge-movimentacoes');
+      const navBadgeProv = document.getElementById('nav-badge-provisoes');
       const navBadgeCartoes = document.getElementById('nav-badge-cartoes');
-      const navBadgeRegistros = document.getElementById('nav-badge-registros');
-      if (navBadgeSaidas) navBadgeSaidas.textContent = `${pendingProvCount} pend.`;
-      if (navBadgeEntradas) navBadgeEntradas.textContent = `${pendingIncCount} pend.`;
+      if (navBadgeInicio) navBadgeInicio.textContent = `${monthScopedTxs.length}`;
+      if (navBadgeMov) navBadgeMov.textContent = `${monthScopedTxs.length}`;
+      if (navBadgeProv) navBadgeProv.textContent = `${pendingProvCount} pend.`;
       if (navBadgeCartoes) navBadgeCartoes.textContent = formatBRL(totalCreditCardInvoice);
-      if (navBadgeRegistros) navBadgeRegistros.textContent = `${monthScopedTxs.length}`;
+
+      const homeCardsValEl = document.getElementById('home-cards-summary-val');
+      if (homeCardsValEl) homeCardsValEl.textContent = formatBRL(totalCreditCardInvoice);
 
       document.getElementById('kpi-own-balance').textContent = formatBRL(ownTotal);
       document.getElementById('kpi-free-vs-reserves').textContent = `Livre: ${formatBRL(freeBalance)} | Reservas: ${formatBRL(reservesBalance)}`;
@@ -2917,14 +3345,64 @@
       });
       document.getElementById('credit-cards-grid').innerHTML = ccHtml;
 
+      // 3. Painel Provisões (Isolado) — Sub-abas, Filtro de Status e KPIs das Provisões
+      const subTabs = {
+        saidas: { id: 'prov-subtab-saidas', active: 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 text-white transition' },
+        entradas: { id: 'prov-subtab-entradas', active: 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white transition' },
+        ambos: { id: 'prov-subtab-ambos', active: 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white transition' }
+      };
+      const idleSubCls = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition';
+      Object.entries(subTabs).forEach(([k, cfg]) => {
+        const b = document.getElementById(cfg.id);
+        if (b) b.className = (provisionsSubTab === k) ? cfg.active : idleSubCls;
+      });
+
+      const secProvSaidas = document.getElementById('prov-section-saidas');
+      const secProvEntradas = document.getElementById('prov-section-entradas');
+      const statusPillsEl = document.getElementById('prov-status-pills');
+      if (secProvSaidas) secProvSaidas.classList.toggle('hidden', provisionsSubTab === 'entradas');
+      if (secProvEntradas) secProvEntradas.classList.toggle('hidden', provisionsSubTab === 'saidas');
+      if (statusPillsEl) statusPillsEl.classList.toggle('hidden', provisionsSubTab === 'entradas');
+
+      ['all', 'pending', 'done', 'over'].forEach(st => {
+        const b = document.getElementById('prov-st-' + st);
+        if (!b) return;
+        b.className = (provisionsStatusFilter === st)
+          ? 'keep-white-text px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 text-white'
+          : 'px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700';
+      });
+
+      const provSearchVal = normalizeStr(document.getElementById('prov-search')?.value || '');
+      const totalBudgetedProvAll = monthData.provisions.reduce((a, p) => a + Number(p.budgeted || 0), 0);
+      const totalExecutedProvAll = monthData.provisions.reduce((a, p) => a + Math.max(0, +(p.budgeted - p.remaining).toFixed(2)), 0);
+      const pkBud = document.getElementById('prov-kpi-budgeted');
+      const pkExe = document.getElementById('prov-kpi-executed');
+      const pkPen = document.getElementById('prov-kpi-pending');
+      const pkOvr = document.getElementById('prov-kpi-over');
+      if (pkBud) pkBud.textContent = formatBRL(totalBudgetedProvAll);
+      if (pkExe) pkExe.textContent = formatBRL(totalExecutedProvAll);
+      if (pkPen) pkPen.textContent = formatBRL(pendingOutFreeCash + pendingOutReserves);
+      if (pkOvr) pkOvr.textContent = formatBRL(totalOverbudget);
+
       // Provisões de Saída
       let provHtml = '';
-      const sortedProv = [...monthData.provisions].sort((a, b) => {
-        const aGroup = a.remaining > 0.009 ? 3 : (a.remaining < -0.009 ? 2 : 1);
-        const bGroup = b.remaining > 0.009 ? 3 : (b.remaining < -0.009 ? 2 : 1);
-        if (aGroup !== bGroup) return bGroup - aGroup;
-        return Math.abs(b.remaining) - Math.abs(a.remaining);
-      });
+      const sortedProv = [...monthData.provisions]
+        .filter(p => {
+          if (provSearchVal && !normalizeStr(p.name).includes(provSearchVal)) return false;
+          const isOver = p.remaining < -0.009;
+          const isDone = !isOver && p.remaining <= 0.009;
+          const isPend = p.remaining > 0.009;
+          if (provisionsStatusFilter === 'pending' && !isPend) return false;
+          if (provisionsStatusFilter === 'done' && !isDone) return false;
+          if (provisionsStatusFilter === 'over' && !isOver) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const aGroup = a.remaining > 0.009 ? 3 : (a.remaining < -0.009 ? 2 : 1);
+          const bGroup = b.remaining > 0.009 ? 3 : (b.remaining < -0.009 ? 2 : 1);
+          if (aGroup !== bGroup) return bGroup - aGroup;
+          return Math.abs(b.remaining) - Math.abs(a.remaining);
+        });
 
       sortedProv.forEach(p => {
         const isOver = p.remaining < -0.009;
@@ -2985,36 +3463,82 @@
             </div>`;
         }
       });
-      document.getElementById('provisions-list').innerHTML = provHtml || '<p class="text-xs text-slate-500">Nenhuma provisão cadastrada para este mês.</p>';
+      document.getElementById('provisions-list').innerHTML = provHtml || '<p class="text-xs text-slate-500 col-span-2 py-4 text-center">Nenhuma provisão encontrada para este filtro.</p>';
 
       // Previsões de Entrada
       let incHtml = '';
-      monthData.incomes.forEach(inc => {
-        const isRec = inc.remaining <= 0.009;
-        const receivedVal = Math.max(0, +(inc.budgeted - inc.remaining).toFixed(2));
-        const pct = inc.budgeted > 0 ? Math.min(100, Math.round((receivedVal / inc.budgeted) * 100)) : 100;
-        const targetName = state.accounts[inc.target] ? state.accounts[inc.target].name : 'Conta Livre';
+      monthData.incomes
+        .filter(inc => !provSearchVal || normalizeStr(inc.name).includes(provSearchVal))
+        .forEach(inc => {
+          const isRec = inc.remaining <= 0.009;
+          const receivedVal = Math.max(0, +(inc.budgeted - inc.remaining).toFixed(2));
+          const pct = inc.budgeted > 0 ? Math.min(100, Math.round((receivedVal / inc.budgeted) * 100)) : 100;
+          const targetName = state.accounts[inc.target] ? state.accounts[inc.target].name : 'Conta Livre';
 
-        incHtml += `
-          <div onclick="openPlanItemModal('income', '${inc.id}')" class="cursor-pointer bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 transition">
-            <div class="flex items-center justify-between gap-2 mb-1">
-              <div class="text-sm font-semibold ${isRec ? 'line-through text-slate-500' : 'text-slate-100'}">${inc.name} ✏️</div>
-              <span class="text-xs font-bold ${isRec ? 'text-emerald-400' : 'text-sky-400'} whitespace-nowrap">
-                ${isRec ? 'Recebido (R$ 0,00)' : 'Falta: ' + formatBRL(inc.remaining)}
-              </span>
-            </div>
-            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-              <span>Previsto: ${formatBRL(inc.budgeted)} | Recebido: <strong class="text-slate-200">${formatBRL(receivedVal)}</strong></span>
-              <span class="text-[11px] text-slate-400">${targetName}</span>
-            </div>
-            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-              <div class="${isRec ? 'bg-emerald-500' : 'bg-sky-500'} h-full" style="width:${pct}%"></div>
-            </div>
-          </div>`;
+          incHtml += `
+            <div onclick="openPlanItemModal('income', '${inc.id}')" class="cursor-pointer bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 transition">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <div class="text-sm font-semibold ${isRec ? 'line-through text-slate-500' : 'text-slate-100'}">${inc.name} ✏️</div>
+                <span class="text-xs font-bold ${isRec ? 'text-emerald-400' : 'text-sky-400'} whitespace-nowrap">
+                  ${isRec ? 'Recebido (R$ 0,00)' : 'Falta: ' + formatBRL(inc.remaining)}
+                </span>
+              </div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span>Previsto: ${formatBRL(inc.budgeted)} | Recebido: <strong class="text-slate-200">${formatBRL(receivedVal)}</strong></span>
+                <span class="text-[11px] text-slate-400">${targetName}</span>
+              </div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="${isRec ? 'bg-emerald-500' : 'bg-sky-500'} h-full" style="width:${pct}%"></div>
+              </div>
+            </div>`;
+        });
+      document.getElementById('incomes-list').innerHTML = incHtml || '<p class="text-xs text-slate-500 col-span-2 py-4 text-center">Nenhuma previsão de entrada encontrada.</p>';
+
+      // 4. Painel Inicial: Registros Gerais (Todas as Entradas e Saídas apenas)
+      ['all', 'entrada', 'saida'].forEach(tKey => {
+        const b = document.getElementById('home-tab-' + tKey);
+        if (!b) return;
+        const activeCls = tKey === 'entrada'
+          ? 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white transition'
+          : (tKey === 'saida'
+            ? 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white transition'
+            : 'keep-white-text px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white transition');
+        const idleCls = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition';
+        b.className = (homeTypeFilter === tKey) ? activeCls : idleCls;
       });
-      document.getElementById('incomes-list').innerHTML = incHtml || '<p class="text-xs text-slate-500">Nenhuma previsão de entrada para este mês.</p>';
 
-      // Escopo de Mês + Aplicação de Filtros e Ordenação
+      const homeQuickQuery = normalizeStr(document.getElementById('home-quick-search')?.value || '');
+      const homeAllTxs = [...monthScopedTxs]
+        .filter(tx => {
+          if (homeTypeFilter === 'entrada' && tx.type !== 'entrada') return false;
+          if (homeTypeFilter === 'saida' && tx.type !== 'saida') return false;
+          if (homeQuickQuery) {
+            const valStr = Number(tx.amount || 0).toFixed(2).replace('.', ',');
+            const haystack = normalizeStr(`${tx.desc} ${tx.category} ${tx.account} ${tx.date} ${valStr}`);
+            if (!haystack.includes(homeQuickQuery)) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => brDateToSortableNumber(b.date) - brDateToSortableNumber(a.date));
+
+      const homeEntradasTotal = monthScopedTxs.filter(t => t.type === 'entrada').reduce((a, t) => a + Number(t.amount || 0), 0);
+      const homeSaidasTotal = monthScopedTxs.filter(t => t.type === 'saida' && !t.isInvoicePayment).reduce((a, t) => a + Number(t.amount || 0), 0);
+      const homeNetTotal = homeEntradasTotal - homeSaidasTotal;
+
+      const hEntEl = document.getElementById('home-entradas-total');
+      const hSaiEl = document.getElementById('home-saidas-total');
+      const hNetEl = document.getElementById('home-net-total');
+      const hListEl = document.getElementById('home-transactions-list');
+      if (hEntEl) hEntEl.textContent = `Entradas: +${formatBRL(homeEntradasTotal)}`;
+      if (hSaiEl) hSaiEl.textContent = `Saídas: -${formatBRL(homeSaidasTotal)}`;
+      if (hNetEl) hNetEl.textContent = `Líquido: ${formatBRL(homeNetTotal)}`;
+      if (hListEl) {
+        hListEl.innerHTML = homeAllTxs.length
+          ? homeAllTxs.map(buildTransactionCardHTML).join('')
+          : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada ou saída registrada neste período.</p>';
+      }
+
+      // 5. Página Movimentações (Unificada com Multi-Seleção)
       const filteredAllTxs = filterAndSortTransactions(monthScopedTxs);
       const saidasTxs = filteredAllTxs.filter(tx => tx.type === 'saida' && !tx.isInvoicePayment);
       const entradasTxs = filteredAllTxs.filter(tx => tx.type === 'entrada');
@@ -3024,50 +3548,79 @@
       const totalEntradas = entradasTxs.reduce((acc, t) => acc + Number(t.amount || 0), 0);
       const netGeral = totalEntradas - totalSaidas;
 
-      document.getElementById('saidas-credit-total').textContent = `Nos Cartões: ${formatBRL(totalSaidasCC)}`;
-      document.getElementById('saidas-month-total').textContent = `Total Filtrado: ${formatBRL(totalSaidas)} (${saidasTxs.length})`;
-      document.getElementById('entradas-month-total').textContent = `Total Filtrado: ${formatBRL(totalEntradas)} (${entradasTxs.length})`;
-      document.getElementById('geral-filtered-net').textContent = `Entradas: +${formatBRL(totalEntradas)} | Saídas: -${formatBRL(totalSaidas)} | Líquido: ${formatBRL(netGeral)}`;
-      document.getElementById('tx-count').textContent = `${filteredAllTxs.length} registros`;
+      const movEntEl = document.getElementById('mov-entradas-total');
+      const movSaiEl = document.getElementById('mov-saidas-total');
+      const movCcEl = document.getElementById('mov-credit-total');
+      const movNetEl = document.getElementById('geral-filtered-net');
+      const movCountEl = document.getElementById('tx-count');
+      if (movEntEl) movEntEl.textContent = '+' + formatBRL(totalEntradas);
+      if (movSaiEl) movSaiEl.textContent = '-' + formatBRL(totalSaidas);
+      if (movCcEl) movCcEl.textContent = formatBRL(totalSaidasCC);
+      if (movNetEl) movNetEl.textContent = formatBRL(netGeral);
+      if (movCountEl) movCountEl.textContent = `${filteredAllTxs.length} reg.`;
 
-      document.getElementById('saidas-transactions-list').innerHTML = saidasTxs.length
-        ? saidasTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma saída encontrada para os filtros selecionados.</p>';
+      const movListEl = document.getElementById('transactions-list');
+      if (movListEl) {
+        movListEl.innerHTML = filteredAllTxs.length
+          ? filteredAllTxs.map(buildTransactionCardHTML).join('')
+          : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento encontrado para os filtros selecionados.</p>';
+      }
 
-      document.getElementById('entradas-transactions-list').innerHTML = entradasTxs.length
-        ? entradasTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma entrada encontrada para os filtros selecionados.</p>';
+      // 6. Aba Cartões: lista exclusiva de lançamentos nos cartões
+      const cardTxs = [...monthScopedTxs]
+        .filter(tx => isCreditCardAccount(tx.accountKey) || tx.isInvoicePayment || tx.type === 'pagamento_fatura')
+        .sort((a, b) => brDateToSortableNumber(b.date) - brDateToSortableNumber(a.date));
+      const cardBuyTotal = cardTxs.filter(t => t.type === 'saida' && !t.isInvoicePayment).reduce((a, t) => a + Number(t.amount || 0), 0);
+      const cardsTotalEl = document.getElementById('cards-tx-total');
+      const cardsCountEl = document.getElementById('cards-tx-count');
+      const cardsListEl = document.getElementById('cards-transactions-list');
+      if (cardsTotalEl) cardsTotalEl.textContent = `Total Compras: ${formatBRL(cardBuyTotal)}`;
+      if (cardsCountEl) cardsCountEl.textContent = `${cardTxs.length} lançamentos`;
+      if (cardsListEl) {
+        cardsListEl.innerHTML = cardTxs.length
+          ? cardTxs.map(buildTransactionCardHTML).join('')
+          : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento de cartão neste período.</p>';
+      }
 
-      document.getElementById('transactions-list').innerHTML = filteredAllTxs.length
-        ? filteredAllTxs.map(buildTransactionCardHTML).join('')
-        : '<p class="text-xs text-slate-500 py-4 text-center">Nenhum lançamento encontrado para os filtros selecionados.</p>';
+      // 7. Aba Indicadores: calcula usando filtro próprio da aba Indicadores
+      const analyticsScopedTxs = monthScopedTxs.filter(tx => {
+        const g = analyticsFilter.group;
+        if (g === '__ALL_CREDIT_CARDS__' && !isCreditCardAccount(tx.accountKey)) return false;
+        if (g === '__FREE_CASH__' && !['mp_livre', 'itau', 'especie'].includes(tx.accountKey)) return false;
+        if (g === '__BENEFITS_ONLY__' && !['vr', 'flash'].includes(tx.accountKey)) return false;
+        if (g === '__RESERVES_ONLY__' && !['res_lifegroup', 'res_oferta', 'leandra'].includes(tx.accountKey)) return false;
+        if (analyticsFilter.category && tx.category !== analyticsFilter.category) return false;
+        return true;
+      });
+      const analyticsSaidas = analyticsScopedTxs.filter(tx => tx.type === 'saida' && !tx.isInvoicePayment);
+      const analyticsEntradas = analyticsScopedTxs.filter(tx => tx.type === 'entrada');
 
-      renderAnalyticsIndicators(m, monthData, filteredAllTxs, saidasTxs, entradasTxs, freeBalance, projectedCloseCash);
+      renderAnalyticsIndicators(m, monthData, analyticsScopedTxs, analyticsSaidas, analyticsEntradas, freeBalance, projectedCloseCash);
     }
 
     let chartCategoriesInstance = null;
     let chartAccountsInstance = null;
 
     function setAnalyticsQuickGroup(groupVal) {
-      const accSelect = document.getElementById('filter-account');
-      if (accSelect) {
-        accSelect.value = groupVal;
-      }
+      analyticsFilter.group = groupVal || '';
       renderAll();
     }
 
     function filterByCategoryFromAnalytics(catName) {
-      const catSelect = document.getElementById('filter-category');
-      if (!catSelect) return;
-      catSelect.value = (catSelect.value === catName) ? '' : catName;
+      analyticsFilter.category = (analyticsFilter.category === catName) ? '' : catName;
+      renderAll();
+    }
+
+    function clearAnalyticsCategoryFilter() {
+      analyticsFilter.category = '';
       renderAll();
     }
 
     function renderAnalyticsIndicators(activeMonthKey, monthData, filteredAllTxs, saidasTxs, entradasTxs, freeBalance, projectedCloseCash) {
-      const accFilter = document.getElementById('filter-account')?.value || '';
-      const catFilter = document.getElementById('filter-category')?.value || '';
-      const dateFilter = document.getElementById('filter-date')?.value || '';
-      const searchVal = document.getElementById('filter-search')?.value || '';
+      const accFilter = analyticsFilter.group || '';
+      const catFilter = analyticsFilter.category || '';
+      const dateFilter = '';
+      const searchVal = '';
 
       // Destaca a pílula rápida ativa
       const chipMap = {
@@ -3086,16 +3639,20 @@
           : 'text-xs px-3 py-1.5 rounded-xl font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition';
       });
 
+      const clearCatBtn = document.getElementById('ind-clear-cat-btn');
+      if (clearCatBtn) clearCatBtn.classList.toggle('hidden', !catFilter);
+
       // Resumo de filtros ativos
+      const groupLabels = {
+        '__FREE_CASH__': 'Caixa Livre',
+        '__ALL_CREDIT_CARDS__': 'Cartões de Crédito',
+        '__BENEFITS_ONLY__': 'Benefícios (VR/Flash)',
+        '__RESERVES_ONLY__': 'Reservas MP'
+      };
       const filterParts = [];
       filterParts.push(showAllMonthsTx ? 'Todos os Meses' : monthData.label);
-      if (accFilter) {
-        const accLabel = document.querySelector(`#filter-account option[value="${accFilter}"]`)?.textContent || accFilter;
-        filterParts.push(accLabel);
-      }
+      if (accFilter) filterParts.push(groupLabels[accFilter] || accFilter);
       if (catFilter) filterParts.push(`Cat: ${catFilter}`);
-      if (dateFilter) filterParts.push(`Dia: ${isoDateToBR(dateFilter)}`);
-      if (searchVal) filterParts.push(`Busca: "${searchVal}"`);
       const filterSummaryEl = document.getElementById('ind-active-filter-summary');
       if (filterSummaryEl) {
         filterSummaryEl.textContent = 'Filtro Ativo: ' + filterParts.join(' • ');
@@ -4128,7 +4685,7 @@
     }
 
     loadThemePreference();
-    changeView('saidas');
+    changeView('inicio');
     syncFromCloud(false);
 
     // PWA: Registro do Service Worker e controle do botão de instalação
