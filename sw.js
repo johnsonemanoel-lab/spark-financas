@@ -1,11 +1,21 @@
-const CACHE_NAME = 'spark-financas-v1';
+const CACHE_NAME = 'spark-financas-v2';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './js/firebase-config.js',
+  './js/firebase-db.js'
+];
+
+const FIREBASE_API_HOSTS = [
+  'firestore.googleapis.com',
+  'firebase.googleapis.com',
+  'firebaseinstallations.googleapis.com',
+  'securetoken.googleapis.com',
+  'identitytoolkit.googleapis.com'
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,18 +47,23 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   const isSameOrigin = url.origin === self.location.origin;
 
-  // Não interceptar chamadas de API/planilha (ex: Google Apps Script)
+  // Nunca interceptar chamadas de banco/API do Firebase
   if (!isSameOrigin) {
+    if (FIREBASE_API_HOSTS.some((host) => url.hostname.endsWith(host))) {
+      return;
+    }
+
     const isStaticCdn =
       url.hostname === 'cdn.tailwindcss.com' ||
       url.hostname === 'cdnjs.cloudflare.com' ||
-      url.hostname === 'cdn.jsdelivr.net';
+      url.hostname === 'cdn.jsdelivr.net' ||
+      url.hostname === 'www.gstatic.com';
 
     if (!isStaticCdn) {
       return;
     }
 
-    // Cache-First para assets estáticos de CDN
+    // Cache-First para assets estáticos de CDN e Firebase SDK
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
         if (cachedResponse) {
@@ -66,14 +81,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isNavigation =
+  const isNavigationOrAppCode =
     request.mode === 'navigate' ||
     (request.headers.get('accept') || '').includes('text/html') ||
     url.pathname.endsWith('/') ||
-    url.pathname.endsWith('/index.html');
+    url.pathname.endsWith('/index.html') ||
+    url.pathname.endsWith('.js');
 
-  // Network-First para navegação/HTML (atualiza imediatamente quando online)
-  if (isNavigation) {
+  // Network-First para HTML e módulos JS locais (evita servir versão desatualizada quando online)
+  if (isNavigationOrAppCode) {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
@@ -90,7 +106,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-First para assets estáticos locais
+  // Cache-First para ícones e manifest locais
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {

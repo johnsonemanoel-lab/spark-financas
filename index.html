@@ -240,8 +240,8 @@
             <div class="flex items-center gap-2">
               <h1 class="font-bold text-base leading-tight text-white">Spark Finanças</h1>
             </div>
-            <span id="sheet-link-badge" class="inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-              ● Cloud Ativo
+            <span id="firebase-status-badge" class="inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              ● Conectando...
             </span>
           </div>
         </div>
@@ -383,14 +383,14 @@
     <!-- Rodapé da Sidebar -->
     <div class="pt-3 border-t border-slate-800/80 space-y-2">
       <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
-        <span id="last-sync-text" class="truncate text-emerald-400">Conectando à Planilha...</span>
+        <span id="last-sync-text" class="truncate text-emerald-400">Conectando ao Firebase...</span>
       </div>
       <div class="grid grid-cols-2 gap-1.5">
-        <button type="button" onclick="syncFromCloud(true)" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-400 py-2 px-2 rounded-lg border border-slate-700 transition font-semibold">
-          <i class="fa-solid fa-arrows-rotate mr-1"></i> Sincronizar
+        <button type="button" onclick="confirmFirebaseSync()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-400 py-2 px-2 rounded-lg border border-slate-700 transition font-semibold">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Verificar Sync
         </button>
-        <button type="button" onclick="pushStateToCloud(true)" class="text-[11px] bg-emerald-950 hover:bg-emerald-900 text-emerald-300 py-2 px-2 rounded-lg border border-emerald-700 transition font-semibold">
-          <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Salvar na Planilha
+        <button type="button" onclick="openFirebaseModal()" class="text-[11px] bg-emerald-950 hover:bg-emerald-900 text-emerald-300 py-2 px-2 rounded-lg border border-emerald-700 transition font-semibold">
+          <i class="fa-solid fa-database mr-1"></i> Firebase & Backup
         </button>
       </div>
     </div>
@@ -453,6 +453,26 @@
     </header>
 
     <main class="max-w-5xl w-full mx-auto px-4 mt-5 space-y-5">
+
+      <!-- Banner de Configuração Inicial do Firebase (oculto automaticamente quando conectado) -->
+      <section id="firebase-setup-banner" class="hidden glass rounded-2xl p-4 border border-amber-500/50 bg-amber-950/20 flex flex-wrap items-center justify-between gap-3">
+        <div class="space-y-1 min-w-0 flex-1">
+          <div class="text-xs font-bold text-amber-300 flex items-center gap-2">
+            <i class="fa-solid fa-database"></i> Conecte seu banco de dados Firebase Firestore
+          </div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            O app está rodando em modo de prévia local neste aparelho. Para sincronizar em tempo real entre celular e PC sem perda de dados, cole seu <code class="text-amber-300">firebaseConfig</code>.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" onclick="openFirebaseModal()" class="keep-white-text text-xs bg-amber-600 hover:bg-amber-500 text-white font-semibold px-3.5 py-2 rounded-xl transition">
+            Configurar Firebase Agora
+          </button>
+          <button type="button" onclick="dismissFirebaseSetupBanner()" class="text-xs text-slate-400 hover:text-white px-2 py-1.5 rounded-lg" title="Ocultar aviso">
+            ✕
+          </button>
+        </div>
+      </section>
 
       <!-- 1. Barra Compacta de Lançamento Rápido por Voz / IA + Seleção de Mês -->
       <section class="glass rounded-2xl p-4 shadow-lg border-l-4 border-l-emerald-500 space-y-3">
@@ -1474,8 +1494,130 @@
     </div>
   </div>
 
-  <script>
-    const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyQo-EhNJBaqyf-Zn9qS4JrE9WZJ5N7EhRXCOJZE7vqmzwJKb59CqX4hwO4GtxLO7wV/exec";
+  <!-- Modal Firebase & Backup (Conexão, Migração e JSON) -->
+  <div id="firebase-modal" class="fixed inset-0 bg-black/75 hidden items-center justify-center z-50 p-4">
+    <div class="glass rounded-2xl max-w-lg w-full p-5 border border-slate-700 max-h-[92vh] overflow-y-auto space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-base text-emerald-300 flex items-center gap-2">
+          <i class="fa-solid fa-database"></i> Firebase Firestore & Backup
+        </h3>
+        <button type="button" onclick="closeFirebaseModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+
+      <!-- Resumo de Conexão -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-xs space-y-1.5">
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Status:</span>
+          <strong id="fb-modal-status" class="text-amber-300">Não configurado</strong>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Projeto Firebase:</span>
+          <strong id="fb-modal-project" class="text-white">--</strong>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-400">Workspace Ativo:</span>
+          <strong id="fb-modal-workspace" class="text-sky-300">--</strong>
+        </div>
+        <div class="flex justify-between gap-2 pt-1 border-t border-slate-800/80">
+          <span class="text-slate-400">Registros Carregados:</span>
+          <span id="fb-modal-counts" class="text-slate-200">0 contas • 0 meses • 0 lançamentos</span>
+        </div>
+      </div>
+
+      <!-- Alerta de Dados Legados da Planilha/Cache -->
+      <div id="fb-legacy-migration-box" class="hidden bg-sky-950/40 border border-sky-700/60 rounded-xl p-3 space-y-2">
+        <div class="text-xs font-bold text-sky-300">
+          📥 Dados salvos localmente detectados (cache anterior)
+        </div>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          Encontramos lançamentos e saldos salvos no cache antigo deste navegador (<span id="fb-legacy-summary"></span>). Você pode enviar tudo para o Firebase com 1 clique.
+        </p>
+        <button type="button" onclick="migrateLegacyCacheToFirebase()" class="keep-white-text w-full bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold py-2 rounded-xl transition">
+          📥 Migrar Dados Antigos do Navegador para o Firebase
+        </button>
+      </div>
+
+      <!-- Configuração Rápida -->
+      <div class="space-y-3 text-sm pt-1 border-t border-slate-800">
+        <div>
+          <label class="block text-xs text-slate-300 font-semibold mb-1">
+            ID do Workspace (6 a 64 caracteres: letras, números, _ ou -)
+          </label>
+          <div class="flex gap-2">
+            <input
+              id="fb-workspace-input"
+              type="text"
+              class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+              placeholder="Ex: spark_johnson_2026"
+            />
+            <button type="button" onclick="copyWorkspaceShareLink()" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold shrink-0" title="Copiar link com ?ws= para abrir no celular">
+              🔗 Copiar Link
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">
+            Use um nome único e difícil de adivinhar; o celular e o PC sincronizam quando usam o mesmo Workspace e o mesmo projeto Firebase.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-300 font-semibold mb-1">
+            Objeto <code class="text-emerald-300">firebaseConfig</code> (JSON ou trecho JS do Console do Firebase)
+          </label>
+          <textarea
+            id="fb-config-textarea"
+            rows="6"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-[11px] font-mono text-slate-200 focus:outline-none focus:border-emerald-500"
+            placeholder='{
+  "apiKey": "...",
+  "authDomain": "seu-projeto.firebaseapp.com",
+  "projectId": "seu-projeto",
+  "storageBucket": "seu-projeto.firebasestorage.app",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'
+          ></textarea>
+        </div>
+
+        <div id="fb-modal-feedback" class="hidden text-xs rounded-xl p-2.5 border"></div>
+
+        <div class="flex gap-2">
+          <button type="button" onclick="clearFirebaseModalConfig()" class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 px-3 py-2.5 rounded-xl text-xs font-semibold">
+            Limpar Config Local
+          </button>
+          <button type="button" onclick="saveFirebaseModalConfig()" class="keep-white-text flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-xs">
+            Salvar e Conectar ao Firebase
+          </button>
+        </div>
+      </div>
+
+      <!-- Backup Manual JSON -->
+      <div class="pt-3 border-t border-slate-800 space-y-2">
+        <div class="text-xs font-bold text-slate-300">Backup Manual (Arquivo JSON)</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="exportStateBackupJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2 px-3 rounded-xl text-xs font-semibold transition">
+            ⬇️ Exportar Backup (.json)
+          </button>
+          <button type="button" onclick="triggerImportBackupJSON()" class="bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 py-2 px-3 rounded-xl text-xs font-semibold transition">
+            ⬆️ Importar Backup (.json)
+          </button>
+          <input id="fb-import-file-input" type="file" accept=".json,application/json" onchange="handleImportBackupFile(event)" class="hidden" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import {
+      DEFAULT_WORKSPACE_ID,
+      getActiveFirebaseConfig,
+      getActiveWorkspaceId,
+      isValidWorkspaceId,
+      parseFirebaseConfigInput,
+      saveRuntimeFirebaseConfig,
+      clearRuntimeFirebaseConfig,
+      saveWorkspaceId
+    } from './js/firebase-config.js';
+    import * as dbService from './js/firebase-db.js';
 
     const MONTH_NAMES_PT = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -1711,27 +1853,59 @@
       transactions: []
     };
 
-    function safeGetCache() {
+    const LEGACY_CACHE_KEY = 'spark_github_cache_v1';
+    const LOCAL_PREVIEW_KEY = 'spark_local_preview_v1';
+    const SETUP_BANNER_DISMISSED_KEY = 'spark_fb_banner_dismissed_v1';
+
+    function safeGetLegacyCache() {
       try {
-        const raw = localStorage.getItem('spark_github_cache_v1');
+        const raw = localStorage.getItem(LEGACY_CACHE_KEY);
         return raw ? JSON.parse(raw) : null;
       } catch (e) {
         return null;
       }
     }
 
-    function safeSetCache(data) {
+    function safeGetPreviewCache() {
       try {
-        localStorage.setItem('spark_github_cache_v1', JSON.stringify(data));
+        const raw = localStorage.getItem(LOCAL_PREVIEW_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeSetPreviewCache(data) {
+      try {
+        localStorage.setItem(LOCAL_PREVIEW_KEY, JSON.stringify(data));
       } catch (e) {}
     }
 
-    let state = safeGetCache() || JSON.parse(JSON.stringify(INITIAL_STATE));
+    function cloneInitialState() {
+      return JSON.parse(JSON.stringify(INITIAL_STATE));
+    }
+
+    let state = safeGetPreviewCache() || safeGetLegacyCache() || cloneInitialState();
     state.currentMonth = getSystemDefaultMonth();
+
+    const firebaseRuntime = {
+      mode: 'local', // 'local' | 'firebase'
+      configSource: 'none',
+      projectId: null,
+      workspaceId: getActiveWorkspaceId(),
+      unsubscribe: null,
+      connected: false,
+      fromCache: true,
+      hasPendingWrites: false,
+      allLoaded: false,
+      seededChecked: false,
+      lastSyncedAt: null,
+      error: null,
+      received: { accounts: false, months: false, transactions: false }
+    };
 
     let currentView = 'inicio';
     let showAllMonthsTx = false;
-    let isCloudLoaded = !!safeGetCache();
     let pendingConfirmAction = null;
 
     // Estados locais das novas páginas organizadas
@@ -1800,7 +1974,7 @@
     }
 
     function ensureMonthExists(ym) {
-      if (!ym) return;
+      if (!ym) return false;
       const meta = getMonthMeta(ym);
       if (!state.months[ym]) {
         state.months[ym] = {
@@ -1808,7 +1982,9 @@
           incomes: [],
           provisions: []
         };
+        return true;
       }
+      return false;
     }
 
     function monthFromBRDate(brDate) {
@@ -1942,6 +2118,23 @@
 
     function clearMultiCategories() {
       movFilterState.categories = [];
+      renderAll();
+    }
+
+    function clearMovDateRange() {
+      movFilterState.dateFrom = '';
+      movFilterState.dateTo = '';
+      const dfEl = document.getElementById('filter-date-from');
+      const dtEl = document.getElementById('filter-date-to');
+      if (dfEl) dfEl.value = '';
+      if (dtEl) dtEl.value = '';
+      renderAll();
+    }
+
+    function clearMovSearch() {
+      movFilterState.search = '';
+      const sEl = document.getElementById('filter-search');
+      if (sEl) sEl.value = '';
       renderAll();
     }
 
@@ -2167,10 +2360,10 @@
       if (movFilterState.dateFrom || movFilterState.dateTo) {
         const fromTxt = movFilterState.dateFrom ? isoDateToBR(movFilterState.dateFrom) : '...';
         const toTxt = movFilterState.dateTo ? isoDateToBR(movFilterState.dateTo) : '...';
-        chips.push(`<button type="button" onclick="movFilterState.dateFrom='';movFilterState.dateTo='';document.getElementById('filter-date-from').value='';document.getElementById('filter-date-to').value='';renderAll();" class="text-[11px] px-2 py-0.5 rounded-lg bg-sky-950/70 text-sky-300 border border-sky-700/60 hover:bg-rose-950/70 hover:text-rose-200 transition">Data: ${fromTxt} → ${toTxt} ✕</button>`);
+        chips.push(`<button type="button" onclick="clearMovDateRange()" class="text-[11px] px-2 py-0.5 rounded-lg bg-sky-950/70 text-sky-300 border border-sky-700/60 hover:bg-rose-950/70 hover:text-rose-200 transition">Data: ${fromTxt} → ${toTxt} ✕</button>`);
       }
       if (movFilterState.search) {
-        chips.push(`<button type="button" onclick="movFilterState.search='';document.getElementById('filter-search').value='';renderAll();" class="text-[11px] px-2 py-0.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-rose-950/70 hover:text-rose-200 transition">Busca: "${movFilterState.search}" ✕</button>`);
+        chips.push(`<button type="button" onclick="clearMovSearch()" class="text-[11px] px-2 py-0.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-rose-950/70 hover:text-rose-200 transition">Busca: "${movFilterState.search}" ✕</button>`);
       }
 
       chipsEl.innerHTML = chips.length
@@ -2376,133 +2569,459 @@
 
       if (!state.months) state.months = {};
       Object.keys(state.months).forEach(ym => getMonthMeta(ym));
-      if (!state.transactions) state.transactions = [];
-      const seenInvoicePayments = new Set();
-      const cleanedTxs = [];
+      if (!Array.isArray(state.transactions)) state.transactions = [];
+
       state.transactions.forEach((tx, idx) => {
         if (!tx.id) tx.id = 'tx_' + Date.now() + '_' + idx;
         if (!tx.month) {
-          const inferredMonth = monthFromBRDate(tx.date);
-          tx.month = inferredMonth || '2026-10';
+          tx.month = monthFromBRDate(tx.date) || '2026-10';
         } else {
           ensureMonthExists(tx.month);
         }
-        // Identifica pagamentos de fatura antigos salvos como 'saida' comum e converte para 'pagamento_fatura'
         const descLower = String(tx.desc || '').toLowerCase();
         const catLower = String(tx.category || '').toLowerCase();
         if (tx.isInvoicePayment || tx.type === 'pagamento_fatura' || descLower.startsWith('pagamento de fatura') || descLower.startsWith('pagamento fatura') || catLower.startsWith('pagamento fatura')) {
           tx.isInvoicePayment = true;
           tx.type = 'pagamento_fatura';
-          const sig = `${tx.date}_${tx.amount}_${tx.accountKey}_${tx.paidCardKey || 'credit_card'}`;
-          if (seenInvoicePayments.has(sig)) {
-            // Reverte eventual duplicata acidental gerada no mesmo dia/valor/conta
-            if (state.accounts[tx.accountKey]) {
-              state.accounts[tx.accountKey].balance = +(state.accounts[tx.accountKey].balance + Number(tx.amount || 0)).toFixed(2);
-            }
-            return;
-          }
-          seenInvoicePayments.add(sig);
         }
-        // Limpa automaticamente descrições antigas que ficaram com a frase inteira do microfone
-        if (!tx.isInvoicePayment && tx.desc && /^(?:eu\s+)?(?:paguei|comprei|gastei|abasteci|recebi|entrou|caiu|transferi)\b/i.test(tx.desc)) {
-          tx.desc = extractSmartDescription(tx.desc, tx.category !== 'Avulso' ? tx.category : null);
-        }
-        // Se uma compra antiga estava como 'Avulso', tenta identificar a categoria correta
-        if (!tx.isInvoicePayment && (!tx.category || tx.category === 'Avulso' || tx.category.startsWith('Comprei ') || tx.category.startsWith('comprei '))) {
-          const mObj = state.months[tx.month] || state.months[state.currentMonth];
-          if (mObj) {
-            const matched = findBestMatchingPlanItem(tx.desc, tx.type === 'entrada' ? mObj.incomes : mObj.provisions, tx.type === 'entrada');
-            if (matched) tx.category = matched.name;
-          }
-        }
-        cleanedTxs.push(tx);
       });
-      state.transactions = cleanedTxs;
     }
 
-    async function pushStateToCloud(showMsg) {
-      if (!isCloudLoaded) {
-        showFeedback('⏳ Sincronizando seus dados atuais da planilha antes de salvar...', 'error');
-        await syncFromCloud(false);
-        return;
+    function buildAccountsUpsertMap(keysIterable) {
+      const map = {};
+      if (!keysIterable) return map;
+      for (const k of keysIterable) {
+        if (k && state.accounts[k]) {
+          map[k] = state.accounts[k];
+        }
       }
+      return map;
+    }
+
+    function buildMonthsUpsertMap(keysIterable) {
+      const map = {};
+      if (!keysIterable) return map;
+      for (const mKey of keysIterable) {
+        if (mKey && state.months[mKey]) {
+          map[mKey] = state.months[mKey];
+        }
+      }
+      return map;
+    }
+
+    function updateFirebaseStatusUI() {
+      const badgeEl = document.getElementById('firebase-status-badge');
+      const syncLabel = document.getElementById('last-sync-text');
+      const bannerEl = document.getElementById('firebase-setup-banner');
+
+      if (bannerEl) {
+        const dismissed = sessionStorage.getItem(SETUP_BANNER_DISMISSED_KEY) === '1';
+        const showBanner = firebaseRuntime.mode !== 'firebase' && !dismissed;
+        bannerEl.classList.toggle('hidden', !showBanner);
+      }
+
+      if (badgeEl && syncLabel) {
+        if (firebaseRuntime.mode !== 'firebase') {
+          badgeEl.className = 'inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-pointer';
+          badgeEl.textContent = '⚙️ Configurar Firebase';
+          syncLabel.className = 'truncate text-amber-300';
+          syncLabel.textContent = 'Modo Local (sem Firebase)';
+        } else if (firebaseRuntime.error) {
+          badgeEl.className = 'inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          badgeEl.textContent = '⚠️ Erro Firebase';
+          syncLabel.className = 'truncate text-rose-300';
+          syncLabel.textContent = 'Erro de conexão/permissão';
+        } else if (firebaseRuntime.hasPendingWrites) {
+          badgeEl.className = 'inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          badgeEl.textContent = '⏳ Sincronizando...';
+          syncLabel.className = 'truncate text-amber-300';
+          syncLabel.textContent = 'Enviando para o Firebase...';
+        } else if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          badgeEl.className = 'inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          badgeEl.textContent = '🟠 Offline (Fila Local)';
+          syncLabel.className = 'truncate text-amber-300';
+          syncLabel.textContent = 'Salvo offline (aguardando rede)';
+        } else if (firebaseRuntime.allLoaded && !firebaseRuntime.fromCache) {
+          badgeEl.className = 'inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          badgeEl.textContent = '● Firebase Online';
+          syncLabel.className = 'truncate text-emerald-400';
+          const timeStr = (firebaseRuntime.lastSyncedAt || new Date()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          syncLabel.textContent = `Firebase sincronizado às ${timeStr}`;
+        } else {
+          badgeEl.className = 'inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40';
+          badgeEl.textContent = '● Cache Local Ativo';
+          syncLabel.className = 'truncate text-sky-300';
+          syncLabel.textContent = 'Carregado do cache offline';
+        }
+      }
+
+      refreshFirebaseModalSummary();
+    }
+
+    function refreshFirebaseModalSummary() {
+      const statusEl = document.getElementById('fb-modal-status');
+      const projEl = document.getElementById('fb-modal-project');
+      const wsEl = document.getElementById('fb-modal-workspace');
+      const countsEl = document.getElementById('fb-modal-counts');
+      const legacyBox = document.getElementById('fb-legacy-migration-box');
+      const legacySummary = document.getElementById('fb-legacy-summary');
+
+      if (statusEl) {
+        if (firebaseRuntime.mode !== 'firebase') {
+          statusEl.textContent = 'Não configurado (Modo Local)';
+          statusEl.className = 'text-amber-300';
+        } else if (firebaseRuntime.error) {
+          statusEl.textContent = `Erro: ${firebaseRuntime.error.code || firebaseRuntime.error.message}`;
+          statusEl.className = 'text-rose-300';
+        } else if (firebaseRuntime.hasPendingWrites) {
+          statusEl.textContent = 'Sincronizando alterações pendentes...';
+          statusEl.className = 'text-amber-300';
+        } else if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          statusEl.textContent = 'Offline (fila local ativa)';
+          statusEl.className = 'text-amber-300';
+        } else {
+          statusEl.textContent = 'Conectado em tempo real';
+          statusEl.className = 'text-emerald-400';
+        }
+      }
+      if (projEl) projEl.textContent = firebaseRuntime.projectId || 'Não configurado';
+      if (wsEl) wsEl.textContent = firebaseRuntime.workspaceId || DEFAULT_WORKSPACE_ID;
+      if (countsEl) {
+        const accCount = Object.keys(state.accounts || {}).length;
+        const monthCount = Object.keys(state.months || {}).length;
+        const txCount = Array.isArray(state.transactions) ? state.transactions.length : 0;
+        countsEl.textContent = `${accCount} contas • ${monthCount} meses • ${txCount} lançamentos`;
+      }
+
+      if (legacyBox && legacySummary) {
+        const legacy = safeGetLegacyCache();
+        if (legacy && legacy.accounts && legacy.months) {
+          const lTx = Array.isArray(legacy.transactions) ? legacy.transactions.length : 0;
+          const lMonths = Object.keys(legacy.months || {}).length;
+          legacySummary.textContent = `${lMonths} meses, ${lTx} lançamentos`;
+          legacyBox.classList.remove('hidden');
+        } else {
+          legacyBox.classList.add('hidden');
+        }
+      }
+    }
+
+    async function persistChanges(changes, successMsg) {
       upgradeStateSchema();
-      safeSetCache(state);
+      safeSetPreviewCache(state);
       renderAll();
 
-      const syncLabel = document.getElementById('last-sync-text');
-      syncLabel.textContent = 'Gravando na planilha...';
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(() => {
-            const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            syncLabel.textContent = 'Salvo na Planilha às ' + now;
-            if (showMsg) showFeedback('✅ Dados gravados com sucesso na sua Planilha Google!', 'success');
-          })
-          .saveFullState(state);
+      if (firebaseRuntime.mode !== 'firebase') {
+        updateFirebaseStatusUI();
+        if (successMsg) showFeedback(successMsg, 'success');
         return;
       }
 
+      firebaseRuntime.hasPendingWrites = true;
+      updateFirebaseStatusUI();
+
       try {
-        await fetch(SHEETS_API_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'sync_state', state: state })
-        });
-        const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        syncLabel.textContent = 'Salvo na Planilha às ' + now;
-        if (showMsg) showFeedback('✅ Dados gravados com sucesso na sua Planilha Google!', 'success');
-      } catch (e) {
-        syncLabel.textContent = 'Salvo no aparelho (sem rede)';
+        await dbService.commitChanges(firebaseRuntime.workspaceId, changes);
+        firebaseRuntime.error = null;
+        if (typeof navigator === 'undefined' || navigator.onLine) {
+          firebaseRuntime.lastSyncedAt = new Date();
+        }
+        updateFirebaseStatusUI();
+        if (successMsg) showFeedback(successMsg, 'success');
+      } catch (err) {
+        console.error('[Spark Firebase] Falha ao gravar:', err);
+        firebaseRuntime.error = err;
+        firebaseRuntime.hasPendingWrites = false;
+        updateFirebaseStatusUI();
+        showFeedback(`⚠️ Erro ao gravar no Firebase (${err.code || err.message}). Verifique sua conexão e as Security Rules.`, 'error');
       }
     }
 
-    async function syncFromCloud(manual) {
-      const syncLabel = document.getElementById('last-sync-text');
-      syncLabel.textContent = 'Sincronizando com a Planilha...';
-      const systemMonth = getSystemDefaultMonth();
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler((remoteState) => {
-            isCloudLoaded = true;
-            if (remoteState && remoteState.accounts && remoteState.months) {
-              const keepCurrentMonth = manual ? state.currentMonth : systemMonth;
-              state = remoteState;
-              state.currentMonth = keepCurrentMonth;
-              upgradeStateSchema();
-              safeSetCache(state);
-              renderAll();
-              const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-              syncLabel.textContent = 'Sincronizado às ' + now;
-              if (manual) showFeedback('✅ Dados atualizados da Planilha!', 'success');
-            }
-          })
-          .getInitialStateFromSheet();
+    async function confirmFirebaseSync() {
+      if (firebaseRuntime.mode !== 'firebase') {
+        openFirebaseModal();
+        showFirebaseModalFeedback('Configure seu firebaseConfig abaixo para sincronizar na nuvem.', 'error');
         return;
       }
+      const syncLabel = document.getElementById('last-sync-text');
+      if (syncLabel) syncLabel.textContent = 'Confirmando sincronização...';
 
       try {
-        const res = await fetch(SHEETS_API_URL + '?mode=api&t=' + Date.now());
-        const data = await res.json();
-        isCloudLoaded = true;
-        if (data && data.status === 'ok' && data.state && data.state.accounts) {
-          const keepCurrentMonth = manual ? state.currentMonth : systemMonth;
-          state = data.state;
-          state.currentMonth = keepCurrentMonth;
-          upgradeStateSchema();
-          safeSetCache(state);
-          renderAll();
-          const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          syncLabel.textContent = 'Sincronizado às ' + now;
-          if (manual) showFeedback('✅ Dados carregados da sua Planilha Google!', 'success');
+        await dbService.confirmServerSync();
+        firebaseRuntime.hasPendingWrites = false;
+        firebaseRuntime.fromCache = false;
+        firebaseRuntime.lastSyncedAt = new Date();
+        firebaseRuntime.error = null;
+        updateFirebaseStatusUI();
+        showFeedback('✅ Todos os dados estão confirmados e sincronizados no Firebase Firestore!', 'success');
+      } catch (err) {
+        showFeedback(`⚠️ Ainda há pendências locais ou erro de rede: ${err.message}`, 'error');
+      }
+    }
+
+    function dismissFirebaseSetupBanner() {
+      try {
+        sessionStorage.setItem(SETUP_BANNER_DISMISSED_KEY, '1');
+      } catch (e) {}
+      const bannerEl = document.getElementById('firebase-setup-banner');
+      if (bannerEl) bannerEl.classList.add('hidden');
+    }
+
+    function showFirebaseModalFeedback(msg, kind) {
+      const el = document.getElementById('fb-modal-feedback');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'text-xs rounded-xl p-2.5 border ' + (kind === 'success'
+        ? 'bg-emerald-950/80 border-emerald-700 text-emerald-200'
+        : 'bg-rose-950/80 border-rose-700 text-rose-200');
+      el.classList.remove('hidden');
+    }
+
+    function openFirebaseModal() {
+      const wsInput = document.getElementById('fb-workspace-input');
+      const cfgArea = document.getElementById('fb-config-textarea');
+      const fbMsg = document.getElementById('fb-modal-feedback');
+      if (fbMsg) fbMsg.classList.add('hidden');
+      if (wsInput) wsInput.value = firebaseRuntime.workspaceId || getActiveWorkspaceId();
+      if (cfgArea) {
+        const active = getActiveFirebaseConfig();
+        cfgArea.value = active.config ? JSON.stringify(active.config, null, 2) : '';
+      }
+      refreshFirebaseModalSummary();
+      document.getElementById('firebase-modal').classList.remove('hidden');
+      document.getElementById('firebase-modal').classList.add('flex');
+    }
+
+    function closeFirebaseModal() {
+      document.getElementById('firebase-modal').classList.add('hidden');
+      document.getElementById('firebase-modal').classList.remove('flex');
+    }
+
+    async function saveFirebaseModalConfig() {
+      const rawCfg = document.getElementById('fb-config-textarea')?.value || '';
+      const rawWs = document.getElementById('fb-workspace-input')?.value || '';
+
+      try {
+        const cleanWs = saveWorkspaceId(rawWs);
+        const parsedCfg = parseFirebaseConfigInput(rawCfg);
+        saveRuntimeFirebaseConfig(parsedCfg, cleanWs);
+        showFirebaseModalFeedback('Conectando ao Firebase Firestore...', 'success');
+        await connectToFirebase(parsedCfg, cleanWs, 'localStorage');
+        showFirebaseModalFeedback(`✅ Conectado ao projeto "${parsedCfg.projectId}" (workspace: ${cleanWs})!`, 'success');
+        showFeedback(`🔥 Firebase conectado ao projeto "${parsedCfg.projectId}"!`, 'success');
+      } catch (err) {
+        showFirebaseModalFeedback(err.message || 'Erro ao salvar configuração.', 'error');
+      }
+    }
+
+    async function clearFirebaseModalConfig() {
+      clearRuntimeFirebaseConfig();
+      if (firebaseRuntime.unsubscribe) {
+        firebaseRuntime.unsubscribe();
+        firebaseRuntime.unsubscribe = null;
+      }
+      const active = getActiveFirebaseConfig();
+      if (active.config) {
+        await connectToFirebase(active.config, getActiveWorkspaceId(), active.source);
+        showFirebaseModalFeedback('Configuração local removida; usando configuração do arquivo js/firebase-config.js.', 'success');
+      } else {
+        firebaseRuntime.mode = 'local';
+        firebaseRuntime.projectId = null;
+        firebaseRuntime.configSource = 'none';
+        firebaseRuntime.error = null;
+        updateFirebaseStatusUI();
+        showFirebaseModalFeedback('Configuração local removida. App voltou para o modo local.', 'success');
+      }
+    }
+
+    async function copyWorkspaceShareLink() {
+      const rawWs = document.getElementById('fb-workspace-input')?.value?.trim() || firebaseRuntime.workspaceId;
+      if (!isValidWorkspaceId(rawWs)) {
+        showFirebaseModalFeedback('Informe um Workspace ID válido (6 a 64 caracteres: letras, números, _ ou -).', 'error');
+        return;
+      }
+      const url = `${window.location.origin}${window.location.pathname}?ws=${encodeURIComponent(rawWs)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        showFirebaseModalFeedback(`🔗 Link copiado! Abra no outro aparelho: ${url}`, 'success');
+      } catch (e) {
+        showFirebaseModalFeedback(`Copie este link para abrir no outro aparelho: ${url}`, 'success');
+      }
+    }
+
+    async function migrateLegacyCacheToFirebase() {
+      const legacy = safeGetLegacyCache();
+      if (!legacy || !legacy.accounts || !legacy.months) {
+        showFirebaseModalFeedback('Nenhum dado legado encontrado no navegador.', 'error');
+        return;
+      }
+      if (firebaseRuntime.mode !== 'firebase') {
+        showFirebaseModalFeedback('Conecte primeiro o Firebase (cole o firebaseConfig e salve) antes de migrar.', 'error');
+        return;
+      }
+      try {
+        showFirebaseModalFeedback('Enviando dados antigos para o Firebase...', 'success');
+        await dbService.importStateToWorkspace(firebaseRuntime.workspaceId, legacy, { replaceExisting: true });
+        state = legacy;
+        state.currentMonth = getSystemDefaultMonth();
+        upgradeStateSchema();
+        safeSetPreviewCache(state);
+        renderAll();
+        showFirebaseModalFeedback('✅ Dados antigos migrados com sucesso para o Firebase Firestore!', 'success');
+        showFeedback('✅ Dados anteriores migrados com sucesso para o Firebase!', 'success');
+      } catch (err) {
+        showFirebaseModalFeedback(`Erro na migração: ${err.message}`, 'error');
+      }
+    }
+
+    function exportStateBackupJSON() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        workspaceId: firebaseRuntime.workspaceId,
+        state: {
+          currentMonth: state.currentMonth,
+          accounts: state.accounts,
+          months: state.months,
+          transactions: state.transactions
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `spark-financas-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showFirebaseModalFeedback('⬇️ Backup JSON exportado com sucesso!', 'success');
+    }
+
+    function triggerImportBackupJSON() {
+      const input = document.getElementById('fb-import-file-input');
+      if (input) {
+        input.value = '';
+        input.click();
+      }
+    }
+
+    async function handleImportBackupFile(event) {
+      const file = event?.target?.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const importedState = parsed?.state?.accounts ? parsed.state : parsed;
+        if (!importedState || !importedState.accounts || !importedState.months) {
+          throw new Error('Arquivo JSON não possui a estrutura válida do Spark Finanças.');
+        }
+        state = importedState;
+        state.currentMonth = getSystemDefaultMonth();
+        upgradeStateSchema();
+        safeSetPreviewCache(state);
+        renderAll();
+
+        if (firebaseRuntime.mode === 'firebase') {
+          await dbService.importStateToWorkspace(firebaseRuntime.workspaceId, state, { replaceExisting: true });
+          showFirebaseModalFeedback('✅ Backup importado e gravado no Firebase Firestore!', 'success');
+          showFeedback('✅ Backup restaurado no Firebase com sucesso!', 'success');
+        } else {
+          showFirebaseModalFeedback('✅ Backup importado no modo local! Conecte o Firebase para sincronizar na nuvem.', 'success');
+          showFeedback('✅ Backup importado localmente!', 'success');
         }
       } catch (err) {
-        isCloudLoaded = true;
-        syncLabel.textContent = 'Pronto (Cache Local Ativo)';
+        showFirebaseModalFeedback(`Erro ao importar backup: ${err.message}`, 'error');
       }
+    }
+
+    async function connectToFirebase(config, workspaceId, source) {
+      if (firebaseRuntime.unsubscribe) {
+        firebaseRuntime.unsubscribe();
+        firebaseRuntime.unsubscribe = null;
+      }
+
+      firebaseRuntime.mode = 'firebase';
+      firebaseRuntime.configSource = source || 'file';
+      firebaseRuntime.projectId = config.projectId;
+      firebaseRuntime.workspaceId = workspaceId;
+      firebaseRuntime.seededChecked = false;
+      firebaseRuntime.error = null;
+      firebaseRuntime.received = { accounts: false, months: false, transactions: false };
+      updateFirebaseStatusUI();
+
+      await dbService.initFirebase(config);
+
+      firebaseRuntime.unsubscribe = dbService.subscribeWorkspace(workspaceId, {
+        onAccounts: (accountsMap) => {
+          firebaseRuntime.received.accounts = true;
+          if (Object.keys(accountsMap).length > 0) {
+            state.accounts = accountsMap;
+            upgradeStateSchema();
+            safeSetPreviewCache(state);
+            renderAll();
+          }
+          refreshFirebaseModalSummary();
+        },
+        onMonths: (monthsMap) => {
+          firebaseRuntime.received.months = true;
+          if (Object.keys(monthsMap).length > 0) {
+            state.months = monthsMap;
+            upgradeStateSchema();
+            safeSetPreviewCache(state);
+            renderAll();
+          }
+          refreshFirebaseModalSummary();
+        },
+        onTransactions: (txList) => {
+          firebaseRuntime.received.transactions = true;
+          state.transactions = txList;
+          upgradeStateSchema();
+          safeSetPreviewCache(state);
+          renderAll();
+          refreshFirebaseModalSummary();
+        },
+        onMeta: async (metaDoc, metadata) => {
+          if (!metadata.fromCache && !firebaseRuntime.seededChecked) {
+            firebaseRuntime.seededChecked = true;
+            if (!metaDoc?.seeded) {
+              const legacy = safeGetLegacyCache();
+              const hasLegacyData = Boolean(
+                legacy && legacy.accounts && legacy.months &&
+                (Array.isArray(legacy.transactions) && legacy.transactions.length > 0)
+              );
+              if (hasLegacyData) {
+                try {
+                  const res = await dbService.seedWorkspaceIfEmpty(workspaceId, legacy);
+                  if (res.seededNow) {
+                    showFeedback('📥 Seus dados salvos localmente foram migrados automaticamente para o Firebase!', 'success');
+                  }
+                } catch (err) {
+                  console.warn('[Spark Firebase] Migração automática falhou:', err);
+                }
+              } else {
+                try {
+                  await dbService.seedWorkspaceIfEmpty(workspaceId, cloneInitialState());
+                } catch (err) {
+                  console.warn('[Spark Firebase] Seed inicial falhou:', err);
+                }
+              }
+            }
+          }
+        },
+        onStatus: (status) => {
+          firebaseRuntime.connected = status.connected;
+          firebaseRuntime.fromCache = status.fromCache;
+          firebaseRuntime.hasPendingWrites = status.hasPendingWrites;
+          firebaseRuntime.allLoaded = status.allLoaded;
+          if (status.lastSyncedAt) firebaseRuntime.lastSyncedAt = status.lastSyncedAt;
+          firebaseRuntime.error = status.error;
+          updateFirebaseStatusUI();
+        },
+        onError: (err) => {
+          firebaseRuntime.error = err;
+          updateFirebaseStatusUI();
+        }
+      });
     }
 
     function changeMonth(m) {
@@ -2637,8 +3156,7 @@
         false,
         () => {
           delete state.accounts[accKey];
-          pushStateToCloud(true);
-          showFeedback(`🗑️ Cartão "${cardName}" removido!`, 'success');
+          persistChanges({ accountsDelete: [accKey] }, `🗑️ Cartão "${cardName}" removido!`);
         }
       );
     }
@@ -2663,8 +3181,10 @@
           limit: +limit.toFixed(2)
         };
         closeBalanceModal();
-        pushStateToCloud(true);
-        showFeedback(`💳 Cartão "${rawName}" (Fecha dia ${closingDay} / Vence dia ${dueDay}) adicionado!`, 'success');
+        persistChanges(
+          { accountsUpsert: { [newKey]: state.accounts[newKey] } },
+          `💳 Cartão "${rawName}" (Fecha dia ${closingDay} / Vence dia ${dueDay}) adicionado!`
+        );
         return;
       }
 
@@ -2679,7 +3199,10 @@
           acc.limit = +(parseFloat(document.getElementById('balance-modal-limit').value) || 0).toFixed(2);
         }
         closeBalanceModal();
-        pushStateToCloud(true);
+        persistChanges(
+          { accountsUpsert: { [accKey]: state.accounts[accKey] } },
+          `✅ Saldo de "${acc.name}" atualizado com sucesso!`
+        );
       }
     }
 
@@ -2765,6 +3288,7 @@
 
       const brDate = isoDateToBR(isoDate);
       const targetMonthKey = monthFromBRDate(brDate) || state.currentMonth;
+      const monthCreated = ensureMonthExists(targetMonthKey);
       const cardObj = state.accounts[cardKey];
 
       state.accounts[sourceKey].balance = +(state.accounts[sourceKey].balance - amount).toFixed(2);
@@ -2794,8 +3318,14 @@
 
       state.transactions.unshift(payTx);
       closePayInvoiceModal();
-      pushStateToCloud(false);
-      showFeedback(`✅ Fatura do ${cardObj.name} baixada (${formatBRL(amount)}) via ${state.accounts[sourceKey].name} (sem duplicar nas suas despesas!). Saldo devedor do cartão: ${formatBRL(cardObj.balance)}.`, 'success');
+      persistChanges(
+        {
+          accountsUpsert: buildAccountsUpsertMap([sourceKey, cardKey]),
+          ...(monthCreated ? { monthsUpsert: buildMonthsUpsertMap([targetMonthKey]) } : {}),
+          transactionsUpsert: [{ ...payTx, _isNew: true }]
+        },
+        `✅ Fatura do ${cardObj.name} baixada (${formatBRL(amount)}) via ${state.accounts[sourceKey].name} (sem duplicar nas suas despesas!). Saldo devedor do cartão: ${formatBRL(cardObj.balance)}.`
+      );
     }
 
     function openPlanItemModal(kind, itemId) {
@@ -2893,7 +3423,9 @@
         ? kwRaw.split(',').map(k => k.trim().toLowerCase()).filter(Boolean)
         : [name.toLowerCase()];
 
-      const monthData = state.months[state.currentMonth];
+      const activeMonthKey = state.currentMonth;
+      ensureMonthExists(activeMonthKey);
+      const monthData = state.months[activeMonthKey];
       const list = kind === 'income' ? monthData.incomes : monthData.provisions;
 
       if (itemId) {
@@ -2915,8 +3447,10 @@
       }
 
       closePlanItemModal();
-      pushStateToCloud(true);
-      showFeedback(`✏️ ${kind === 'income' ? 'Previsão de Entrada' : 'Provisão de Saída'} "${name}" salva com sucesso!`, 'success');
+      persistChanges(
+        { monthsUpsert: { [activeMonthKey]: monthData } },
+        `✏️ ${kind === 'income' ? 'Previsão de Entrada' : 'Provisão de Saída'} "${name}" salva com sucesso!`
+      );
     }
 
     function openConfirmModal(title, msg, showGroupCheckbox, callback) {
@@ -2951,7 +3485,8 @@
       const itemId = document.getElementById('plan-item-id').value;
       if (!itemId) return;
 
-      const monthData = state.months[state.currentMonth];
+      const activeMonthKey = state.currentMonth;
+      const monthData = state.months[activeMonthKey];
       const list = kind === 'income' ? monthData.incomes : monthData.provisions;
       const idx = list.findIndex(x => x.id === itemId);
       if (idx === -1) return;
@@ -2964,24 +3499,29 @@
         () => {
           list.splice(idx, 1);
           closePlanItemModal();
-          pushStateToCloud(true);
-          showFeedback(`🗑️ Item "${itemName}" removido do planejamento do mês.`, 'success');
+          persistChanges(
+            { monthsUpsert: { [activeMonthKey]: monthData } },
+            `🗑️ Item "${itemName}" removido do planejamento do mês.`
+          );
         }
       );
     }
 
-    function revertTransactionEffects(tx) {
-      const txMonth = state.months[tx.month] || state.months[state.currentMonth];
+    function revertTransactionEffects(tx, touchedAccounts, touchedMonths) {
+      const txMonthKey = tx.month || state.currentMonth;
+      const txMonth = state.months[txMonthKey];
       const accKey = tx.accountKey || 'mp_livre';
 
       if (tx.type === 'pagamento_fatura' || tx.isInvoicePayment) {
         if (state.accounts[accKey]) {
           state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+          if (touchedAccounts) touchedAccounts.add(accKey);
         }
         const targetCard = tx.paidCardKey || 'credit_card';
         const restoreCC = tx.creditCardPayDelta !== undefined ? tx.creditCardPayDelta : tx.amount;
         if (state.accounts[targetCard]) {
           state.accounts[targetCard].balance = +(state.accounts[targetCard].balance + restoreCC).toFixed(2);
+          if (touchedAccounts) touchedAccounts.add(targetCard);
         }
         return;
       }
@@ -2990,14 +3530,19 @@
         if (isCreditCardAccount(accKey)) {
           if (state.accounts[accKey]) {
             state.accounts[accKey].balance = Math.max(0, +(state.accounts[accKey].balance - tx.amount).toFixed(2));
+            if (touchedAccounts) touchedAccounts.add(accKey);
           }
         } else if (state.accounts[accKey]) {
           state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+          if (touchedAccounts) touchedAccounts.add(accKey);
         }
 
         if (accKey === 'leandra' && txMonth) {
           const incL = txMonth.incomes.find(i => i.id === 'inc_leandra');
-          if (incL) incL.remaining = +(incL.remaining + tx.amount).toFixed(2);
+          if (incL) {
+            incL.remaining = +(incL.remaining + tx.amount).toFixed(2);
+            if (touchedMonths) touchedMonths.add(txMonthKey);
+          }
         }
         if (tx.targetId && txMonth) {
           const provIdx = txMonth.provisions.findIndex(p => p.id === tx.targetId);
@@ -3009,22 +3554,29 @@
               const restoreVal = tx.provisionDelta !== undefined ? tx.provisionDelta : tx.amount;
               prov.remaining = +(prov.remaining + restoreVal).toFixed(2);
             }
+            if (touchedMonths) touchedMonths.add(txMonthKey);
           }
         }
       } else if (tx.type === 'entrada') {
         if (isCreditCardAccount(accKey)) {
           if (state.accounts[accKey]) {
             state.accounts[accKey].balance = +(state.accounts[accKey].balance + tx.amount).toFixed(2);
+            if (touchedAccounts) touchedAccounts.add(accKey);
           }
         } else if (state.accounts[accKey]) {
           state.accounts[accKey].balance = +(state.accounts[accKey].balance - tx.amount).toFixed(2);
+          if (touchedAccounts) touchedAccounts.add(accKey);
         }
-        if (tx.leandraDelta) state.accounts.leandra.balance = +(state.accounts.leandra.balance - tx.leandraDelta).toFixed(2);
+        if (tx.leandraDelta && state.accounts.leandra) {
+          state.accounts.leandra.balance = +(state.accounts.leandra.balance - tx.leandraDelta).toFixed(2);
+          if (touchedAccounts) touchedAccounts.add('leandra');
+        }
         if (tx.targetId && txMonth) {
           const inc = txMonth.incomes.find(i => i.id === tx.targetId);
           if (inc) {
             const restoreVal = tx.incomeDelta !== undefined ? tx.incomeDelta : tx.amount;
             inc.remaining = +(inc.remaining + restoreVal).toFixed(2);
+            if (touchedMonths) touchedMonths.add(txMonthKey);
           }
         }
       }
@@ -3044,19 +3596,34 @@
         `Excluir "${tx.desc}" (${formatBRL(tx.amount)})? O saldo e a provisão serão restaurados automaticamente.`,
         hasMultipleInstallments,
         () => {
+          const touchedAccounts = new Set();
+          const touchedMonths = new Set();
           const deleteAll = hasMultipleInstallments && document.getElementById('confirm-delete-all-installments').checked;
           if (deleteAll) {
             const toDelete = state.transactions.filter(t => t.groupId === tx.groupId);
-            toDelete.forEach(item => revertTransactionEffects(item));
+            const deletedIds = toDelete.map(item => item.id);
+            toDelete.forEach(item => revertTransactionEffects(item, touchedAccounts, touchedMonths));
             state.transactions = state.transactions.filter(t => t.groupId !== tx.groupId);
-            pushStateToCloud(false);
-            showFeedback(`🗑️ Todas as ${toDelete.length} parcelas da compra foram excluídas e os saldos restaurados!`, 'success');
+            persistChanges(
+              {
+                accountsUpsert: buildAccountsUpsertMap(touchedAccounts),
+                monthsUpsert: buildMonthsUpsertMap(touchedMonths),
+                transactionsDelete: deletedIds
+              },
+              `🗑️ Todas as ${toDelete.length} parcelas da compra foram excluídas e os saldos restaurados!`
+            );
           } else {
-            revertTransactionEffects(tx);
+            revertTransactionEffects(tx, touchedAccounts, touchedMonths);
             const curIdx = state.transactions.findIndex(t => t.id === txId);
             if (curIdx !== -1) state.transactions.splice(curIdx, 1);
-            pushStateToCloud(false);
-            showFeedback('🗑️ Lançamento excluído e saldos recalculados!', 'success');
+            persistChanges(
+              {
+                accountsUpsert: buildAccountsUpsertMap(touchedAccounts),
+                monthsUpsert: buildMonthsUpsertMap(touchedMonths),
+                transactionsDelete: [txId]
+              },
+              '🗑️ Lançamento excluído e saldos recalculados!'
+            );
           }
         }
       );
@@ -4039,11 +4606,14 @@
       }
 
       const groupId = n > 1 ? ('grp_' + Date.now()) : null;
+      const touchedMonths = new Set();
+      const createdTxs = [];
 
       for (let i = 0; i < n; i++) {
         const instAmount = i === 0 ? firstInstallment : baseInstallment;
         const mKey = addMonthsToYM(firstInvoiceMonthKey, i);
         ensureMonthExists(mKey);
+        touchedMonths.add(mKey);
         const mData = state.months[mKey];
         const instDateBR = i === 0 ? purchaseDateBR : addMonthsToBRDate(purchaseDateBR, i);
         const instDesc = n > 1 ? `${desc} (${i + 1}/${n})` : desc;
@@ -4076,7 +4646,7 @@
 
         cardObj.balance = +(cardObj.balance + instAmount).toFixed(2);
 
-        state.transactions.unshift({
+        const newTx = {
           id: txId,
           groupId,
           month: mKey,
@@ -4091,27 +4661,38 @@
           provisionDelta: provDelta,
           incomeDelta: 0,
           leandraDelta: 0
-        });
+        };
+        state.transactions.unshift(newTx);
+        createdTxs.push({ ...newTx, _isNew: true });
       }
 
-      pushStateToCloud(false);
       const firstLabel = getMonthMeta(firstInvoiceMonthKey).label;
       const purchaseMonth = monthFromBRDate(purchaseDateBR);
       const rolledOverNote = (firstInvoiceMonthKey !== purchaseMonth)
         ? ` (Fatura após fechamento dia ${String(cardObj.closingDay || 5).padStart(2, '0')} → 1ª parcela em ${firstLabel})`
         : ` (Início em ${firstLabel})`;
 
-      if (n > 1) {
-        showFeedback(`💳 Compra parcelada em ${n}x (Total ${formatBRL(totalAmount)}) no ${cardObj.name}${rolledOverNote}! Fatura acumulada: ${formatBRL(cardObj.balance)}.`, 'success');
-      } else {
-        showFeedback(`💳 Compra de ${formatBRL(totalAmount)} lançada no ${cardObj.name}${rolledOverNote}! Fatura acumulada: ${formatBRL(cardObj.balance)}.`, 'success');
-      }
+      const feedbackMsg = n > 1
+        ? `💳 Compra parcelada em ${n}x (Total ${formatBRL(totalAmount)}) no ${cardObj.name}${rolledOverNote}! Fatura acumulada: ${formatBRL(cardObj.balance)}.`
+        : `💳 Compra de ${formatBRL(totalAmount)} lançada no ${cardObj.name}${rolledOverNote}! Fatura acumulada: ${formatBRL(cardObj.balance)}.`;
+
+      persistChanges(
+        {
+          accountsUpsert: buildAccountsUpsertMap([cardKey]),
+          monthsUpsert: buildMonthsUpsertMap(touchedMonths),
+          transactionsUpsert: createdTxs
+        },
+        feedbackMsg
+      );
     }
 
-    function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate, explicitMonth) {
+    function applyTransaction(type, amount, accountKey, targetId, desc, existingId, customDate, explicitMonth, options = {}) {
       const targetMonthKey = explicitMonth || monthFromBRDate(customDate) || state.currentMonth;
-      ensureMonthExists(targetMonthKey);
+      const monthCreated = ensureMonthExists(targetMonthKey);
       const monthData = state.months[targetMonthKey] || state.months[state.currentMonth];
+      const touchedAccounts = new Set();
+      const touchedMonths = new Set();
+      if (monthCreated) touchedMonths.add(targetMonthKey);
 
       if (type === 'saida' && targetId) {
         const checkProv = monthData.provisions.find(p => p.id === targetId);
@@ -4129,6 +4710,7 @@
 
       if (!state.accounts[accountKey]) accountKey = 'mp_livre';
       const isCC = isCreditCardAccount(accountKey);
+      touchedAccounts.add(accountKey);
 
       const newTx = {
         id: existingId || ('tx_' + Date.now()),
@@ -4145,6 +4727,11 @@
         incomeDelta: 0,
         leandraDelta: 0
       };
+      if (options.existingCreatedAt) {
+        newTx.createdAt = options.existingCreatedAt;
+      }
+
+      let feedbackMsg = '';
 
       if (type === 'saida') {
         if (isCC) {
@@ -4155,7 +4742,10 @@
 
         if (accountKey === 'leandra') {
           const incL = monthData.incomes.find(i => i.id === 'inc_leandra');
-          if (incL) incL.remaining = Math.max(0, +(incL.remaining - amount).toFixed(2));
+          if (incL) {
+            incL.remaining = Math.max(0, +(incL.remaining - amount).toFixed(2));
+            touchedMonths.add(targetMonthKey);
+          }
         }
         let provMsg = isCC ? 'Lançado na fatura do cartão' : 'Despesa avulsa';
         if (targetId) {
@@ -4165,6 +4755,7 @@
             if (accountKey !== 'vr' && accountKey !== 'flash') {
               prov.remaining = +(prov.remaining - amount).toFixed(2);
               newTx.provisionDelta = amount;
+              touchedMonths.add(targetMonthKey);
               if (prov.remaining < 0) {
                 provMsg = `⚠️ Orçamento de "${prov.name}" excedido! (${formatBRL(prov.budgeted)} + ${formatBRL(Math.abs(prov.remaining))})`;
               } else {
@@ -4178,18 +4769,18 @@
           }
         }
         state.transactions.unshift(newTx);
-        pushStateToCloud(false);
-        showFeedback(`✅ Registrado: "-${formatBRL(amount)} | ${newTx.desc}" • Conta: ${state.accounts[accountKey].name} • ${provMsg}`, 'success');
+        feedbackMsg = `✅ Registrado: "-${formatBRL(amount)} | ${newTx.desc}" • Conta: ${state.accounts[accountKey].name} • ${provMsg}`;
       } else {
         if (isCC) {
           state.accounts[accountKey].balance = Math.max(0, +(state.accounts[accountKey].balance - amount).toFixed(2));
         } else {
           state.accounts[accountKey].balance = +(state.accounts[accountKey].balance + amount).toFixed(2);
         }
-        if (desc.toLowerCase().includes('leandra') || targetId === 'inc_leandra') {
+        if ((desc.toLowerCase().includes('leandra') || targetId === 'inc_leandra') && state.accounts.leandra) {
           const beforeL = state.accounts.leandra.balance;
           state.accounts.leandra.balance = Math.max(0, +(state.accounts.leandra.balance - amount).toFixed(2));
           newTx.leandraDelta = +(state.accounts.leandra.balance - beforeL).toFixed(2);
+          touchedAccounts.add('leandra');
         }
         let incMsg = isCC ? 'Estorno/abatimento na fatura' : 'Entrada extra';
         newTx.category = isCC ? 'Abatimento Fatura' : 'Entrada Extra';
@@ -4200,13 +4791,28 @@
             inc.remaining = Math.max(0, +(inc.remaining - amount).toFixed(2));
             newTx.incomeDelta = +(before - inc.remaining).toFixed(2);
             newTx.category = inc.name;
+            touchedMonths.add(targetMonthKey);
             incMsg = 'Previsão "' + inc.name + '" reduzida para ' + formatBRL(inc.remaining);
           }
         }
         state.transactions.unshift(newTx);
-        pushStateToCloud(false);
-        showFeedback('✅ Entrada de ' + formatBRL(amount) + ' (' + newTx.date + ') registrada em ' + state.accounts[accountKey].name + '. ' + incMsg, 'success');
+        feedbackMsg = '✅ Entrada de ' + formatBRL(amount) + ' (' + newTx.date + ') registrada em ' + state.accounts[accountKey].name + '. ' + incMsg;
       }
+
+      const txToSave = { ...newTx, _isNew: !existingId };
+      if (options.deferCommit) {
+        return { touchedAccounts, touchedMonths, tx: txToSave, feedbackMsg };
+      }
+
+      persistChanges(
+        {
+          accountsUpsert: buildAccountsUpsertMap(touchedAccounts),
+          monthsUpsert: buildMonthsUpsertMap(touchedMonths),
+          transactionsUpsert: [txToSave]
+        },
+        feedbackMsg
+      );
+      return { touchedAccounts, touchedMonths, tx: txToSave, feedbackMsg };
     }
 
     function showFeedback(msg, status) {
@@ -4283,13 +4889,30 @@
       if (editId) {
         const idx = state.transactions.findIndex(t => t.id === editId);
         let prevMonth = monthFromBRDate(chosenDateBR) || state.currentMonth;
+        const touchedAccounts = new Set();
+        const touchedMonths = new Set();
+        let existingCreatedAt = null;
         if (idx !== -1) {
           prevMonth = state.transactions[idx].month || prevMonth;
-          revertTransactionEffects(state.transactions[idx]);
+          existingCreatedAt = state.transactions[idx].createdAt || null;
+          revertTransactionEffects(state.transactions[idx], touchedAccounts, touchedMonths);
           state.transactions.splice(idx, 1);
         }
-        applyTransaction(type, amount, accountKey, catId, desc, editId, chosenDateBR, prevMonth);
+        const applyRes = applyTransaction(type, amount, accountKey, catId, desc, editId, chosenDateBR, prevMonth, {
+          deferCommit: true,
+          existingCreatedAt
+        });
+        applyRes.touchedAccounts.forEach(k => touchedAccounts.add(k));
+        applyRes.touchedMonths.forEach(m => touchedMonths.add(m));
         closeManualModal();
+        persistChanges(
+          {
+            accountsUpsert: buildAccountsUpsertMap(touchedAccounts),
+            monthsUpsert: buildMonthsUpsertMap(touchedMonths),
+            transactionsUpsert: [applyRes.tx]
+          },
+          applyRes.feedbackMsg
+        );
         return;
       }
 
@@ -4684,9 +5307,98 @@
       recognition.start();
     }
 
-    loadThemePreference();
-    changeView('inicio');
-    syncFromCloud(false);
+    Object.assign(window, {
+      openMobileSidebar,
+      closeMobileSidebar,
+      toggleTheme,
+      changeView,
+      changeMonth,
+      toggleAllMonthsFilter,
+      processAIInput,
+      toggleSpeechRecognition,
+      openManualModal,
+      closeManualModal,
+      submitManualTransaction,
+      onManualTypeOrAccountChange,
+      onManualDateChange,
+      updateInstallmentPreview,
+      autoSelectReserveAccount,
+      populateCategorySelect,
+      openPlanItemModal,
+      closePlanItemModal,
+      savePlanItem,
+      deletePlanItem,
+      updatePlanExecutedPreview,
+      openNewCardModal,
+      editAccountBalance,
+      closeBalanceModal,
+      saveAccountBalanceModal,
+      deleteCreditCardModal,
+      openPayInvoiceFromCardModal,
+      openPayInvoiceModal,
+      closePayInvoiceModal,
+      onPayInvoiceCardChange,
+      submitPayInvoice,
+      openConfirmModal,
+      closeConfirmModal,
+      executeConfirmedAction,
+      openEditTransactionModal,
+      deleteTransaction,
+      setHomeTypeFilter,
+      setProvisionsSubTab,
+      setProvisionsStatusFilter,
+      clearAllFilters,
+      toggleMultiTypeFilter,
+      toggleMultiAccount,
+      selectAccountGroupPreset,
+      clearMultiAccounts,
+      toggleMultiCategory,
+      clearMultiCategories,
+      onMovSearchInput,
+      onMovDateRangeChange,
+      onMovSortChange,
+      toggleMultiDropdown,
+      renderCategoryDropdownOptions,
+      clearMovDateRange,
+      clearMovSearch,
+      setAnalyticsQuickGroup,
+      filterByCategoryFromAnalytics,
+      clearAnalyticsCategoryFilter,
+      renderAll,
+      installPWA,
+      confirmFirebaseSync,
+      openFirebaseModal,
+      closeFirebaseModal,
+      dismissFirebaseSetupBanner,
+      saveFirebaseModalConfig,
+      clearFirebaseModalConfig,
+      copyWorkspaceShareLink,
+      migrateLegacyCacheToFirebase,
+      exportStateBackupJSON,
+      triggerImportBackupJSON,
+      handleImportBackupFile
+    });
+
+    async function initApp() {
+      loadThemePreference();
+      upgradeStateSchema();
+      changeView('inicio');
+      updateFirebaseStatusUI();
+
+      const active = getActiveFirebaseConfig();
+      const workspaceId = getActiveWorkspaceId();
+      if (active.config) {
+        try {
+          await connectToFirebase(active.config, workspaceId, active.source);
+        } catch (err) {
+          console.error('[Spark Firebase] Falha ao iniciar Firebase:', err);
+          firebaseRuntime.error = err;
+          updateFirebaseStatusUI();
+        }
+      }
+    }
+
+    initApp();
 
     // PWA: Registro do Service Worker e controle do botão de instalação
     let deferredInstallPrompt = null;

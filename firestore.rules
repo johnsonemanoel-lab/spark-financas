@@ -1,0 +1,355 @@
+rules_version = '2';
+
+// ============================================================================
+// Spark Finanças — Cloud Firestore Security Rules
+// ============================================================================
+//
+// SECURITY MODEL (No-Login Personal App / Secret Workspace Scoping):
+//   - Per user request for a single-user personal finance PWA with NO login
+//     screen (no Firebase Authentication), access is NOT gated by `request.auth`.
+//   - Instead, all data is isolated under `/workspaces/{workspaceId}/...` where
+//     `workspaceId` acts as a shared secret capability token, and listing the
+//     top-level `/workspaces` collection is strictly forbidden so workspace IDs
+//     cannot be enumerated.
+//   - IMPORTANT: Configure a long, high-entropy, non-guessable `workspaceId`
+//     (e.g., `spark_meu_id_secreto_9xK4mP2qR7vL`) instead of a short or obvious
+//     value like `default` or `spark1`. Anyone who knows the exact
+//     `workspaceId` can read and modify data inside that workspace.
+//   - UPGRADE PATH (Firebase Auth / App Check):
+//     If you later enable Firebase Authentication (e.g., Google Sign-In or
+//     Anonymous Auth) or Firebase App Check, replace `isValidWorkspaceId(...)`
+//     access checks with a 1-line auth guard inside `hasWorkspaceAccess`:
+//       `return isValidWorkspaceId(workspaceId) && request.auth != null && request.auth.uid == '<SEU_UID_AQUI>';`
+//     (and enable App Check enforcement in Firebase Console to block non-app
+//     API requests).
+//
+// ============================================================================
+// Assumed Data Model
+// ============================================================================
+//
+// Path: /workspaces/{workspaceId}
+//   - Parent document is unused; all reads and writes are denied.
+//   - `workspaceId` must match `^[a-zA-Z0-9_-]{6,64}$`.
+//
+// Collection: /workspaces/{workspaceId}/meta/{docId}
+//   - Allowed Document ID: 'config' only (list and delete are denied).
+//   - Fields (strict):
+//     - schemaVersion: int (required, 1..100)
+//     - seeded:        bool (required)
+//     - initializedAt: timestamp (optional)
+//     - updatedAt:     timestamp (required)
+//
+// Collection: /workspaces/{workspaceId}/accounts/{accountId}
+//   - Document ID: string, length 1..60.
+//   - Fields (strict):
+//     - name:       string (required, length 1..80)
+//     - balance:    number (required, finite range -1e9..1e9)
+//     - type:       string (required, enum: 'free', 'reserve', 'receivable', 'benefit', 'credit')
+//     - closingDay: int | null (optional, 1..31)
+//     - dueDay:     int | null (optional, 1..31)
+//     - limit:      number | null (optional, 0..10000000)
+//     - updatedAt:  timestamp (required)
+//
+// Collection: /workspaces/{workspaceId}/months/{monthId}
+//   - Document ID: string matching `^[0-9]{4}-[0-9]{2}$` (YYYY-MM).
+//   - Fields (strict):
+//     - label:      string (required, length 1..40)
+//     - incomes:    list (required, max 200 items)
+//     - provisions: list (required, max 200 items)
+//     - updatedAt:  timestamp (required)
+//
+// Collection: /workspaces/{workspaceId}/transactions/{txId}
+//   - Document ID: string, length 1..100.
+//   - Fields (strict):
+//     - id:                 string (required, length 1..100, must equal txId)
+//     - month:              string (required, matches `^[0-9]{4}-[0-9]{2}$`)
+//     - date:               string (required, length 8..10)
+//     - desc:               string (required, length 1..200)
+//     - amount:             number (required, > 0 && <= 100000000)
+//     - type:               string (required, enum: 'entrada', 'saida', 'pagamento_fatura')
+//     - accountKey:         string (required, length 1..60)
+//     - account:            string (required, length 1..120)
+//     - category:           string (required, length 1..100)
+//     - groupId:            string | null (optional, length 1..100)
+//     - targetId:           string | null (optional, length 1..100)
+//     - provisionDelta:     number (required, finite range -1e9..1e9)
+//     - incomeDelta:        number (required, finite range -1e9..1e9)
+//     - leandraDelta:       number (required, finite range -1e9..1e9)
+//     - paidCardKey:        string | null (optional, length 1..60)
+//     - creditCardPayDelta: number | null (optional, finite range -1e9..1e9)
+//     - isInvoicePayment:   bool (optional)
+//     - createdAt:          timestamp (optional)
+//     - updatedAt:          timestamp (required)
+//
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========================================================================
+    // Helper Functions
+    // ========================================================================
+
+    function isValidWorkspaceId(workspaceId) {
+      return workspaceId is string &&
+             workspaceId.matches('^[a-zA-Z0-9_-]{6,64}$');
+    }
+
+    // Upgrade here if enabling Firebase Auth (see header comment).
+    function hasWorkspaceAccess(workspaceId) {
+      return isValidWorkspaceId(workspaceId);
+    }
+
+    function isValidMonthId(monthId) {
+      return monthId is string &&
+             monthId.matches('^[0-9]{4}-[0-9]{2}$');
+    }
+
+    function isValidAccountId(accountId) {
+      return accountId is string &&
+             accountId.size() >= 1 &&
+             accountId.size() <= 60;
+    }
+
+    function isValidTxId(txId) {
+      return txId is string &&
+             txId.size() >= 1 &&
+             txId.size() <= 100;
+    }
+
+    function hasOnlyAllowedFields(data, allowedFields) {
+      return data.keys().hasOnly(allowedFields);
+    }
+
+    function hasRequiredFields(data, requiredFields) {
+      return data.keys().hasAll(requiredFields);
+    }
+
+    function isValidString(val, minLen, maxLen) {
+      return val is string &&
+             val.size() >= minLen &&
+             val.size() <= maxLen;
+    }
+
+    // Enforces finite numeric bounds (also rejects NaN and Infinity in CEL).
+    function isBoundedNumber(val, minVal, maxVal) {
+      return val is number &&
+             val >= minVal &&
+             val <= maxVal;
+    }
+
+    function isOptionalNullableString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+             data[field] == null ||
+             isValidString(data[field], minLen, maxLen);
+    }
+
+    function isOptionalNullableInt(data, field, minVal, maxVal) {
+      return !(field in data) ||
+             data[field] == null ||
+             (data[field] is int &&
+              data[field] >= minVal &&
+              data[field] <= maxVal);
+    }
+
+    function isOptionalNullableNumber(data, field, minVal, maxVal) {
+      return !(field in data) ||
+             data[field] == null ||
+             isBoundedNumber(data[field], minVal, maxVal);
+    }
+
+    // ========================================================================
+    // Domain Validators (Used in BOTH create and update)
+    // ========================================================================
+
+    function isValidMetaConfig(data) {
+      return hasOnlyAllowedFields(data, [
+               'schemaVersion',
+               'seeded',
+               'initializedAt',
+               'updatedAt'
+             ]) &&
+             hasRequiredFields(data, [
+               'schemaVersion',
+               'seeded',
+               'updatedAt'
+             ]) &&
+             data.schemaVersion is int &&
+             data.schemaVersion >= 1 &&
+             data.schemaVersion <= 100 &&
+             data.seeded is bool &&
+             data.updatedAt is timestamp &&
+             (!('initializedAt' in data) || data.initializedAt is timestamp);
+    }
+
+    function isValidAccount(data) {
+      return hasOnlyAllowedFields(data, [
+               'name',
+               'balance',
+               'type',
+               'closingDay',
+               'dueDay',
+               'limit',
+               'updatedAt'
+             ]) &&
+             hasRequiredFields(data, [
+               'name',
+               'balance',
+               'type',
+               'updatedAt'
+             ]) &&
+             isValidString(data.name, 1, 80) &&
+             isBoundedNumber(data.balance, -1000000000, 1000000000) &&
+             data.type is string &&
+             data.type in ['free', 'reserve', 'receivable', 'benefit', 'credit'] &&
+             isOptionalNullableInt(data, 'closingDay', 1, 31) &&
+             isOptionalNullableInt(data, 'dueDay', 1, 31) &&
+             isOptionalNullableNumber(data, 'limit', 0, 10000000) &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidMonth(data) {
+      return hasOnlyAllowedFields(data, [
+               'label',
+               'incomes',
+               'provisions',
+               'updatedAt'
+             ]) &&
+             hasRequiredFields(data, [
+               'label',
+               'incomes',
+               'provisions',
+               'updatedAt'
+             ]) &&
+             isValidString(data.label, 1, 40) &&
+             data.incomes is list &&
+             data.incomes.size() <= 200 &&
+             data.provisions is list &&
+             data.provisions.size() <= 200 &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidTransaction(data, txId) {
+      return hasOnlyAllowedFields(data, [
+               'id',
+               'month',
+               'date',
+               'desc',
+               'amount',
+               'type',
+               'accountKey',
+               'account',
+               'category',
+               'groupId',
+               'targetId',
+               'provisionDelta',
+               'incomeDelta',
+               'leandraDelta',
+               'paidCardKey',
+               'creditCardPayDelta',
+               'isInvoicePayment',
+               'createdAt',
+               'updatedAt'
+             ]) &&
+             hasRequiredFields(data, [
+               'id',
+               'month',
+               'date',
+               'desc',
+               'amount',
+               'type',
+               'accountKey',
+               'account',
+               'category',
+               'provisionDelta',
+               'incomeDelta',
+               'leandraDelta',
+               'updatedAt'
+             ]) &&
+             isValidString(data.id, 1, 100) &&
+             data.id == txId &&
+             isValidMonthId(data.month) &&
+             isValidString(data.date, 8, 10) &&
+             isValidString(data.desc, 1, 200) &&
+             data.amount is number &&
+             data.amount > 0 &&
+             data.amount <= 100000000 &&
+             data.type is string &&
+             data.type in ['entrada', 'saida', 'pagamento_fatura'] &&
+             isValidString(data.accountKey, 1, 60) &&
+             isValidString(data.account, 1, 120) &&
+             isValidString(data.category, 1, 100) &&
+             isOptionalNullableString(data, 'groupId', 1, 100) &&
+             isOptionalNullableString(data, 'targetId', 1, 100) &&
+             isBoundedNumber(data.provisionDelta, -1000000000, 1000000000) &&
+             isBoundedNumber(data.incomeDelta, -1000000000, 1000000000) &&
+             isBoundedNumber(data.leandraDelta, -1000000000, 1000000000) &&
+             isOptionalNullableString(data, 'paidCardKey', 1, 60) &&
+             isOptionalNullableNumber(data, 'creditCardPayDelta', -1000000000, 1000000000) &&
+             (!('isInvoicePayment' in data) || data.isInvoicePayment is bool) &&
+             (!('createdAt' in data) || data.createdAt is timestamp) &&
+             data.updatedAt is timestamp;
+    }
+
+    // ========================================================================
+    // Collection Rules
+    // ========================================================================
+
+    match /workspaces/{workspaceId} {
+      // Never allow listing /workspaces or direct read/write of parent doc.
+      allow read, write: if false;
+
+      match /meta/{docId} {
+        allow get: if hasWorkspaceAccess(workspaceId) && docId == 'config';
+        allow list: if false;
+        allow create, update: if hasWorkspaceAccess(workspaceId) &&
+                                 docId == 'config' &&
+                                 isValidMetaConfig(request.resource.data);
+        allow delete: if false;
+      }
+
+      match /accounts/{accountId} {
+        allow get: if hasWorkspaceAccess(workspaceId) && isValidAccountId(accountId);
+        // `list` checks workspaceId statically because Firestore Rules cannot
+        // prove wildcard `.size()` bounds on unfiltered collection queries;
+        // invalid accountIds are blocked on create/update/get/delete.
+        allow list: if hasWorkspaceAccess(workspaceId);
+        allow create, update: if hasWorkspaceAccess(workspaceId) &&
+                                 isValidAccountId(accountId) &&
+                                 isValidAccount(request.resource.data);
+        allow delete: if hasWorkspaceAccess(workspaceId) && isValidAccountId(accountId);
+      }
+
+      match /months/{monthId} {
+        allow get: if hasWorkspaceAccess(workspaceId) && isValidMonthId(monthId);
+        // `list` checks workspaceId statically because Firestore Rules cannot
+        // prove regex `.matches()` on unfiltered collection queries;
+        // invalid monthIds are blocked on create/update/get/delete.
+        allow list: if hasWorkspaceAccess(workspaceId);
+        allow create, update: if hasWorkspaceAccess(workspaceId) &&
+                                 isValidMonthId(monthId) &&
+                                 isValidMonth(request.resource.data);
+        allow delete: if hasWorkspaceAccess(workspaceId) && isValidMonthId(monthId);
+      }
+
+      match /transactions/{txId} {
+        allow get: if hasWorkspaceAccess(workspaceId) && isValidTxId(txId);
+        // `list` checks workspaceId statically because Firestore Rules cannot
+        // prove wildcard `.size()` bounds on unfiltered collection queries;
+        // invalid txIds are blocked on create/update/get/delete.
+        allow list: if hasWorkspaceAccess(workspaceId);
+        allow create, update: if hasWorkspaceAccess(workspaceId) &&
+                                 isValidTxId(txId) &&
+                                 isValidTransaction(request.resource.data, txId);
+        allow delete: if hasWorkspaceAccess(workspaceId) && isValidTxId(txId);
+      }
+    }
+
+    // ========================================================================
+    // Global Default Deny
+    // ========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
